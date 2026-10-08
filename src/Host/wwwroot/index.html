@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Transmissão</title>
+<style>
+  html, body { margin:0; height:100%; background:#000; color:#eee; font-family:system-ui,Segoe UI,sans-serif; overflow:hidden; }
+  video { width:100%; height:100%; object-fit:contain; background:#000; }
+  #gate { position:fixed; inset:0; display:flex; flex-direction:column; gap:12px; align-items:center; justify-content:center; background:#111; }
+  #gate button { font-size:20px; padding:14px 36px; border:0; border-radius:10px; background:#3b82f6; color:#fff; cursor:pointer; }
+  #gate input#name, #gate input { font-size:16px; padding:8px 12px; border-radius:8px; border:1px solid #444; background:#222; color:#eee; }
+  #msg { color:#f87171; min-height:1.2em; }
+  #hud { position:fixed; top:8px; left:8px; font:12px ui-monospace,Consolas,monospace; background:#0009; padding:4px 8px; border-radius:6px; display:none; white-space:pre; }
+  #bar { position:fixed; bottom:12px; right:12px; display:none; gap:8px; opacity:.25; transition:opacity .2s; }
+  #bar:hover { opacity:1; }
+  #bar button, #bar input { background:#000a; color:#fff; border:1px solid #555; border-radius:6px; padding:6px 10px; cursor:pointer; }
+</style>
+</head>
+<body>
+<video id="v" autoplay playsinline></video>
+<div id="hud"></div>
+<div id="bar">
+  <span id="cnt" title="" style="align-self:center;background:#000a;border:1px solid #555;border-radius:6px;padding:6px 10px;cursor:default">0 assistindo</span>
+  <input id="vol" type="range" min="0" max="1" step="0.05" value="1" title="Volume">
+  <button id="hudBtn">Stats</button>
+  <button id="fs">Tela cheia</button>
+</div>
+<div id="gate">
+  <h2>Transmissão ao vivo</h2>
+  <input id="name" type="text" maxlength="24" placeholder="Seu nome" autocomplete="nickname">
+  <input id="pw" type="password" placeholder="Senha" style="display:none">
+  <button id="go">Assistir</button>
+  <div id="msg"></div>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+const v = $('v');
+let pc, statsTimer, peopleTimer;
+
+$('name').value = localStorage.getItem('vs-name') || '';
+$('name').onkeydown = e => { if (e.key === 'Enter') connect(); };
+fetch('/api/info').then(r => r.json()).then(i => { if (i.passwordRequired) $('pw').style.display = ''; });
+
+$('go').onclick = connect;
+$('pw').onkeydown = e => { if (e.key === 'Enter') connect(); };
+$('fs').onclick = () => document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen();
+$('vol').oninput = e => v.volume = +e.target.value;
+$('hudBtn').onclick = () => { const h = $('hud'); h.style.display = h.style.display === 'block' ? 'none' : 'block'; };
+v.ondblclick = $('fs').onclick;
+
+async function connect() {
+  const nm = $('name').value.trim();
+  if (!nm) { $('msg').textContent = 'Digite um nome'; $('name').focus(); return; }
+  localStorage.setItem('vs-name', nm);
+  $('msg').textContent = 'Conectando...';
+  $('go').disabled = true;
+  try {
+    pc = new RTCPeerConnection({ iceServers: [] });
+    const stream = new MediaStream();
+    v.srcObject = stream;
+    pc.ontrack = e => {
+      stream.addTrack(e.track);
+      try { e.receiver.jitterBufferTarget = 0; } catch {}      // Chrome/Edge 114+
+      try { e.receiver.playoutDelayHint = 0; } catch {}
+    };
+    pc.addTransceiver('video', { direction: 'recvonly' });
+    pc.addTransceiver('audio', { direction: 'recvonly' });
+    pc.onconnectionstatechange = () => {
+      if (pc.connectionState === 'connected') {
+        $('gate').style.display = 'none'; $('bar').style.display = 'flex';
+        v.muted = false; v.play().catch(() => {});
+        statsTimer = setInterval(stats, 1000);
+        people(); peopleTimer = setInterval(people, 2000);
+      } else if (['failed', 'disconnected', 'closed'].includes(pc.connectionState)) {
+        clearInterval(statsTimer); clearInterval(peopleTimer);
+        $('gate').style.display = 'flex'; $('bar').style.display = 'none';
+        $('go').disabled = false; $('msg').textContent = 'Conexão perdida. Clique para reconectar.';
+      }
+    };
+
+    const offer = await pc.createOffer();
+    offer.sdp = offer.sdp.replace(/(a=fmtp:\d+ [^\r\n]*useinbandfec=1)/, '$1;stereo=1;sprop-stereo=1');   // áudio estéreo
+    await pc.setLocalDescription(offer);
+    await new Promise(res => {                                // espera os candidatos ICE (rede local: instantâneo)
+      if (pc.iceGatheringState === 'complete') return res();
+      pc.onicegatheringstatechange = () => pc.iceGatheringState === 'complete' && res();
+      setTimeout(res, 1500);
+    });
+
+    const r = await fetch('/api/offer', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ sdp: pc.localDescription.sdp, password: $('pw').value, name: nm })
+    });
+    if (r.status === 401) throw new Error('Senha incorreta');
+    if (r.status === 403) throw new Error('Você foi banido desta transmissão.');
+    if (!r.ok) throw new Error('Falha no servidor (' + r.status + ')');
+    const { sdp } = await r.json();
+    await pc.setRemoteDescription({ type: 'answer', sdp });
+  } catch (e) {
+    $('msg').textContent = e.message;
+    $('go').disabled = false;
+    if (pc) pc.close();
+  }
+}
+
+async function people() {
+  try {
+    const d = await (await fetch('/api/viewers')).json();
+    $('cnt').textContent = d.count + ' assistindo';
+    $('cnt').title = d.names.join(', ');
+  } catch {}
+}
+
+let last = {};
+async function stats() {
+  const out = [];
+  (await pc.getStats()).forEach(s => {
+    if (s.type === 'inbound-rtp' && s.kind === 'video') {
+      const dt = last.t ? (s.timestamp - last.t) / 1000 : 0;
+      const kbps = dt ? ((s.bytesReceived - last.b) * 8 / 1000 / dt) | 0 : 0;
+      const jb = s.jitterBufferDelay && s.jitterBufferEmittedCount ? (s.jitterBufferDelay / s.jitterBufferEmittedCount * 1000) | 0 : 0;
+      out.push(`${s.frameWidth}x${s.frameHeight} ${s.framesPerSecond || 0}fps ${kbps}kbps`,
+               `buffer ${jb}ms  perdidos ${s.packetsLost}  decode ${s.framesDecoded ? (s.totalDecodeTime / s.framesDecoded * 1000).toFixed(1) : 0}ms`);
+      last = { t: s.timestamp, b: s.bytesReceived };
+    }
+    if (s.type === 'candidate-pair' && s.state === 'succeeded' && s.currentRoundTripTime != null)
+      out.push(`RTT ${(s.currentRoundTripTime * 1000) | 0}ms`);
+  });
+  $('hud').textContent = out.join('\n');
+}
+</script>
+</body>
+</html>

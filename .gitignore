@@ -1,0 +1,12 @@
+# Build output
+bin/
+obj/
+dist/
+
+# Large binaries (download separately / attach to GitHub Releases)
+tools/ffmpeg.exe
+tools/ffmpeg.exe.gz
+
+# IDE
+.vs/
+*.user

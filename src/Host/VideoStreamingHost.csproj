@@ -1,0 +1,37 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net6.0-windows10.0.19041.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>
+    <RootNamespace>VideoStreaming</RootNamespace>
+    <AssemblyName>VideoStreaming</AssemblyName>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+    <NoWarn>CS0618</NoWarn>
+    <ApplicationIcon>Assets\app.ico</ApplicationIcon>
+    <Version>1.0.0</Version>
+    <Product>VideoStreaming</Product>
+    <Company>VideoStreaming</Company>
+  </PropertyGroup>
+  <ItemGroup>
+    <Using Remove="System.Windows.Forms" />
+    <Using Remove="System.Drawing" />
+    <Using Include="System.IO" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="SIPSorcery" Version="6.0.11" />
+    <PackageReference Include="Concentus" Version="2.2.2" />
+    <PackageReference Include="NAudio.Wasapi" Version="2.2.1" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Remove="wwwroot\**" />
+    <Resource Include="Assets\app.ico" />
+    <Resource Include="Assets\app.png" />
+    <EmbeddedResource Include="wwwroot\index.html" LogicalName="index.html" />
+    <EmbeddedResource Include="..\..\tools\ffmpeg.exe.gz" LogicalName="ffmpeg.exe.gz" />
+  </ItemGroup>
+</Project>
