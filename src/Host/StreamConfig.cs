@@ -33,6 +33,7 @@ public sealed class StreamConfig
     /// <summary>auto | nvenc | amf | qsv | x264</summary>
     public string Encoder { get; set; } = "auto";
     public bool StartOnLaunch { get; set; } = false;
+    public bool ShowLiveIndicator { get; set; } = true;
     public bool MicEnabled { get; set; } = false;
     /// <summary>Id do dispositivo de captura (vazio = padrão do Windows).</summary>
     public string MicDeviceId { get; set; } = "";

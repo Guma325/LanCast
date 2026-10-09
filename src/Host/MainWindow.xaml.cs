@@ -151,6 +151,7 @@ public partial class MainWindow : Window
             : $"·  tentando: {enc?.Active}" + (string.IsNullOrEmpty(enc?.LastError) ? "" : "  ·  " + Shorten(enc!.LastError!, 70));
         Title = run ? $"LanCast — {connected} conectado(s)" : "LanCast";
         _tray.Text = Title.Length > 60 ? Title[..60] : Title;
+        SetLive(run, connected);
 
         Sync(_viewers, viewers, v => v.Id.ToString(), (row, v) =>
         {
@@ -485,6 +486,7 @@ public partial class MainWindow : Window
             .FirstOrDefault(k => k.Value == _cfg.Encoder, new("Automático (recomendado)", "auto"));
         SCursor.IsChecked = _cfg.ShowCursor;
         SAuto.IsChecked = _cfg.StartOnLaunch;
+        SLive.IsChecked = _cfg.ShowLiveIndicator;
     }
 
     private async void Apply_Click(object sender, RoutedEventArgs e)
@@ -497,6 +499,7 @@ public partial class MainWindow : Window
         _cfg.Height = ((KeyValuePair<string, int>)SHeight.SelectedItem).Value;
         _cfg.Encoder = ((KeyValuePair<string, string>)SEncoder.SelectedItem).Value;
         _cfg.ShowCursor = SCursor.IsChecked == true; _cfg.StartOnLaunch = SAuto.IsChecked == true;
+        _cfg.ShowLiveIndicator = SLive.IsChecked == true;
         _cfg.Save();
         RefreshAddresses();
 
@@ -570,10 +573,62 @@ public partial class MainWindow : Window
 
     // ---------- bandeja / fechar ----------
 
+    // ---------- indicador de transmissão (ponto vermelho na bandeja/barra de tarefas + pílula "AO VIVO") ----------
+
+    private System.Drawing.Icon? _trayIdle, _trayLive;
+    private ImageSource? _liveOverlay;
+    private LiveIndicator? _liveBadge;
+    private bool _live;
+
+    private static System.Drawing.Icon WithRedDot(System.Drawing.Icon src)
+    {
+        using var bmp = new System.Drawing.Bitmap(32, 32);
+        using (var g = System.Drawing.Graphics.FromImage(bmp))
+        {
+            g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+            g.DrawIcon(src, new System.Drawing.Rectangle(0, 0, 32, 32));
+            g.FillEllipse(System.Drawing.Brushes.White, 15, 15, 17, 17);
+            g.FillEllipse(System.Drawing.Brushes.Red, 17, 17, 13, 13);
+        }
+        var h = bmp.GetHicon();
+        try { return (System.Drawing.Icon)System.Drawing.Icon.FromHandle(h).Clone(); }
+        finally { DestroyIcon(h); }
+    }
+
+    [DllImport("user32.dll")] private static extern bool DestroyIcon(IntPtr h);
+
+    private static ImageSource MakeOverlayDot()
+    {
+        var dv = new DrawingVisual();
+        using (var dc = dv.RenderOpen())
+        {
+            dc.DrawEllipse(Brushes.White, null, new Point(8, 8), 8, 8);
+            dc.DrawEllipse(new SolidColorBrush(Color.FromRgb(0xE5, 0x1C, 0x1C)), null, new Point(8, 8), 6, 6);
+        }
+        var rtb = new RenderTargetBitmap(16, 16, 96, 96, PixelFormats.Pbgra32);
+        rtb.Render(dv); rtb.Freeze();
+        return rtb;
+    }
+
+    private void SetLive(bool on, int viewers)
+    {
+        if (on != _live)
+        {
+            _live = on;
+            if (_trayIdle != null) _tray.Icon = on ? _trayLive : _trayIdle;
+            TaskbarItemInfo ??= new System.Windows.Shell.TaskbarItemInfo();
+            TaskbarItemInfo.Overlay = on ? (_liveOverlay ??= MakeOverlayDot()) : null;
+            TaskbarItemInfo.Description = on ? "LanCast — transmitindo a tela" : null;
+        }
+        try { if (_liveBadge != null || (on && _cfg.ShowLiveIndicator)) (_liveBadge ??= new LiveIndicator()).Set(on && _cfg.ShowLiveIndicator, viewers); } catch { }
+    }
+
     private void SetupTray()
     {
-        try { _tray.Icon = new System.Drawing.Icon(Application.GetResourceStream(new Uri("pack://application:,,,/Assets/app.ico")).Stream); }
-        catch { _tray.Icon = System.Drawing.SystemIcons.Application; }
+        try { _trayIdle = new System.Drawing.Icon(Application.GetResourceStream(new Uri("pack://application:,,,/Assets/app.ico")).Stream, 32, 32); }
+        catch { _trayIdle = System.Drawing.SystemIcons.Application; }
+        try { _trayLive = WithRedDot(_trayIdle); } catch { _trayLive = _trayIdle; }
+        _tray.Icon = _trayIdle;
         _tray.Text = "LanCast";
         _tray.Visible = true;
         _tray.DoubleClick += (_, _) => ShowFromTray();
@@ -606,6 +661,7 @@ public partial class MainWindow : Window
         _preview?.Dispose();
         _cfg.Save();
         await _svc.StopAsync();
+        _liveBadge?.Close();
         _tray.Visible = false; _tray.Dispose();
         Application.Current.Shutdown();
     }

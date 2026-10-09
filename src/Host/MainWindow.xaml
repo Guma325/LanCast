@@ -374,7 +374,10 @@
                                 <ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Key}"/></DataTemplate></ComboBox.ItemTemplate>
                             </ComboBox>
                             <CheckBox Grid.Row="7" Grid.ColumnSpan="2" x:Name="SCursor" Content="Mostrar cursor do mouse" Margin="0,14,0,6"/>
-                            <CheckBox Grid.Row="8" Grid.ColumnSpan="2" x:Name="SAuto" Content="Iniciar a transmissão ao abrir o programa" Margin="0,6,0,6"/>
+                            <StackPanel Grid.Row="8" Grid.ColumnSpan="2">
+                                <CheckBox x:Name="SAuto" Content="Iniciar a transmissão ao abrir o programa" Margin="0,6,0,6"/>
+                                <CheckBox x:Name="SLive" Content="Mostrar indicador AO VIVO" Margin="0,6,0,6"/>
+                            </StackPanel>
                             <StackPanel Grid.Row="9" Grid.ColumnSpan="2" Margin="0,18,0,0">
                                 <StackPanel Orientation="Horizontal">
                                     <Button Content="Salvar e aplicar" Style="{StaticResource PrimaryButton}" Click="Apply_Click"/>

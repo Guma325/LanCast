@@ -13,7 +13,7 @@
     <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
     <NoWarn>CS0618</NoWarn>
     <ApplicationIcon>Assets\app.ico</ApplicationIcon>
-    <Version>1.1.0</Version>
+    <Version>1.2.0</Version>
     <Product>LanCast</Product>
     <Company>LanCast</Company>
   </PropertyGroup>
