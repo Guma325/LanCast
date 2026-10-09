@@ -1,10 +1,10 @@
 using System.Collections.Concurrent;
 using SIPSorcery.Net;
 using SIPSorceryMedia.Abstractions;
-using VideoStreaming.Audio;
-using VideoStreaming.Video;
+using LanCast.Audio;
+using LanCast.Video;
 
-namespace VideoStreaming;
+namespace LanCast;
 
 /// <summary>Mantém os espectadores (RTCPeerConnection) e repassa vídeo/áudio a todos.</summary>
 public sealed record ViewerInfo(Guid Id, string Name, string Remote, DateTime Since, bool Connected);

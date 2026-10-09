@@ -6,7 +6,7 @@ using Concentus.Structs;
 using NAudio.CoreAudioApi;
 using NAudio.CoreAudioApi.Interfaces;
 
-namespace VideoStreaming.Audio;
+namespace LanCast.Audio;
 
 public sealed record AppAudioInfo(string Name, string Title, bool Muted, bool Playing, int Pids);
 

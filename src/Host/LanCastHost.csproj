@@ -7,15 +7,15 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <UseWPF>true</UseWPF>
     <UseWindowsForms>true</UseWindowsForms>
-    <RootNamespace>VideoStreaming</RootNamespace>
-    <AssemblyName>VideoStreaming</AssemblyName>
+    <RootNamespace>LanCast</RootNamespace>
+    <AssemblyName>LanCast</AssemblyName>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
     <NoWarn>CS0618</NoWarn>
     <ApplicationIcon>Assets\app.ico</ApplicationIcon>
-    <Version>1.0.0</Version>
-    <Product>VideoStreaming</Product>
-    <Company>VideoStreaming</Company>
+    <Version>1.1.0</Version>
+    <Product>LanCast</Product>
+    <Company>LanCast</Company>
   </PropertyGroup>
   <ItemGroup>
     <Using Remove="System.Windows.Forms" />

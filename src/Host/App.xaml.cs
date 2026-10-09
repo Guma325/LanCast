@@ -1,6 +1,6 @@
 using System.Windows;
 
-namespace VideoStreaming;
+namespace LanCast;
 
 public partial class App : Application
 {
@@ -8,10 +8,10 @@ public partial class App : Application
 
     protected override void OnStartup(StartupEventArgs e)
     {
-        _single = new Mutex(true, "VideoStreaming.SingleInstance" + (Environment.GetEnvironmentVariable("VIDEOSTREAMING_DATA") is { } d ? "." + Convert.ToHexString(System.Security.Cryptography.SHA1.HashData(System.Text.Encoding.UTF8.GetBytes(d)))[..8] : ""), out bool first);
+        _single = new Mutex(true, "LanCast.SingleInstance" + (Environment.GetEnvironmentVariable("LANCAST_DATA") is { } d ? "." + Convert.ToHexString(System.Security.Cryptography.SHA1.HashData(System.Text.Encoding.UTF8.GetBytes(d)))[..8] : ""), out bool first);
         if (!first)
         {
-            MessageBox.Show("O VideoStreaming já está aberto (veja o ícone na bandeja).", "VideoStreaming");
+            MessageBox.Show("O LanCast já está aberto (veja o ícone na bandeja).", "LanCast");
             Shutdown();
             return;
         }

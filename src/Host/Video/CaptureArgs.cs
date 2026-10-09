@@ -1,4 +1,4 @@
-namespace VideoStreaming.Video;
+namespace LanCast.Video;
 
 public enum CapKind { Dda, Wgc, Gdi }
 

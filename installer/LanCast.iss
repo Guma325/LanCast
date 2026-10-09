@@ -1,12 +1,12 @@
-; Instalador do VideoStreaming (Inno Setup 6)
-; Gere com: publicar.bat  (ou ISCC.exe installer\VideoStreaming.iss depois de publicar o modo portátil)
+; Instalador do LanCast (Inno Setup 6)
+; Gere com: publicar.bat  (ou ISCC.exe installer\LanCast.iss depois de publicar o modo portátil)
 
-#define AppName "VideoStreaming"
+#define AppName "LanCast"
 #ifndef AppVersion
   #define AppVersion "1.0.0"
 #endif
-#define AppExe "VideoStreaming.exe"
-#define FirewallRule "VideoStreaming"
+#define AppExe "LanCast.exe"
+#define FirewallRule "LanCast"
 
 [Setup]
 AppId={{B6C5F2F4-3A0E-4F64-9D61-5E2C7A1D9B11}
@@ -20,14 +20,14 @@ UninstallDisplayIcon={app}\{#AppExe}
 UninstallDisplayName={#AppName}
 SetupIconFile=..\src\Host\Assets\app.ico
 OutputDir=..\dist\installer
-OutputBaseFilename=VideoStreaming-Setup-{#AppVersion}
+OutputBaseFilename=LanCast-Setup-{#AppVersion}
 Compression=lzma2/max
 SolidCompression=yes
 WizardStyle=modern
 ArchitecturesAllowed=x64compatible
 ArchitecturesInstallIn64BitMode=x64compatible
 PrivilegesRequired=admin
-AppMutex=VideoStreaming.SingleInstance
+AppMutex=LanCast.SingleInstance
 CloseApplications=yes
 DisableProgramGroupPage=yes
 VersionInfoVersion={#AppVersion}
@@ -38,7 +38,7 @@ Name: "brazilianportuguese"; MessagesFile: "compiler:Languages\BrazilianPortugue
 
 [Tasks]
 Name: "desktopicon"; Description: "Criar atalho na Área de Trabalho"; GroupDescription: "Atalhos:"
-Name: "firewall"; Description: "Liberar o VideoStreaming no Firewall do Windows (recomendado)"; GroupDescription: "Rede:"
+Name: "firewall"; Description: "Liberar o LanCast no Firewall do Windows (recomendado)"; GroupDescription: "Rede:"
 
 [Files]
 Source: "..\dist\portable\{#AppExe}"; DestDir: "{app}"; Flags: ignoreversion
@@ -63,9 +63,9 @@ var
 begin
   if CurUninstallStep = usPostUninstall then
   begin
-    DataDir := ExpandConstant('{userappdata}\VideoStreaming');
+    DataDir := ExpandConstant('{userappdata}\LanCast');
     if DirExists(DataDir) then
-      if MsgBox('Deseja remover também as configurações, a lista de banidos e os arquivos salvos do VideoStreaming?' + #13#10 + DataDir,
+      if MsgBox('Deseja remover também as configurações, a lista de banidos e os arquivos salvos do LanCast?' + #13#10 + DataDir,
                 mbConfirmation, MB_YESNO or MB_DEFBUTTON2) = IDYES then
         DelTree(DataDir, True, True, True);
   end;

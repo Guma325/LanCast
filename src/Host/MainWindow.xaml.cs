@@ -10,10 +10,10 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Threading;
 using System.Windows.Media.Imaging;
-using VideoStreaming.Audio;
-using VideoStreaming.Video;
+using LanCast.Audio;
+using LanCast.Video;
 
-namespace VideoStreaming;
+namespace LanCast;
 
 public sealed class Row : INotifyPropertyChanged
 {
@@ -76,7 +76,7 @@ public partial class MainWindow : Window
         _preview.Frame += jpg => { _pendingJpeg = jpg; if (Interlocked.Exchange(ref _decoding, 1) == 0) Dispatcher.BeginInvoke(DispatcherPriority.Background, ShowFrame); };
         PreviewCheck.IsChecked = _cfg.ShowPreview;
         OnlyAudioCheck.IsChecked = _cfg.OnlyAppAudio;
-        Footer.Text = "v" + (typeof(MainWindow).Assembly.GetName().Version?.ToString(3) ?? "1.0.0") + "  ·  dados em %AppData%\\VideoStreaming";
+        Footer.Text = "v" + (typeof(MainWindow).Assembly.GetName().Version?.ToString(3) ?? "1.0.0") + "  ·  dados em %AppData%\\LanCast";
 
         SFps.ItemsSource = new[] { 30, 60 };
         SEncoder.ItemsSource = new[] { new KeyValuePair<string, string>("Automático (recomendado)", "auto"), new("NVIDIA (NVENC)", "nvenc"),
@@ -116,7 +116,7 @@ public partial class MainWindow : Window
         catch (Exception ex)
         {
             MessageBox.Show(this, $"Não foi possível iniciar na porta {_cfg.Port}.\n\n{ex.Message}\n\nTroque a porta em Configurações.",
-                "VideoStreaming", MessageBoxButton.OK, MessageBoxImage.Warning);
+                "LanCast", MessageBoxButton.OK, MessageBoxImage.Warning);
         }
         _busy = false; StartStop.IsEnabled = true;
         Refresh();
@@ -149,7 +149,7 @@ public partial class MainWindow : Window
         SubStatus.Text = !run ? "·  clique em Iniciar para começar"
             : videoOk ? $"·  {enc!.Active}  ·  porta {_cfg.Port}"
             : $"·  tentando: {enc?.Active}" + (string.IsNullOrEmpty(enc?.LastError) ? "" : "  ·  " + Shorten(enc!.LastError!, 70));
-        Title = run ? $"VideoStreaming — {connected} conectado(s)" : "VideoStreaming";
+        Title = run ? $"LanCast — {connected} conectado(s)" : "LanCast";
         _tray.Text = Title.Length > 60 ? Title[..60] : Title;
 
         Sync(_viewers, viewers, v => v.Id.ToString(), (row, v) =>
@@ -527,7 +527,7 @@ public partial class MainWindow : Window
         {
             var exe = Environment.ProcessPath!;
             Process.Start(new ProcessStartInfo("netsh",
-                $"advfirewall firewall add rule name=\"VideoStreaming\" dir=in action=allow program=\"{exe}\" enable=yes profile=any")
+                $"advfirewall firewall add rule name=\"LanCast\" dir=in action=allow program=\"{exe}\" enable=yes profile=any")
             { UseShellExecute = true, Verb = "runas", WindowStyle = ProcessWindowStyle.Hidden });
             SMsg.Text = "Regra de firewall enviada (confirme o pedido de administrador).";
         }
@@ -574,7 +574,7 @@ public partial class MainWindow : Window
     {
         try { _tray.Icon = new System.Drawing.Icon(Application.GetResourceStream(new Uri("pack://application:,,,/Assets/app.ico")).Stream); }
         catch { _tray.Icon = System.Drawing.SystemIcons.Application; }
-        _tray.Text = "VideoStreaming";
+        _tray.Text = "LanCast";
         _tray.Visible = true;
         _tray.DoubleClick += (_, _) => ShowFromTray();
         var menu = new System.Windows.Forms.ContextMenuStrip();
@@ -595,7 +595,7 @@ public partial class MainWindow : Window
         if (!_trayHintShown)
         {
             _trayHintShown = true;
-            _tray.ShowBalloonTip(3000, "VideoStreaming", "Continua rodando na bandeja. Use o ícone para abrir ou sair.", System.Windows.Forms.ToolTipIcon.Info);
+            _tray.ShowBalloonTip(3000, "LanCast", "Continua rodando na bandeja. Use o ícone para abrir ou sair.", System.Windows.Forms.ToolTipIcon.Info);
         }
     }
 

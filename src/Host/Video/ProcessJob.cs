@@ -1,7 +1,7 @@
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 
-namespace VideoStreaming.Video;
+namespace LanCast.Video;
 
 /// <summary>Job object do Windows: garante que o ffmpeg morra junto com o aplicativo, mesmo se ele for encerrado à força.</summary>
 internal static class ProcessJob

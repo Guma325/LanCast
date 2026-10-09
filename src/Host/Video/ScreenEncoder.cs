@@ -2,7 +2,7 @@ using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
 
-namespace VideoStreaming.Video;
+namespace LanCast.Video;
 
 public sealed record RtpVideoPacket(byte[] Payload, uint Timestamp, bool Marker, bool StartsKeyframe);
 

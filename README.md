@@ -1,4 +1,4 @@
-# VideoStreaming
+# LanCast
 
 Compartilhamento de tela local com baixa latência (H.264 NVENC + WebRTC) para usar com VPN (Radmin).
 
@@ -6,10 +6,10 @@ Compartilhamento de tela local com baixa latência (H.264 NVENC + WebRTC) para u
 
 | Modo | Arquivo | Para quê |
 |---|---|---|
-| **Portátil** | `dist\portable\VideoStreaming.exe` | Abre direto, sem instalar. Pode ficar em um pendrive. |
-| **Instalador** | `dist\installer\VideoStreaming-Setup-1.0.0.exe` | Instala em Arquivos de Programas, cria atalhos (Menu Iniciar / Área de Trabalho), libera o Firewall e adiciona desinstalador. |
+| **Portátil** | `dist\portable\LanCast.exe` | Abre direto, sem instalar. Pode ficar em um pendrive. |
+| **Instalador** | `dist\installer\LanCast-Setup-1.0.0.exe` | Instala em Arquivos de Programas, cria atalhos (Menu Iniciar / Área de Trabalho), libera o Firewall e adiciona desinstalador. |
 
-Os dois compartilham as mesmas configurações em `%AppData%\VideoStreaming`.
+Os dois compartilham as mesmas configurações em `%AppData%\LanCast`.
 
 ## Usar
 1. Abra o app e clique em **Iniciar transmissão**. Copie o link da Radmin e mande para os amigos.
@@ -32,14 +32,14 @@ Fechar a janela só esconde o app na bandeja; para sair use o ícone da bandeja 
 ## Se o vídeo ficar preto
 O app tenta sozinho, em ordem: NVIDIA (NVENC) > AMD (AMF) > Intel (Quick Sync) > software (x264), e captura por GPU > CPU > GDI,
 e fica no primeiro que realmente produzir vídeo. O método em uso aparece no cabeçalho ("Sem vídeo" em amarelo enquanto procura).
-Se ainda falhar, abra **Configurações > Abrir log** (arquivo `%AppData%\VideoStreaming\log.txt`, lista GPUs/drivers e erros do ffmpeg)
+Se ainda falhar, abra **Configurações > Abrir log** (arquivo `%AppData%\LanCast\log.txt`, lista GPUs/drivers e erros do ffmpeg)
 e envie o arquivo. Dá para forçar um codificador em Configurações > Codificador de vídeo.
 
 ## Gerar os arquivos
 `publicar.bat` gera o portátil e o instalador (usa `tools\InnoSetup`, instalado localmente no projeto).
 
 ## Versionamento
-- A versão fica em `src\Host\VideoStreaming.csproj` (`<Version>`); o `publicar.bat` repassa para o instalador.
+- A versão fica em `src\Host\LanCast.csproj` (`<Version>`); o `publicar.bat` repassa para o instalador.
 - Releases são tags git `vMAJOR.MINOR.PATCH` (ver `CHANGELOG.md`).
 - Os `.exe` gerados **não** vão no repositório: baixe na página **Releases** do GitHub.
 - `tools\ffmpeg.exe` também não está no repositório; coloque-o nessa pasta antes de gerar os arquivos.

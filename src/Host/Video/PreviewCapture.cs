@@ -1,6 +1,6 @@
 using System.Diagnostics;
 
-namespace VideoStreaming.Video;
+namespace LanCast.Video;
 
 /// <summary>
 /// Pré-visualização da fonte escolhida: um ffmpeg leve e independente do que vai para os espectadores

@@ -2,7 +2,7 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text;
 
-namespace VideoStreaming.Video;
+namespace LanCast.Video;
 
 public sealed record MonitorInfo(int Index, string Device, IntPtr Handle, int Left, int Top, int Width, int Height, bool Primary)
 {

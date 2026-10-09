@@ -1,6 +1,6 @@
 using System.Runtime.InteropServices;
 
-namespace VideoStreaming.Audio;
+namespace LanCast.Audio;
 
 /// <summary>
 /// Captura o áudio de UM processo (e seus filhos) usando a Process Loopback API do Windows 10 2004+ / Windows 11.

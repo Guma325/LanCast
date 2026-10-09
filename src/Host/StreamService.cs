@@ -1,8 +1,8 @@
 using System.Reflection;
-using VideoStreaming.Audio;
-using VideoStreaming.Video;
+using LanCast.Audio;
+using LanCast.Video;
 
-namespace VideoStreaming;
+namespace LanCast;
 
 public static class NetUtil
 {

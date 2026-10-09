@@ -2,7 +2,7 @@ using System.IO.Compression;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace VideoStreaming;
+namespace LanCast;
 
 public sealed class StreamConfig
 {
@@ -133,10 +133,10 @@ public sealed class BanEntry
 
 public static class Paths
 {
-    // VIDEOSTREAMING_DATA: usado só para testes (pasta de dados alternativa)
+    // LANCAST_DATA: usado só para testes (pasta de dados alternativa)
     public static readonly string DataDir = Directory.CreateDirectory(
-        Environment.GetEnvironmentVariable("VIDEOSTREAMING_DATA")
-        ?? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "VideoStreaming")).FullName;
+        Environment.GetEnvironmentVariable("LANCAST_DATA")
+        ?? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "LanCast")).FullName;
 
     public static string SettingsFile => Path.Combine(DataDir, "settings.json");
     public static string MutesFile => Path.Combine(DataDir, "mutes.json");

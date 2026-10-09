@@ -2,7 +2,7 @@ using NAudio.CoreAudioApi;
 using NAudio.Wave;
 using NAudio.Wave.SampleProviders;
 
-namespace VideoStreaming.Audio;
+namespace LanCast.Audio;
 
 /// <summary>Captura o microfone do host e entrega PCM 16-bit / 48 kHz / estéreo.</summary>
 public sealed class MicCapture : IDisposable

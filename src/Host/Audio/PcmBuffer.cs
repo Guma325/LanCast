@@ -1,4 +1,4 @@
-namespace VideoStreaming.Audio;
+namespace LanCast.Audio;
 
 /// <summary>Buffer circular de PCM 16-bit com latência limitada (descarta o mais antigo).</summary>
 public sealed class PcmBuffer
