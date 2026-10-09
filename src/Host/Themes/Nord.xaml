@@ -1,0 +1,23 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <SolidColorBrush x:Key="Bg" Color="#2E3440"/>
+    <SolidColorBrush x:Key="Surface" Color="#3B4252"/>
+    <SolidColorBrush x:Key="Surface2" Color="#434C5E"/>
+    <SolidColorBrush x:Key="Surface3" Color="#4C566A"/>
+    <SolidColorBrush x:Key="Line" Color="#4C566A"/>
+    <SolidColorBrush x:Key="Text" Color="#ECEFF4"/>
+    <SolidColorBrush x:Key="Muted" Color="#93A1B8"/>
+    <SolidColorBrush x:Key="Accent" Color="#88C0D0"/>
+    <SolidColorBrush x:Key="OnAccent" Color="#2E3440"/>
+    <SolidColorBrush x:Key="AccentSoft" Color="#3E5566"/>
+    <SolidColorBrush x:Key="OnAccentSoft" Color="#BEE0EA"/>
+    <SolidColorBrush x:Key="Danger" Color="#BF616A"/>
+    <SolidColorBrush x:Key="DangerSoft" Color="#26BF616A"/>
+    <SolidColorBrush x:Key="DangerLine" Color="#66BF616A"/>
+    <SolidColorBrush x:Key="DangerText" Color="#E2A2A8"/>
+    <SolidColorBrush x:Key="Ok" Color="#A3BE8C"/>
+    <SolidColorBrush x:Key="OkSoft" Color="#26A3BE8C"/>
+    <SolidColorBrush x:Key="Warn" Color="#EBCB8B"/>
+    <SolidColorBrush x:Key="Overlay" Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="Thumb" Color="#ECEFF4"/>
+<SolidColorBrush x:Key="Sidebar" Color="#434C5E"/></ResourceDictionary>

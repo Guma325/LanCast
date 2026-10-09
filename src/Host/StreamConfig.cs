@@ -34,6 +34,10 @@ public sealed class StreamConfig
     public string Encoder { get; set; } = "auto";
     public bool StartOnLaunch { get; set; } = false;
     public bool ShowLiveIndicator { get; set; } = true;
+    /// <summary>Id do tema de cores (Dark, Light, Dracula, Nord, Solarized, Monokai).</summary>
+    public string Theme { get; set; } = "Dark";
+    /// <summary>Menu lateral recolhido (só ícones).</summary>
+    public bool SidebarCollapsed { get; set; } = false;
     public bool MicEnabled { get; set; } = false;
     /// <summary>Id do dispositivo de captura (vazio = padrão do Windows).</summary>
     public string MicDeviceId { get; set; } = "";

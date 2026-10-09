@@ -31,6 +31,10 @@
     <Content Remove="wwwroot\**" />
     <Resource Include="Assets\app.ico" />
     <Resource Include="Assets\app.png" />
+    <Resource Include="Assets\Design\*.png" />
+    <Resource Include="Assets\Fonts\*.ttf" />
+    <Content Include="Assets\Fonts\LICENSE.txt" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    <EmbeddedResource Include="wwwroot\assets\*" LogicalName="assets/%(Filename)%(Extension)" />
     <EmbeddedResource Include="wwwroot\index.html" LogicalName="index.html" />
     <EmbeddedResource Include="..\..\tools\ffmpeg.exe.gz" LogicalName="ffmpeg.exe.gz" />
   </ItemGroup>

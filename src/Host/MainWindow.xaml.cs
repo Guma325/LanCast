@@ -36,6 +36,7 @@ public sealed class Row : INotifyPropertyChanged
     public string Label => (string?)this["Label"] ?? "";
     public string Url => (string?)this["Url"] ?? "";
     public string Pick => (string?)this["Pick"] ?? "";
+    public string IconImage => (string?)this["IconImage"] ?? "";
     public string Icon => (string?)this["Icon"] ?? "";
     public Brush SelBg => (Brush?)this["SelBg"] ?? Brushes.Transparent;
     public Brush SelBorder => (Brush?)this["SelBorder"] ?? Brushes.Transparent;
@@ -50,6 +51,26 @@ public sealed class Row : INotifyPropertyChanged
 
 public partial class MainWindow : Window
 {
+    public static readonly DependencyProperty NavCollapsedProperty = DependencyProperty.Register(
+        nameof(NavCollapsed), typeof(bool), typeof(MainWindow), new PropertyMetadata(false, OnNavCollapsedChanged));
+
+    public bool NavCollapsed
+    {
+        get => (bool)GetValue(NavCollapsedProperty);
+        set => SetValue(NavCollapsedProperty, value);
+    }
+
+    private static void OnNavCollapsedChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+    {
+        var w = (MainWindow)d;
+        bool collapsed = (bool)e.NewValue;
+        w.NavToggleImage.RenderTransform = new ScaleTransform(collapsed ? -1 : 1, 1);
+        w.NavToggleImage.RenderTransformOrigin = new Point(0.5, 0.5);
+        w.NavToggle.ToolTip = collapsed ? "Expandir menu" : "Recolher menu";
+        w.NavToggle.HorizontalAlignment = collapsed ? HorizontalAlignment.Center : HorizontalAlignment.Right;
+        System.Windows.Automation.AutomationProperties.SetName(w.NavToggle, collapsed ? "Expandir menu" : "Recolher menu");
+    }
+
     private readonly StreamConfig _cfg = StreamConfig.Load();
     private readonly StreamService _svc = new();
     private readonly DispatcherTimer _timer = new() { Interval = TimeSpan.FromMilliseconds(500) };
@@ -76,11 +97,14 @@ public partial class MainWindow : Window
         _preview.Frame += jpg => { _pendingJpeg = jpg; if (Interlocked.Exchange(ref _decoding, 1) == 0) Dispatcher.BeginInvoke(DispatcherPriority.Background, ShowFrame); };
         PreviewCheck.IsChecked = _cfg.ShowPreview;
         OnlyAudioCheck.IsChecked = _cfg.OnlyAppAudio;
+        NavCollapsed = _cfg.SidebarCollapsed;
         Footer.Text = "v" + (typeof(MainWindow).Assembly.GetName().Version?.ToString(3) ?? "1.0.0") + "  ·  dados em %AppData%\\LanCast";
+        SideVersion.Text = "LANCAST  ·  v" + (typeof(MainWindow).Assembly.GetName().Version?.ToString(3) ?? "1.0.0");
 
         SFps.ItemsSource = new[] { 30, 60 };
         SEncoder.ItemsSource = new[] { new KeyValuePair<string, string>("Automático (recomendado)", "auto"), new("NVIDIA (NVENC)", "nvenc"),
             new("AMD (AMF)", "amf"), new("Intel (Quick Sync)", "qsv"), new("Software (CPU)", "x264") };
+        STheme.ItemsSource = ThemeManager.Themes;
         SHeight.ItemsSource = new[] { new KeyValuePair<string, int>("Nativa", 0), new("1080p", 1080), new("720p", 720), new("480p", 480) };
         LoadSettingsToUi();
         LoadMicDevices();
@@ -93,6 +117,9 @@ public partial class MainWindow : Window
         _timer.Tick += (_, _) => Refresh();
         _timer.Start();
         _loading = false;
+        ThemeStatus.Text = $"Tema {ThemeManager.Themes.First(t => t.Id == ThemeManager.Current).Name} aplicado.";
+        Navigation_Changed(this, new SelectionChangedEventArgs(System.Windows.Controls.Primitives.Selector.SelectionChangedEvent, Array.Empty<object>(), Array.Empty<object>()));
+        Settings_Changed(this, new RoutedEventArgs());
 
         Loaded += async (_, _) => { if (_cfg.StartOnLaunch) await StartAsync(); };
         Closing += OnClosing;
@@ -102,12 +129,13 @@ public partial class MainWindow : Window
 
     private async void StartStop_Click(object sender, RoutedEventArgs e)
     {
-        if (_svc.Running) await StopAsync(); else await StartAsync();
+        if (_svc.Running) { if (await ConfirmAsync("Parar transmissão?", "Todos os espectadores serão desconectados. Você poderá iniciar novamente quando quiser.", "Parar transmissão")) await StopAsync(); } else await StartAsync();
     }
 
     private async Task StartAsync()
     {
         if (_busy || _svc.Running) return;
+        _localMic?.Dispose(); _localMic = null;
         _busy = true; StartStop.IsEnabled = false;
         try
         {
@@ -137,15 +165,18 @@ public partial class MainWindow : Window
     {
         bool run = _svc.Running;
         var enc = _svc.Encoder;
-        bool videoOk = enc?.Working ?? false;
+        bool sourceUnavailable = _cfg.SourceType == "window" && ScreenSources.ResolveWindow(_cfg.WindowExe, _cfg.WindowTitle) is not { Minimized: false };
+        bool videoOk = !sourceUnavailable && (enc?.Working ?? false);
         StatusDot.Fill = (Brush)FindResource(!run ? "Muted" : videoOk ? "Ok" : "Warn");
-        StatusText.Text = !run ? "Parado" : videoOk ? "Transmitindo" : "Sem vídeo";
+        StatusText.Text = !run ? "Parado" : videoOk ? "Transmitindo" : "Sem imagem";
         StartStop.Content = run ? "Parar transmissão" : "Iniciar transmissão";
         StartStop.Style = (Style)FindResource(run ? "DangerButton" : "PrimaryButton");
 
         var viewers = _svc.Hub?.GetViewers() ?? new List<ViewerInfo>();
         int connected = viewers.Count(v => v.Connected);
         ViewerCount.Text = connected.ToString();
+        ConnectingCount.Text = viewers.Count(v => !v.Connected).ToString();
+        BannedCount.Text = _cfg.BanSnapshot().Count.ToString();
         SubStatus.Text = !run ? "·  clique em Iniciar para começar"
             : videoOk ? $"·  {enc!.Active}  ·  porta {_cfg.Port}"
             : $"·  tentando: {enc?.Active}" + (string.IsNullOrEmpty(enc?.LastError) ? "" : "  ·  " + Shorten(enc!.LastError!, 70));
@@ -165,11 +196,11 @@ public partial class MainWindow : Window
         ViewerEmpty.Visibility = _viewers.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
         ViewerList.Visibility = _viewers.Count == 0 ? Visibility.Collapsed : Visibility.Visible;
 
-        var apps = _svc.Mixer?.GetApps() ?? new List<AppAudioInfo>();
+        var apps = _svc.Mixer?.GetApps() ?? AudioMixer.DiscoverApps(_cfg.DefaultMutedApps);
         Sync(_apps, apps, a => a.Name, (row, a) =>
         {
-            row.Set("Name", a.Name); row.Set("Title", a.Title);
-            row.Set("Label", a.Muted ? "Silenciado" : "Na transmissão");
+            row.Set("Name", a.Name); row.Set("Title", (a.Playing ? "Áudio ativo" : "Sem atividade") + (string.IsNullOrEmpty(a.Title) ? "" : " · " + a.Title));
+            row.Set("Label", a.Muted ? "Silenciado" : "Permitido");
             row.Set("Dot", (Brush)FindResource(a.Muted ? "Danger" : a.Playing ? "Ok" : "Muted"));
             row.Set("MuteBg", (Brush)FindResource(a.Muted ? "DangerSoft" : "OkSoft"));
             row.Set("MuteFg", (Brush)FindResource(a.Muted ? "Danger" : "Ok"));
@@ -179,7 +210,9 @@ public partial class MainWindow : Window
         UpdatePreviewState();
         if (++_tick % 4 == 0 && IsVisible && ShareTab.IsSelected) RefreshSources();
 
-        MicLevel.Value = Math.Min(1, _svc.Mixer?.MicLevel ?? 0);
+        UpdateLocalMeter();
+        MicLevel.Value = Math.Min(1, _svc.Mixer?.MicLevel ?? _localMic?.Level ?? 0);
+        UpdateMicButton();
         if (_svc.Mixer?.MicError is { } err) MicMsg.Text = "Microfone: " + err;
         else if (!_cfg.MicEnabled || MicMsg.Text.StartsWith("Microfone:")) MicMsg.Text = "";
     }
@@ -199,16 +232,19 @@ public partial class MainWindow : Window
 
     // ---------- botões ----------
 
-    private void Kick_Click(object sender, RoutedEventArgs e)
+    private async void Kick_Click(object sender, RoutedEventArgs e)
     {
-        if (((FrameworkElement)sender).Tag is Guid id) _svc.Hub?.Kick(id);
+        if (((FrameworkElement)sender).Tag is not Guid id) return;
+        var viewer = _svc.Hub?.GetViewers().FirstOrDefault(v => v.Id == id);
+        if (viewer != null && await ConfirmAsync("Desconectar espectador?", "A pessoa poderá entrar novamente usando o link. Seu IP não será banido.", "Desconectar", viewer.Name, viewer.Remote)) { _svc.Hub?.Kick(id); Notify("Espectador desconectado."); }
     }
 
     private void Mute_Click(object sender, RoutedEventArgs e)
     {
-        if (((FrameworkElement)sender).Tag is not string name || _svc.Mixer is not { } m) return;
-        bool muted = m.GetApps().FirstOrDefault(a => a.Name == name)?.Muted ?? false;
-        m.SetMuted(name, !muted);
+        if (((FrameworkElement)sender).Tag is not string name) return;
+        bool muted = _apps.FirstOrDefault(a => a.Name == name)?.Label == "Silenciado";
+        try { if (_svc.Mixer is { } mixer) mixer.SetMuted(name, !muted); else AudioMixer.SaveMutedPreference(name, !muted, _cfg.DefaultMutedApps); }
+        catch (Exception ex) { Notify("Não foi possível salvar o áudio: " + ex.Message); }
         Refresh();
     }
 
@@ -216,7 +252,7 @@ public partial class MainWindow : Window
     {
         if (((FrameworkElement)sender).Tag is string url)
         {
-            try { Clipboard.SetText(url); } catch { }
+            try { Clipboard.SetText(url); Notify("Link copiado."); } catch { Notify("Não foi possível copiar o link."); return; }
             ((Button)sender).Content = "Copiado!";
             var t = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1.5) };
             t.Tick += (_, _) => { ((Button)sender).Content = "Copiar"; t.Stop(); };
@@ -233,7 +269,7 @@ public partial class MainWindow : Window
         bool winMode = _cfg.SourceType == "window";
         Sync(_monRows, _monitors, m => m.Index.ToString(), (row, m) =>
         {
-            row.Set("Pick", "m:" + m.Index); row.Set("Icon", "\uE7F4");
+            row.Set("IconImage", "Assets/Design/host-imgLanCastIconMonitor.png"); row.Set("Pick", "m:" + m.Index); row.Set("Icon", "\uE7F4");
             row.Set("Name", m.Label); row.Set("Title", m.Detail);
             SetSelected(row, !winMode && selMon?.Index == m.Index);
         });
@@ -242,7 +278,7 @@ public partial class MainWindow : Window
         var selWin = winMode ? ScreenSources.ResolveWindow(_cfg.WindowExe, _cfg.WindowTitle) : null;
         Sync(_winRows, _wins, w => w.Hwnd.ToString(), (row, w) =>
         {
-            row.Set("Pick", "w:" + w.Hwnd.ToInt64()); row.Set("Icon", "\uE737");
+            row.Set("IconImage", "Assets/Design/host-imgLanCastIconWindow.png"); row.Set("Pick", "w:" + w.Hwnd.ToInt64()); row.Set("Icon", "\uE737");
             row.Set("Name", w.Title);
             row.Set("Title", $"{w.Exe}  ·  {(w.Minimized ? "minimizada" : $"{w.Width}×{w.Height}")}");
             SetSelected(row, selWin?.Hwnd == w.Hwnd);
@@ -252,16 +288,19 @@ public partial class MainWindow : Window
         // rótulo da fonte atual
         if (winMode)
         {
-            SourceLabel.Text = $"Compartilhando a janela: {(selWin?.Title ?? _cfg.WindowTitle)}";
+            SourceLabel.Text = $"Fonte selecionada: {(selWin?.Title ?? _cfg.WindowTitle)}";
             SourceHint.Text = selWin == null ? $"A janela de {_cfg.WindowExe} não está aberta. A transmissão volta sozinha quando ela aparecer."
                 : (_cfg.OnlyAppAudio ? $"Áudio: só de {selWin.Exe}. Os espectadores não escutam os outros apps." : "Áudio: todos os apps (menos os silenciados).");
         }
         else
         {
-            SourceLabel.Text = $"Compartilhando: {selMon?.Label ?? "tela"}  ·  {selMon?.Detail}";
+            SourceLabel.Text = $"Fonte selecionada: {selMon?.Label ?? "tela"}  ·  {selMon?.Detail}";
             SourceHint.Text = "Áudio: todos os apps (menos os silenciados).";
         }
         OnlyAudioCheck.IsEnabled = winMode;
+        OnlyAudioHint.Text = winMode ? "Aplica-se ao áudio dos aplicativos; o microfone permanece independente." : "Selecione uma janela para limitar o áudio ao aplicativo escolhido.";
+        SourceAudioHint.Text = "Escolher uma fonte não inicia a transmissão.";
+        CaptureNotice.Text = _svc.Running ? "A transmissão continua durante a troca de fonte." : "Tudo pronto. Inicie a transmissão para compartilhar.";
     }
 
     private void SetSelected(Row row, bool on)
@@ -271,7 +310,7 @@ public partial class MainWindow : Window
         row.Set("CheckVis", on ? Visibility.Visible : Visibility.Collapsed);
     }
 
-    private void Source_Click(object sender, RoutedEventArgs e)
+    private async void Source_Click(object sender, RoutedEventArgs e)
     {
         if (((FrameworkElement)sender).Tag is not string pick) return;
         if (pick.StartsWith("m:") && int.TryParse(pick[2..], out int idx))
@@ -282,6 +321,13 @@ public partial class MainWindow : Window
         else if (pick.StartsWith("w:") && long.TryParse(pick[2..], out long h))
         {
             var w = _wins.FirstOrDefault(x => x.Hwnd.ToInt64() == h); if (w == null) return;
+            if (w.Minimized)
+            {
+                const string message = "Restaure a janela antes de selecioná-la. Sua fonte atual será mantida.";
+                if (_dialog != null) DialogMessage.Text = message;
+                else await ConfirmAsync("Janela minimizada", message, "Entendi", information: true);
+                return;
+            }
             _cfg.SourceType = "window"; _cfg.WindowExe = w.Exe; _cfg.WindowTitle = w.Title;
         }
         else return;
@@ -289,6 +335,7 @@ public partial class MainWindow : Window
         _svc.ApplySource(_cfg);
         _preview?.Restart();
         RefreshSources();
+        if (DialogSourcePicker.Visibility == Visibility.Visible) CloseDialog(true);
     }
 
     private void RefreshWindows_Click(object sender, RoutedEventArgs e) => RefreshSources();
@@ -320,7 +367,11 @@ public partial class MainWindow : Window
 
         if (!_cfg.ShowPreview) { PreviewImg.Source = null; PreviewMsg.Text = "Pré-visualização desligada"; PreviewMsg.Visibility = Visibility.Visible; }
         else if (_preview.Running && _preview.Status is { } st) { PreviewMsg.Text = st; PreviewMsg.Visibility = Visibility.Visible; }
-        else PreviewMsg.Visibility = Visibility.Collapsed;
+        else PreviewMsg.Visibility = PreviewImg.Source == null ? Visibility.Visible : Visibility.Collapsed;
+        bool unavailable = _cfg.SourceType == "window" && (ScreenSources.ResolveWindow(_cfg.WindowExe, _cfg.WindowTitle) is not { Minimized: false });
+        RecoverSource.Visibility = unavailable ? Visibility.Visible : Visibility.Collapsed;
+        if (unavailable && _cfg.ShowPreview) { PreviewImg.Source = null; PreviewMsg.Visibility = Visibility.Visible; PreviewMsg.Text = "Fonte indisponível\nA janela foi fechada ou minimizada. Restaure-a ou escolha outra fonte. O áudio permitido pode continuar."; }
+        else if (_cfg.ShowPreview && PreviewImg.Source == null && _preview.Status == null) PreviewMsg.Text = "Preparando prévia…";
     }
 
     private void ShowFrame()
@@ -361,21 +412,17 @@ public partial class MainWindow : Window
         return true;
     }
 
-    private void Ban_Click(object sender, RoutedEventArgs e)
+    private async void Ban_Click(object sender, RoutedEventArgs e)
     {
         if (((FrameworkElement)sender).Tag is not string ip) return;
-        var name = _svc.Hub?.GetViewers().FirstOrDefault(v => v.Remote == ip)?.Name ?? "";
-        var ok = MessageBox.Show(this, $"Banir {(name.Length > 0 ? name + " " : "")}({ip})?\n\nEssa pessoa será desconectada e não conseguirá mais entrar. Você pode desbanir na aba Banidos.",
-            "Banir conexão", MessageBoxButton.YesNo, MessageBoxImage.Warning);
-        if (ok == MessageBoxResult.Yes) TryBan(ip, name);
+        var name = _svc.Hub?.GetViewers().FirstOrDefault(v => v.Remote == ip)?.Name ?? "Espectador";
+        if (await ConfirmAsync("Banir espectador?", "Essa pessoa será desconectada e o IP não poderá entrar novamente. Você poderá desbanir na seção Banidos.", "Banir IP", name, ip)) { if (TryBan(ip, name)) Notify("IP banido."); }
     }
-
-    private void BanAdd_Click(object sender, RoutedEventArgs e)
+    private async void BanAdd_Click(object sender, RoutedEventArgs e)
     {
         var text = BanIp.Text.Trim();
-        if (!System.Net.IPAddress.TryParse(text, out var a) || a.AddressFamily != AddressFamily.InterNetwork)
-        { BanMsg.Text = "IP inválido (use o formato 26.10.20.30)."; return; }
-        if (TryBan(a.ToString(), "(adicionado manualmente)")) BanIp.Clear();
+        if (!System.Net.IPAddress.TryParse(text, out var a) || a.AddressFamily != AddressFamily.InterNetwork) { BanMsg.Text = "IP inválido (use o formato 26.10.20.30)."; return; }
+        if (await ConfirmAsync("Banir este IP?", "Este endereço não poderá acessar a transmissão.", "Banir IP", "Adicionado manualmente", a.ToString()) && TryBan(a.ToString(), "(adicionado manualmente)")) BanIp.Clear();
     }
 
     private void BanIp_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
@@ -388,7 +435,8 @@ public partial class MainWindow : Window
         if (((FrameworkElement)sender).Tag is not string ip) return;
         _cfg.Unban(ip);
         RefreshBans();
-        BanMsg.Text = $"{ip} desbanido.";
+        BanMsg.Text = $"{ip} desbanido. A pessoa pode entrar novamente pelo link.";
+        Notify("IP desbanido; a conexão não é restaurada automaticamente.");
     }
 
     private void RefreshBans()
@@ -409,11 +457,15 @@ public partial class MainWindow : Window
 
     [DllImport("dwmapi.dll")] private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, ref int val, int size);
 
-    private void Window_SourceInitialized(object? sender, EventArgs e)
+    private void Window_SourceInitialized(object? sender, EventArgs e) => ApplyTitleBar();
+
+    /// <summary>Barra de título clara/escura conforme o tema (Windows 10 2004+ / 11).</summary>
+    private void ApplyTitleBar()
     {
-        // barra de título escura (Windows 10 2004+ / 11)
-        int on = 1;
-        DwmSetWindowAttribute(new WindowInteropHelper(this).Handle, 20, ref on, sizeof(int));
+        var hwnd = new WindowInteropHelper(this).Handle;
+        if (hwnd == IntPtr.Zero) return;
+        int dark = ThemeManager.IsDark ? 1 : 0;
+        try { DwmSetWindowAttribute(hwnd, 20, ref dark, sizeof(int)); } catch { }
     }
 
     // ---------- microfone ----------
@@ -424,6 +476,7 @@ public partial class MainWindow : Window
         try { list.AddRange(AudioMixer.ListMics().Select(m => new MicItem(m.Id, m.Name))); } catch { }
         MicDevice.ItemsSource = list;
         MicDevice.SelectedItem = list.FirstOrDefault(x => x.Id == _cfg.MicDeviceId) ?? list[0];
+        _cfg.MicGain = Math.Clamp(_cfg.MicGain, 0, 1);
         MicGain.Value = _cfg.MicGain;
     }
 
@@ -431,8 +484,10 @@ public partial class MainWindow : Window
 
     private void UpdateMicButton()
     {
-        MicToggle.Content = _cfg.MicEnabled ? "Microfone: LIGADO" : "Microfone: DESLIGADO";
-        MicToggle.Style = (Style)FindResource(_cfg.MicEnabled ? "OkButton" : "DangerButton");
+        MicToggle.IsChecked = ShareMicCheck.IsChecked = _cfg.MicEnabled;
+        ShareMicCheck.Content = _cfg.MicEnabled ? "Microfone ligado" : "Microfone desligado";
+        MicStateDescription.Text = !_cfg.MicEnabled ? "Seu microfone não será enviado aos espectadores." : _svc.Running ? "Seu microfone está sendo enviado aos espectadores." : "Seu microfone será enviado quando a transmissão começar.";
+        MicGainLabel.Text = $"{_cfg.MicGain * 100:0}%";
     }
 
     private void ApplyMic()
@@ -451,6 +506,7 @@ public partial class MainWindow : Window
 
     private void MicToggle_Click(object sender, RoutedEventArgs e)
     {
+        _meterFailed = false;
         _cfg.MicEnabled = !_cfg.MicEnabled;
         UpdateMicButton();
         ApplyMic();
@@ -459,6 +515,7 @@ public partial class MainWindow : Window
     private void MicDevice_Changed(object sender, SelectionChangedEventArgs e)
     {
         if (_loading || MicDevice.SelectedItem is not MicItem it) return;
+        _localMic?.Dispose(); _localMic = null; _meterFailed = false;
         _cfg.MicDeviceId = it.Id;
         if (_cfg.MicEnabled) ApplyMic(); else _cfg.Save();
     }
@@ -467,6 +524,8 @@ public partial class MainWindow : Window
     {
         if (_loading) return;
         _cfg.MicGain = e.NewValue;
+        MicGainLabel.Text = $"{e.NewValue * 100:0}%";
+        if (_localMic != null) _localMic.Gain = (float)e.NewValue;
         _svc.Mixer?.SetMicGain(e.NewValue);
         _cfg.Save();
     }
@@ -476,8 +535,7 @@ public partial class MainWindow : Window
     private void LoadSettingsToUi()
     {
         SPort.Text = _cfg.Port.ToString();
-        SPassword.Text = _cfg.Password;
-        SMonitor.Text = _cfg.Monitor.ToString();
+        SPassword.Password = _cfg.Password;
         SFps.SelectedItem = _cfg.Fps == 30 ? 30 : 60;
         SBitrate.Text = _cfg.VideoBitrateKbps.ToString();
         SHeight.SelectedItem = ((IEnumerable<KeyValuePair<string, int>>)SHeight.ItemsSource)
@@ -487,6 +545,29 @@ public partial class MainWindow : Window
         SCursor.IsChecked = _cfg.ShowCursor;
         SAuto.IsChecked = _cfg.StartOnLaunch;
         SLive.IsChecked = _cfg.ShowLiveIndicator;
+        STheme.SelectedItem = ThemeManager.Themes.FirstOrDefault(t => t.Id == _cfg.Theme) ?? ThemeManager.Themes[0];
+    }
+
+    // ---------- menu lateral / tema ----------
+
+    private void NavToggle_Click(object sender, RoutedEventArgs e)
+    {
+        NavCollapsed = !NavCollapsed;
+        _cfg.SidebarCollapsed = NavCollapsed;
+        _cfg.Save();
+    }
+
+    private void Theme_Changed(object sender, SelectionChangedEventArgs e)
+    {
+        if (_loading || STheme.SelectedItem is not ThemeManager.ThemeInfo theme) return;
+        ThemeManager.Apply(theme.Id);
+        _cfg.Theme = theme.Id;
+        _cfg.Save();
+        ApplyTitleBar();
+        RefreshAddresses();
+        RefreshSources(); RefreshBans();
+        ThemeStatus.Text = $"Tema {theme.Name} aplicado e salvo.";
+        Refresh();
     }
 
     private async void Apply_Click(object sender, RoutedEventArgs e)
@@ -494,7 +575,8 @@ public partial class MainWindow : Window
         if (!int.TryParse(SPort.Text, out int port) || port is < 1024 or > 65535) { SMsg.Text = "Porta inválida (1024–65535)."; return; }
         if (!int.TryParse(SBitrate.Text, out int br) || br is < 500 or > 100000) { SMsg.Text = "Qualidade inválida (500–100000 kbps)."; return; }
 
-        _cfg.Port = port; _cfg.Password = SPassword.Text.Trim();
+        if (_svc.Running && !await ConfirmAsync("Aplicar e reiniciar?", "As configurações serão salvas e os espectadores precisarão reconectar.", "Aplicar e reiniciar")) return;
+        _cfg.Port = port; _cfg.Password = SPassword.Password;
         _cfg.Fps = (int)SFps.SelectedItem; _cfg.VideoBitrateKbps = br;
         _cfg.Height = ((KeyValuePair<string, int>)SHeight.SelectedItem).Value;
         _cfg.Encoder = ((KeyValuePair<string, string>)SEncoder.SelectedItem).Value;
@@ -509,13 +591,16 @@ public partial class MainWindow : Window
             await StopAsync();
             await StartAsync();
         }
+        Settings_Changed(this, new RoutedEventArgs());
         SMsg.Text = "Configurações salvas.";
+        Notify("Configurações salvas.");
     }
 
     private static string Shorten(string s, int n) => s.Length <= n ? s : s[..n] + "…";
 
-    private void Log_Click(object sender, RoutedEventArgs e)
+    private async void Log_Click(object sender, RoutedEventArgs e)
     {
+        if (!await ConfirmAsync("Abrir log", "O log ajuda a investigar falhas de captura e conexão. Ele pode conter endereços IP, nomes de aplicativos e detalhes do sistema. Revise o conteúdo antes de compartilhá-lo.", "Abrir log")) return;
         try
         {
             if (!File.Exists(AppLog.FilePath)) File.WriteAllText(AppLog.FilePath, "");
@@ -524,15 +609,16 @@ public partial class MainWindow : Window
         catch { SMsg.Text = "Log em: " + AppLog.FilePath; }
     }
 
-    private void Firewall_Click(object sender, RoutedEventArgs e)
+    private async void Firewall_Click(object sender, RoutedEventArgs e)
     {
+        if (!await ConfirmAsync("Liberar acesso no Firewall", "Será criada uma regra de entrada para o LanCast. O Windows solicitará permissão de administrador. Isso permite conexões ao aplicativo nas redes deste computador.", "Liberar acesso")) return;
         try
         {
             var exe = Environment.ProcessPath!;
-            Process.Start(new ProcessStartInfo("netsh",
+            using var process = Process.Start(new ProcessStartInfo("netsh",
                 $"advfirewall firewall add rule name=\"LanCast\" dir=in action=allow program=\"{exe}\" enable=yes profile=any")
             { UseShellExecute = true, Verb = "runas", WindowStyle = ProcessWindowStyle.Hidden });
-            SMsg.Text = "Regra de firewall enviada (confirme o pedido de administrador).";
+            if (process != null) { await process.WaitForExitAsync(); SMsg.Text = process.ExitCode == 0 ? "Regra de Firewall criada." : "Não foi possível criar a regra de Firewall."; Notify(SMsg.Text); }
         }
         catch { SMsg.Text = "Cancelado."; }
     }
@@ -564,10 +650,11 @@ public partial class MainWindow : Window
             var r = new Row();
             r.Set("Url", $"http://{f.ip}:{_cfg.Port}/"); r.Set("Label", f.label);
             bool rad = f.prio == 0;
-            r.Set("ChipBg", rad ? new SolidColorBrush(Color.FromArgb(0x30, 0x3B, 0x82, 0xF6)) : (Brush)FindResource("Surface3"));
-            r.Set("ChipFg", rad ? new SolidColorBrush(Color.FromRgb(0x7C, 0xB0, 0xFF)) : (Brush)FindResource("Muted"));
+            r.Set("ChipBg", (Brush)FindResource(rad ? "AccentSoft" : "Surface3"));
+            r.Set("ChipFg", (Brush)FindResource(rad ? "OnAccentSoft" : "Muted"));
             _addrs.Add(r);
         }
+        NetworkLabel.Text = found.Any(f => f.prio == 0) ? "Radmin VPN" : "Rede local";
         if (_addrs.Count == 0) { var r = new Row(); r.Set("Url", $"http://localhost:{_cfg.Port}/"); r.Set("Label", "Local"); _addrs.Add(r); }
     }
 
@@ -634,7 +721,7 @@ public partial class MainWindow : Window
         _tray.DoubleClick += (_, _) => ShowFromTray();
         var menu = new System.Windows.Forms.ContextMenuStrip();
         menu.Items.Add("Abrir", null, (_, _) => ShowFromTray());
-        menu.Items.Add("Iniciar/Parar transmissão", null, async (_, _) => { if (_svc.Running) await StopAsync(); else await StartAsync(); });
+        menu.Items.Add("Iniciar/Parar transmissão", null, (_, _) => { ShowFromTray(); StartStop_Click(StartStop, new RoutedEventArgs()); });
         menu.Items.Add("Sair", null, async (_, _) => await ExitAsync());
         _tray.ContextMenuStrip = menu;
     }
@@ -659,6 +746,7 @@ public partial class MainWindow : Window
         _exiting = true;
         _timer.Stop();
         _preview?.Dispose();
+        _localMic?.Dispose();
         _cfg.Save();
         await _svc.StopAsync();
         _liveBadge?.Close();
@@ -670,4 +758,20 @@ public partial class MainWindow : Window
 internal static class RowExt
 {
     public static string KeyOf(this Row r) => (string?)r["_key"] ?? "";
+}
+
+public sealed class InverseBoolToVisibility : System.Windows.Data.IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        => value is true ? Visibility.Collapsed : Visibility.Visible;
+    public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        => throw new NotSupportedException();
+}
+
+public sealed class NavWidthConverter : System.Windows.Data.IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        => value is true ? 72.0 : 200.0;
+    public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        => throw new NotSupportedException();
 }
