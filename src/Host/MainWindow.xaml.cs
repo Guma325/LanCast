@@ -121,7 +121,13 @@ public partial class MainWindow : Window
         Navigation_Changed(this, new SelectionChangedEventArgs(System.Windows.Controls.Primitives.Selector.SelectionChangedEvent, Array.Empty<object>(), Array.Empty<object>()));
         Settings_Changed(this, new RoutedEventArgs());
 
-        Loaded += async (_, _) => { if (_cfg.StartOnLaunch) await StartAsync(); };
+        Loaded += async (_, _) =>
+        {
+            // abre já na aba Compartilhar (sem isso a página fica vazia até clicar na aba)
+            if (Tabs.SelectedIndex < 0) Tabs.SelectedIndex = 0;
+            if (NavList.SelectedIndex < 0) NavList.SelectedIndex = 0;
+            if (_cfg.StartOnLaunch) await StartAsync();
+        };
         Closing += OnClosing;
     }
 
