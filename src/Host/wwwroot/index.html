@@ -1,135 +1,57 @@
 <!doctype html>
-<html lang="pt-BR">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Transmissão</title>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>LanCast · Assistir</title>
 <style>
-  html, body { margin:0; height:100%; background:#000; color:#eee; font-family:system-ui,Segoe UI,sans-serif; overflow:hidden; }
-  video { width:100%; height:100%; object-fit:contain; background:#000; }
-  #gate { position:fixed; inset:0; display:flex; flex-direction:column; gap:12px; align-items:center; justify-content:center; background:#111; }
-  #gate button { font-size:20px; padding:14px 36px; border:0; border-radius:10px; background:#3b82f6; color:#fff; cursor:pointer; }
-  #gate input#name, #gate input { font-size:16px; padding:8px 12px; border-radius:8px; border:1px solid #444; background:#222; color:#eee; }
-  #msg { color:#f87171; min-height:1.2em; }
-  #hud { position:fixed; top:8px; left:8px; font:12px ui-monospace,Consolas,monospace; background:#0009; padding:4px 8px; border-radius:6px; display:none; white-space:pre; }
-  #bar { position:fixed; bottom:12px; right:12px; display:none; gap:8px; opacity:.25; transition:opacity .2s; }
-  #bar:hover { opacity:1; }
-  #bar button, #bar input { background:#000a; color:#fff; border:1px solid #555; border-radius:6px; padding:6px 10px; cursor:pointer; }
-</style>
-</head>
-<body>
-<video id="v" autoplay playsinline></video>
-<div id="hud"></div>
-<div id="bar">
-  <span id="cnt" title="" style="align-self:center;background:#000a;border:1px solid #555;border-radius:6px;padding:6px 10px;cursor:default">0 assistindo</span>
-  <input id="vol" type="range" min="0" max="1" step="0.05" value="1" title="Volume">
-  <button id="hudBtn">Stats</button>
-  <button id="fs">Tela cheia</button>
-</div>
-<div id="gate">
-  <h2>Transmissão ao vivo</h2>
-  <input id="name" type="text" maxlength="24" placeholder="Seu nome" autocomplete="nickname">
-  <input id="pw" type="password" placeholder="Senha" style="display:none">
-  <button id="go">Assistir</button>
-  <div id="msg"></div>
-</div>
+@font-face{font-family:Inter;src:url('/assets/InterVariable.woff2') format('woff2');font-weight:100 900;font-display:swap}
+:root{color-scheme:dark;--bg:#0b0e14;--surface:#151b26;--raised:#1d2635;--line:#2a3445;--text:#f3f6fc;--muted:#9aa9bf;--accent:#3568d4;--green:#69deae;--red:#ff818b}
+*{box-sizing:border-box}body{margin:0;min-height:100dvh;background:var(--bg);color:var(--text);font:14px Inter,system-ui,sans-serif}button,input{font:inherit}button{border:1px solid var(--line);border-radius:8px;background:var(--raised);color:var(--text);padding:12px 16px;cursor:pointer;font-weight:600;min-height:44px}button:hover{filter:brightness(1.15)}button:disabled{opacity:.55;cursor:wait}button:focus-visible,input:focus-visible{outline:2px solid #a8c4ff;outline-offset:3px}.primary{background:var(--accent);border-color:var(--accent);color:white}.ghost{background:transparent;color:var(--muted)}[hidden]{display:none!important}h1,h2,p{margin:0}h1{font-size:26px;font-weight:600;line-height:1.3}h2{font-size:18px;font-weight:600}.muted{color:var(--muted);line-height:1.6}.brand{display:flex;align-items:center;gap:10px;font-size:18px;font-weight:600}.brand-icon{display:grid;place-items:center;width:36px;height:36px;background:var(--accent);border-radius:10px}.brand-icon img{width:24px;height:24px}header{display:flex;align-items:center;justify-content:space-between;gap:20px;max-width:1200px;margin:auto;padding:24px 28px;border-bottom:1px solid var(--line)}.badge{font-size:11px;font-weight:600;color:var(--green);background:#18372e;border:1px solid #2b5143;border-radius:8px;padding:7px 10px;white-space:nowrap}.welcome{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center;max-width:1080px;margin:auto;padding:72px 28px}.illustration{min-height:370px;display:flex;align-items:center;justify-content:center;background:var(--surface);border:1px solid var(--line);border-radius:16px}.illustration img{width:85%;max-width:380px;height:300px}.intro h1{margin:16px 0 12px}.intro .eyebrow{font-size:12px;letter-spacing:1px;font-weight:600;color:#a8c4ff}.form{margin-top:28px;border:1px solid var(--line);background:var(--surface);padding:24px;border-radius:12px}label{display:block;font-weight:500;margin-bottom:8px}input[type=text],input[type=password]{display:block;width:100%;border:1px solid var(--line);background:var(--raised);border-radius:8px;padding:12px 14px;color:var(--text);height:44px}input::placeholder{color:var(--muted)}.field{margin-bottom:20px}.help{font-size:12px;color:var(--muted);margin-top:8px;line-height:1.5}.form button{width:100%}#msg{color:var(--red);font-size:12px;line-height:1.5;margin:12px 0 0;min-height:18px}.security{font-size:12px;color:var(--muted);margin-top:20px;line-height:1.7}footer{max-width:1200px;margin:auto;padding:20px 28px;color:var(--muted);font-size:12px;border-top:1px solid var(--line)}.watch{max-width:1200px;margin:auto;padding:28px}.watch-title{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}.watch-title p{margin-top:4px}.player{position:relative;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#080c12}.screen{height:min(65vh,620px);min-height:240px;position:relative;display:flex;align-items:center;justify-content:center}video{width:100%;height:100%;object-fit:contain;background:#080c12}.controls{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:16px 20px;background:var(--surface);border-top:1px solid var(--line)}.controls button{font-size:12px}.controls label{margin:0;font-size:12px}.controls input{accent-color:var(--accent);width:120px}#cnt{color:var(--muted);font-size:12px;margin-right:auto}.volume-group{display:flex;align-items:center;gap:8px}.volume-group img{width:20px}.volume-value{font-size:12px;min-width:36px}.hud{position:absolute;top:16px;left:16px;padding:16px;border:1px solid var(--line);border-radius:8px;background:#151b26ed;font-size:12px;white-space:pre-line;line-height:1.8;max-width:90%}.lost{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:#080c12dd;padding:24px}.lost-card{text-align:center;max-width:430px;border:1px solid var(--line);border-radius:12px;background:var(--surface);padding:28px}.lost-card p{margin:12px 0 20px}.lost-actions{display:flex;gap:12px;justify-content:center}.watch-note{margin-top:16px;font-size:12px;color:var(--muted)}:fullscreen .watch{padding:0;max-width:none;width:100%;height:100dvh;display:flex;flex-direction:column}:fullscreen header,:fullscreen footer,:fullscreen .watch-title,:fullscreen .watch-note{display:none}:fullscreen .player{border:0;border-radius:0;display:flex;flex-direction:column;flex:1;min-height:0}:fullscreen .screen{height:auto;min-height:0;flex:1}
+@media(max-width:760px){header{padding:16px 20px}.welcome{grid-template-columns:1fr;padding:32px 20px;gap:24px}.illustration{display:none}.watch{padding:20px 12px}.watch-title h1{font-size:22px}.controls{padding:12px;gap:8px}.controls input{width:90px}#cnt{width:100%}.screen{height:50vh}footer{padding:20px}}
 
+header{padding:40px 40px 0;border:0;min-height:88px}.brand-icon{background:transparent;border-radius:0;width:26px;height:26px}.brand-icon img{width:26px;height:26px}.badge{border:0}.welcome{grid-template-columns:minmax(0,540px) minmax(0,440px);max-width:1200px;padding:24px 40px;gap:64px;min-height:704px}.intro h1{font-size:40px;font-weight:700;line-height:48px;margin:24px 0}.intro .eyebrow{display:inline-block;background:#1b2e50;border-radius:8px;padding:6px 10px;letter-spacing:0;font-size:11px}.illustration{background:transparent;border:0;border-radius:8px;min-height:0;height:270px;margin-top:24px;justify-content:flex-start}.illustration img{width:100%;height:270px;max-width:540px}.form{margin:0;padding:32px;min-height:360px}.form h2{font-size:26px;line-height:34px;margin-bottom:20px}.form>.muted{margin-bottom:20px}.form label{font-size:12px;color:var(--muted);font-weight:400}.form .help{margin-top:20px}.form #msg:empty{display:none}footer{display:flex;justify-content:space-between;border:0;padding:0 40px 40px;gap:16px}.watch-title{display:none}.watch{padding:24px 32px}.screen{height:min(71vh,638px)}
+@media(max-width:760px){header{padding:20px 20px 0}.welcome{grid-template-columns:1fr;padding:32px 20px;min-height:0;gap:24px}.intro h1{font-size:32px;line-height:40px}.illustration{display:none}.form{padding:24px}.watch{padding:20px 12px}footer{padding:20px;flex-wrap:wrap}}
+header{gap:12px}.header-access{display:none;align-items:center;gap:20px;margin-left:auto}header>.badge{margin-left:auto}body.watching .header-access{display:flex}body.watching header>.badge{margin-left:0}body.watching header{padding:32px 32px 0}.controls .volume-group{margin-right:auto}#cnt{white-space:nowrap}:fullscreen .controls .volume-group{margin-right:auto}
+@media(max-width:760px){body.watching header{padding:20px 12px 0}.header-access{gap:8px}.header-access #cnt{width:auto}.brand{font-size:16px}header>.badge{font-size:10px}}
+</style></head><body>
+<header><div class="brand"><span class="brand-icon"><img src="/assets/welcome-imgIconeMonitor.svg" alt=""></span>LanCast</div><span id="liveBadge" class="badge">AO VIVO</span><div class="header-access"><span id="cnt">0 assistindo</span><button id="leave">Sair</button></div></header>
+<main id="gate" class="welcome"><section class="intro"><span class="eyebrow">VOCÊ FOI CONVIDADO</span><h1>A mesma tela.<br>Mesmo de longe.</h1><p class="muted">Entre para assistir, jogar e compartilhar o momento.<br>Direto no navegador.</p><div class="illustration"><img src="/assets/welcome-imgFrame.svg" alt="Ilustração de compartilhamento de tela"></div></section><form id="join" class="form"><h2>Entre na transmissão</h2><p class="muted">Como seus amigos devem chamar você?</p><div class="field"><label for="name">Seu nome</label><input id="name" type="text" maxlength="24" placeholder="Digite seu nome" autocomplete="nickname" required></div><div id="passwordField" class="field" hidden><label for="pw">Senha</label><input id="pw" type="password" placeholder="Digite a senha do anfitrião" autocomplete="current-password"></div><button id="go" class="primary" type="submit">Assistir à transmissão</button><p id="passwordHelp" class="help">Sua câmera e seu microfone não são acessados.</p><p id="msg" role="status" aria-live="polite"></p></form></main>
+<main id="watch" class="watch" hidden><div class="watch-title"><div><h1>Você está assistindo</h1><p class="muted">Tela e áudio compartilhados pelo anfitrião.</p></div></div><section class="player" aria-label="Player da transmissão"><div class="screen"><video id="v" autoplay playsinline></video><div id="hud" class="hud" hidden aria-live="off">Aguardando estatísticas…</div><div id="lost" class="lost" hidden><div class="lost-card"><h2>Conexão interrompida</h2><p id="lostMsg" class="muted">A transmissão pode ter sido encerrada ou sua conexão caiu. Verifique a rede e tente novamente.</p><div class="lost-actions"><button id="retry" class="primary">Reconectar</button><button id="back" class="ghost">Voltar ao início</button></div></div></div></div><div class="controls"><div class="volume-group"><button id="mute" aria-label="Silenciar o áudio do player" aria-pressed="false">Silenciar</button><label for="vol">Volume</label><input id="vol" type="range" min="0" max="1" step="0.01" value="0.8"><span id="volumeValue" class="volume-value">80%</span></div><button id="hudBtn" aria-expanded="false">Estatísticas</button><button id="fs">Tela cheia</button></div></section><p class="watch-note">O volume afeta apenas este player. Para alterar a transmissão, fale com o anfitrião.</p></main>
+<footer><span>Sua companhia, a um clique de distância.</span><span>Melhor no Chrome ou Edge</span></footer>
 <script>
-const $ = id => document.getElementById(id);
-const v = $('v');
-let pc, statsTimer, peopleTimer;
-
-$('name').value = localStorage.getItem('vs-name') || '';
-$('name').onkeydown = e => { if (e.key === 'Enter') connect(); };
-fetch('/api/info').then(r => r.json()).then(i => { if (i.passwordRequired) $('pw').style.display = ''; });
-
-$('go').onclick = connect;
-$('pw').onkeydown = e => { if (e.key === 'Enter') connect(); };
-$('fs').onclick = () => document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen();
-$('vol').oninput = e => v.volume = +e.target.value;
-$('hudBtn').onclick = () => { const h = $('hud'); h.style.display = h.style.display === 'block' ? 'none' : 'block'; };
-v.ondblclick = $('fs').onclick;
-
-async function connect() {
-  const nm = $('name').value.trim();
-  if (!nm) { $('msg').textContent = 'Digite um nome'; $('name').focus(); return; }
-  localStorage.setItem('vs-name', nm);
-  $('msg').textContent = 'Conectando...';
-  $('go').disabled = true;
-  try {
-    pc = new RTCPeerConnection({ iceServers: [] });
-    const stream = new MediaStream();
-    v.srcObject = stream;
-    pc.ontrack = e => {
-      stream.addTrack(e.track);
-      try { e.receiver.jitterBufferTarget = 0; } catch {}      // Chrome/Edge 114+
-      try { e.receiver.playoutDelayHint = 0; } catch {}
-    };
-    pc.addTransceiver('video', { direction: 'recvonly' });
-    pc.addTransceiver('audio', { direction: 'recvonly' });
-    pc.onconnectionstatechange = () => {
-      if (pc.connectionState === 'connected') {
-        $('gate').style.display = 'none'; $('bar').style.display = 'flex';
-        v.muted = false; v.play().catch(() => {});
-        statsTimer = setInterval(stats, 1000);
-        people(); peopleTimer = setInterval(people, 2000);
-      } else if (['failed', 'disconnected', 'closed'].includes(pc.connectionState)) {
-        clearInterval(statsTimer); clearInterval(peopleTimer);
-        $('gate').style.display = 'flex'; $('bar').style.display = 'none';
-        $('go').disabled = false; $('msg').textContent = 'Conexão perdida. Clique para reconectar.';
-      }
-    };
-
-    const offer = await pc.createOffer();
-    offer.sdp = offer.sdp.replace(/(a=fmtp:\d+ [^\r\n]*useinbandfec=1)/, '$1;stereo=1;sprop-stereo=1');   // áudio estéreo
-    await pc.setLocalDescription(offer);
-    await new Promise(res => {                                // espera os candidatos ICE (rede local: instantâneo)
-      if (pc.iceGatheringState === 'complete') return res();
-      pc.onicegatheringstatechange = () => pc.iceGatheringState === 'complete' && res();
-      setTimeout(res, 1500);
-    });
-
-    const r = await fetch('/api/offer', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ sdp: pc.localDescription.sdp, password: $('pw').value, name: nm })
-    });
-    if (r.status === 401) throw new Error('Senha incorreta');
-    if (r.status === 403) throw new Error('Você foi banido desta transmissão.');
-    if (!r.ok) throw new Error('Falha no servidor (' + r.status + ')');
-    const { sdp } = await r.json();
-    await pc.setRemoteDescription({ type: 'answer', sdp });
-  } catch (e) {
-    $('msg').textContent = e.message;
-    $('go').disabled = false;
-    if (pc) pc.close();
-  }
+const $=id=>document.getElementById(id),v=$('v');
+let pc=null,statsTimer,peopleTimer,connectTimer,request=null,generation=0,busy=false,last={},lastVolume=.8;
+v.volume=.8;
+try{$('name').value=localStorage.getItem('vs-name')||''}catch{}
+fetch('/api/info').then(r=>r.ok?r.json():Promise.reject()).then(i=>{$('passwordField').hidden=!i.passwordRequired;$('passwordHelp').textContent=i.passwordRequired?'Esta transmissão exige a senha do anfitrião.':'Sua câmera e seu microfone não são acessados.'}).catch(()=>{$('msg').textContent='Não foi possível verificar a conexão. Tente entrar novamente.'});
+function teardown(){generation++;clearInterval(statsTimer);clearInterval(peopleTimer);clearTimeout(connectTimer);request?.abort();request=null;if(pc){pc.onconnectionstatechange=null;pc.ontrack=null;pc.onicegatheringstatechange=null;pc.close();pc=null}v.srcObject=null;last={};busy=false;$('go').disabled=false;$('retry').disabled=false}
+function showGate(message=''){teardown();document.body.classList.remove('watching');$('gate').hidden=false;$('watch').hidden=true;$('lost').hidden=true;$('msg').textContent=message;$('go').textContent='Assistir à transmissão';if(document.fullscreenElement)document.exitFullscreen().catch(()=>{})}
+function lost(message){clearInterval(statsTimer);clearInterval(peopleTimer);clearTimeout(connectTimer);busy=false;$('retry').disabled=false;$('go').disabled=false;$('lostMsg').textContent=message||'A transmissão pode ter sido encerrada ou sua conexão caiu. Verifique a rede e tente novamente.';$('lost').hidden=false;$('liveBadge').textContent='● DESCONECTADO'}
+$('join').onsubmit=e=>{e.preventDefault();connect()};$('retry').onclick=()=>connect();$('back').onclick=()=>showGate();$('leave').onclick=()=>showGate();
+async function connect(){
+ if(busy)return;
+ const name=$('name').value.trim();if(!name){$('msg').textContent='Digite seu nome para entrar.';$('name').focus();return}
+ const retrying=!$('watch').hidden;teardown();busy=true;const token=generation;$('go').disabled=true;$('retry').disabled=true;$('go').textContent='Conectando…';$('msg').textContent='Conectando à transmissão…';if(retrying)$('lostMsg').textContent='Tentando reconectar…';
+ try{
+  try{localStorage.setItem('vs-name',name)}catch{}
+  const peer=new RTCPeerConnection({iceServers:[]});pc=peer;const stream=new MediaStream();v.srcObject=stream;
+  peer.ontrack=e=>{if(token!==generation)return;stream.addTrack(e.track);try{e.receiver.jitterBufferTarget=0;e.receiver.playoutDelayHint=0}catch{}};
+  peer.addTransceiver('video',{direction:'recvonly'});peer.addTransceiver('audio',{direction:'recvonly'});
+  peer.onconnectionstatechange=()=>{if(token!==generation)return;if(peer.connectionState==='connected'){busy=false;clearTimeout(connectTimer);document.body.classList.add('watching');$('gate').hidden=true;$('watch').hidden=false;$('lost').hidden=true;$('liveBadge').textContent='● AO VIVO';$('go').disabled=false;$('retry').disabled=false;v.play().catch(()=>{$('msg').textContent='Use os controles para ativar o áudio.'});clearInterval(statsTimer);clearInterval(peopleTimer);statsTimer=setInterval(stats,1000);people();peopleTimer=setInterval(people,2000)}else if(['failed','disconnected','closed'].includes(peer.connectionState)){if($('watch').hidden)showGate('Conexão interrompida. Verifique a rede e tente novamente.');else lost()}};
+  const offer=await peer.createOffer();offer.sdp=offer.sdp.replace(/(a=fmtp:\d+ [^\r\n]*useinbandfec=1)/,'$1;stereo=1;sprop-stereo=1');await peer.setLocalDescription(offer);
+  await new Promise(resolve=>{if(peer.iceGatheringState==='complete')return resolve();peer.onicegatheringstatechange=()=>{if(peer.iceGatheringState==='complete')resolve()};setTimeout(resolve,1500)});
+  if(token!==generation)return;request=new AbortController();const timeout=setTimeout(()=>request?.abort(),15000);let response;
+  try{response=await fetch('/api/offer',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sdp:peer.localDescription.sdp,password:$('pw').value,name}),signal:request.signal})}finally{clearTimeout(timeout)}
+  if(token!==generation)return;
+  if(response.status===401){showGate('Senha incorreta. Confira a senha com o anfitrião e tente novamente.');$('passwordField').hidden=false;$('pw').setAttribute('aria-invalid','true');$('pw').focus();return}
+  if(response.status===403){showGate('Seu IP foi banido desta transmissão. Fale com o anfitrião.');return}
+  if(!response.ok)throw new Error('O anfitrião não respondeu. Verifique a rede e tente novamente.');
+  const {sdp}=await response.json();if(token!==generation)return;await peer.setRemoteDescription({type:'answer',sdp});$('pw').removeAttribute('aria-invalid');
+  if(peer.connectionState!=='connected')connectTimer=setTimeout(()=>{if(token===generation){if(retrying){teardown();lost('Não foi possível reconectar. Verifique se o anfitrião está transmitindo.')}else showGate('Tempo de conexão esgotado. Verifique a rede e tente novamente.')}},15000);
+ }catch(error){if(token!==generation)return;const message=error.name==='AbortError'?'O anfitrião demorou a responder. Tente novamente.':error.message;teardown();if(retrying)lost(message);else showGate(message)}
 }
-
-async function people() {
-  try {
-    const d = await (await fetch('/api/viewers')).json();
-    $('cnt').textContent = d.count + ' assistindo';
-    $('cnt').title = d.names.join(', ');
-  } catch {}
-}
-
-let last = {};
-async function stats() {
-  const out = [];
-  (await pc.getStats()).forEach(s => {
-    if (s.type === 'inbound-rtp' && s.kind === 'video') {
-      const dt = last.t ? (s.timestamp - last.t) / 1000 : 0;
-      const kbps = dt ? ((s.bytesReceived - last.b) * 8 / 1000 / dt) | 0 : 0;
-      const jb = s.jitterBufferDelay && s.jitterBufferEmittedCount ? (s.jitterBufferDelay / s.jitterBufferEmittedCount * 1000) | 0 : 0;
-      out.push(`${s.frameWidth}x${s.frameHeight} ${s.framesPerSecond || 0}fps ${kbps}kbps`,
-               `buffer ${jb}ms  perdidos ${s.packetsLost}  decode ${s.framesDecoded ? (s.totalDecodeTime / s.framesDecoded * 1000).toFixed(1) : 0}ms`);
-      last = { t: s.timestamp, b: s.bytesReceived };
-    }
-    if (s.type === 'candidate-pair' && s.state === 'succeeded' && s.currentRoundTripTime != null)
-      out.push(`RTT ${(s.currentRoundTripTime * 1000) | 0}ms`);
-  });
-  $('hud').textContent = out.join('\n');
-}
-</script>
-</body>
-</html>
+function volumeUI(){const silent=v.muted||v.volume===0;$('mute').textContent=silent?'Ativar áudio':'Silenciar';$('mute').setAttribute('aria-pressed',String(silent));$('mute').setAttribute('aria-label',silent?'Ativar o áudio do player':'Silenciar o áudio do player');$('volumeValue').textContent=Math.round((v.muted?0:v.volume)*100)+'%';$('vol').value=v.muted?0:v.volume}
+$('vol').oninput=e=>{v.volume=+e.target.value;v.muted=false;if(v.volume>0)lastVolume=v.volume;v.play().catch(()=>{});volumeUI()};$('mute').onclick=()=>{if(v.muted||v.volume===0){v.muted=false;v.volume=lastVolume||.8;v.play().catch(()=>{})}else{lastVolume=v.volume;v.muted=true}volumeUI()};
+$('hudBtn').onclick=()=>{$('hud').hidden=!$('hud').hidden;$('hudBtn').setAttribute('aria-expanded',String(!$('hud').hidden));stats()};
+$('fs').onclick=()=>{(document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen()).catch(()=>{})};v.ondblclick=$('fs').onclick;document.onfullscreenchange=()=>{$('fs').textContent=document.fullscreenElement?'Sair da tela cheia':'Tela cheia'};
+async function people(){const token=generation;try{const response=await fetch('/api/viewers');if(!response.ok)return;const data=await response.json();if(token!==generation)return;$('cnt').textContent=data.count+' assistindo';$('cnt').title=(data.names||[]).join(', ')}catch{}}
+async function stats(){const peer=pc,token=generation;if(!peer||peer.connectionState!=='connected')return;try{const report=await peer.getStats();if(token!==generation)return;const lines=[];report.forEach(s=>{if(s.type==='inbound-rtp'&&(s.kind==='video'||s.mediaType==='video')){const dt=last.t?(s.timestamp-last.t)/1000:0,kbps=dt>0?Math.max(0,Math.round(((s.bytesReceived||0)-last.b)*8/1000/dt)):0,buffer=s.jitterBufferEmittedCount?Math.round(s.jitterBufferDelay/s.jitterBufferEmittedCount*1000):0;lines.push('ESTATÍSTICAS DA TRANSMISSÃO',`Resolução: ${s.frameWidth||0} × ${s.frameHeight||0}`,`Quadros: ${s.framesPerSecond||0} fps · Recebido: ${kbps} kbps`,`Buffer: ${buffer} ms · Pacotes perdidos: ${s.packetsLost||0}`,`Decodificação: ${s.framesDecoded?((s.totalDecodeTime||0)/s.framesDecoded*1000).toFixed(1):0} ms`);last={t:s.timestamp,b:s.bytesReceived||0}}if(s.type==='candidate-pair'&&s.state==='succeeded'&&s.currentRoundTripTime!=null)lines.push(`Latência de rede: ${Math.round(s.currentRoundTripTime*1000)} ms`)});$('hud').textContent=lines.join('\n')||'Aguardando estatísticas…'}catch{}}
+window.addEventListener('pagehide',teardown);
+</script></body></html>

@@ -1,397 +1,179 @@
-<Window x:Class="LanCast.MainWindow"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="LanCast" Width="980" Height="820" MinWidth="900" MinHeight="680"
-        WindowStartupLocation="CenterScreen" FontFamily="Segoe UI" FontSize="13"
-        Background="{StaticResource Bg}" Foreground="{StaticResource Text}"
-        Icon="pack://application:,,,/Assets/app.ico" SourceInitialized="Window_SourceInitialized">
-    <Grid Margin="22,18,22,12">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
-
-        <!-- ================= Cabeçalho ================= -->
-        <Border Grid.Row="0" CornerRadius="16" Padding="20,16" Background="{StaticResource Surface}"
-                BorderBrush="{StaticResource Line}" BorderThickness="1">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-
-                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                    <Image Source="pack://application:,,,/Assets/app.png" Width="52" Height="52" RenderOptions.BitmapScalingMode="HighQuality"/>
-                    <StackPanel Margin="14,0,0,0" VerticalAlignment="Center">
-                        <TextBlock Text="LanCast" FontSize="20" FontWeight="Bold"/>
-                        <StackPanel Orientation="Horizontal" Margin="0,3,0,0">
-                            <Ellipse x:Name="StatusDot" Width="9" Height="9" Fill="{StaticResource Muted}" Margin="0,1,7,0" VerticalAlignment="Center"/>
-                            <TextBlock x:Name="StatusText" Text="Parado" FontWeight="SemiBold"/>
-                            <TextBlock x:Name="SubStatus" Foreground="{StaticResource Muted}" Margin="8,0,0,0" Text=""/>
-                        </StackPanel>
-                    </StackPanel>
-                </StackPanel>
-
-                <Border Grid.Column="1" Margin="0,0,22,0" Padding="20,6" CornerRadius="12" Background="{StaticResource Surface2}" VerticalAlignment="Center">
-                    <StackPanel HorizontalAlignment="Center">
-                        <TextBlock x:Name="ViewerCount" FontSize="30" FontWeight="Bold" HorizontalAlignment="Center" Text="0"/>
-                        <TextBlock Text="CONECTADOS" FontSize="10" FontWeight="SemiBold" Foreground="{StaticResource Muted}" HorizontalAlignment="Center"/>
-                    </StackPanel>
-                </Border>
-
-                <Button x:Name="StartStop" Grid.Column="2" Style="{StaticResource PrimaryButton}" FontSize="15"
-                        Padding="26,14" MinWidth="190" Click="StartStop_Click" Content="Iniciar transmissão"/>
-            </Grid>
-        </Border>
-
-        <!-- ================= Links ================= -->
-        <Border Grid.Row="1" Margin="0,14,0,16" CornerRadius="16" Padding="18,14" Background="{StaticResource Surface}"
-                BorderBrush="{StaticResource Line}" BorderThickness="1">
-            <StackPanel>
-                <TextBlock Text="LINKS PARA COMPARTILHAR" FontSize="11" FontWeight="SemiBold" Foreground="{StaticResource Muted}" Margin="0,0,0,8"/>
-                <ItemsControl x:Name="Addresses">
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <Border Background="{StaticResource Surface2}" CornerRadius="10" Padding="12,7" Margin="0,0,0,6">
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                    </Grid.ColumnDefinitions>
-                                    <TextBlock Text="{Binding Url, Mode=OneWay}" FontFamily="Consolas" FontSize="14" VerticalAlignment="Center"/>
-                                    <Border Grid.Column="1" CornerRadius="10" Padding="9,2" Margin="12,0" VerticalAlignment="Center"
-                                            Background="{Binding ChipBg, Mode=OneWay}">
-                                        <TextBlock Text="{Binding Label, Mode=OneWay}" FontSize="11" FontWeight="SemiBold" Foreground="{Binding ChipFg, Mode=OneWay}"/>
-                                    </Border>
-                                    <Button Grid.Column="2" Content="Copiar" Style="{StaticResource SmallButton}" Tag="{Binding Url}" Click="Copy_Click" MinWidth="76"/>
-                                </Grid>
-                            </Border>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
-            </StackPanel>
-        </Border>
-
-        <!-- ================= Abas ================= -->
-        <TabControl Grid.Row="2">
-            <!-- Compartilhar -->
-            <TabItem x:Name="ShareTab">
-                <TabItem.Header>
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="&#xE7F4;" FontFamily="{StaticResource Icons}" Margin="0,2,8,0" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=TabItem}}"/>
-                        <TextBlock Text="Compartilhar" FontWeight="SemiBold" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=TabItem}}"/>
-                    </StackPanel>
-                </TabItem.Header>
-                <Grid>
-                    <Grid.Resources>
-                                <DataTemplate x:Key="PICKCARD">
-                                    <Button Style="{StaticResource CardButton}" Tag="{Binding Pick}" Click="Source_Click" Margin="0,0,0,6" AutomationProperties.Name="{Binding Name, Mode=OneWay}"
-                                            Background="{Binding SelBg, Mode=OneWay}" BorderBrush="{Binding SelBorder, Mode=OneWay}">
-                                        <Grid>
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="Auto"/>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                            </Grid.ColumnDefinitions>
-                                            <TextBlock Text="{Binding Icon}" FontFamily="{StaticResource Icons}" FontSize="20" VerticalAlignment="Center"
-                                                       Foreground="{StaticResource Muted}" Margin="0,0,12,0"/>
-                                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                                <TextBlock Text="{Binding Name, Mode=OneWay}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/>
-                                                <TextBlock Text="{Binding Title, Mode=OneWay}" Foreground="{StaticResource Muted}" FontSize="11" TextTrimming="CharacterEllipsis"/>
-                                            </StackPanel>
-                                            <TextBlock Grid.Column="2" Text="&#xE73E;" FontFamily="{StaticResource Icons}" Foreground="{StaticResource Accent}"
-                                                       FontSize="16" VerticalAlignment="Center" Visibility="{Binding CheckVis, Mode=OneWay}"/>
-                                        </Grid>
-                                    </Button>
-                                </DataTemplate>
-                    </Grid.Resources>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="440"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-
-                    <!-- pré-visualização -->
-                    <StackPanel Margin="0,0,18,0">
-                        <TextBlock Text="PRÉ-VISUALIZAÇÃO" FontSize="11" FontWeight="SemiBold" Foreground="{StaticResource Muted}" Margin="2,0,0,8"/>
-                        <Border Background="Black" CornerRadius="12" BorderBrush="{StaticResource Line}" BorderThickness="1" Height="248" ClipToBounds="True">
-                            <Grid>
-                                <Image x:Name="PreviewImg" Stretch="Uniform" RenderOptions.BitmapScalingMode="HighQuality"/>
-                                <TextBlock x:Name="PreviewMsg" Foreground="{StaticResource Muted}" TextWrapping="Wrap" TextAlignment="Center"
-                                           HorizontalAlignment="Center" VerticalAlignment="Center" Margin="24,0"/>
-                            </Grid>
-                        </Border>
-                        <TextBlock x:Name="SourceLabel" Margin="2,12,0,0" FontWeight="SemiBold" TextWrapping="Wrap"/>
-                        <TextBlock x:Name="SourceHint" Margin="2,2,0,0" Foreground="{StaticResource Muted}" FontSize="12" TextWrapping="Wrap"/>
-                        <CheckBox x:Name="PreviewCheck" Content="Pré-visualização ao vivo" Margin="2,16,0,0" Checked="PreviewCheck_Click" Unchecked="PreviewCheck_Click"/>
-                        <CheckBox x:Name="OnlyAudioCheck" Content="Enviar só o áudio do app compartilhado" Margin="2,10,0,0" Checked="OnlyAudio_Click" Unchecked="OnlyAudio_Click"/>
-                    </StackPanel>
-
-                    <!-- seleção da fonte -->
-                    <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto">
-                        <StackPanel Margin="0,0,10,0">
-                            <TextBlock Text="TELAS" FontSize="11" FontWeight="SemiBold" Foreground="{StaticResource Muted}" Margin="2,0,0,8"/>
-                            <ItemsControl x:Name="MonitorList" ItemTemplate="{StaticResource PICKCARD}"/>
-                            <Grid Margin="0,14,0,8">
-                                <TextBlock Text="JANELAS E APLICATIVOS" FontSize="11" FontWeight="SemiBold" Foreground="{StaticResource Muted}" Margin="2,0,0,0" VerticalAlignment="Center"/>
-                                <Button Content="Atualizar" Style="{StaticResource SmallButton}" HorizontalAlignment="Right" Click="RefreshWindows_Click"/>
-                            </Grid>
-                            <ItemsControl x:Name="WindowList" ItemTemplate="{StaticResource PICKCARD}"/>
-                            <TextBlock x:Name="WindowEmpty" Text="Nenhuma janela aberta encontrada" Foreground="{StaticResource Muted}" Margin="2,4,0,0" Visibility="Collapsed"/>
-                        </StackPanel>
-                    </ScrollViewer>
-                </Grid>
-            </TabItem>
-
-            <!-- Espectadores -->
-            <TabItem>
-                <TabItem.Header>
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="&#xE716;" FontFamily="{StaticResource Icons}" Margin="0,2,8,0" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=TabItem}}"/>
-                        <TextBlock Text="Espectadores" FontWeight="SemiBold" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=TabItem}}"/>
-                    </StackPanel>
-                </TabItem.Header>
-                <Grid>
-                    <ScrollViewer VerticalScrollBarVisibility="Auto">
-                        <ItemsControl x:Name="ViewerList" Margin="0,0,10,0">
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <Border Background="{StaticResource Surface}" BorderBrush="{StaticResource Line}" BorderThickness="1"
-                                            CornerRadius="12" Padding="14,10" Margin="0,0,0,8">
-                                        <Grid>
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="Auto"/>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                            </Grid.ColumnDefinitions>
-                                            <Border Width="40" Height="40" CornerRadius="20" Background="{StaticResource Accent}">
-                                                <TextBlock Text="{Binding Initial}" FontSize="17" FontWeight="Bold" Foreground="White"
-                                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                            </Border>
-                                            <StackPanel Grid.Column="1" Margin="12,0" VerticalAlignment="Center">
-                                                <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="14" TextTrimming="CharacterEllipsis"/>
-                                                <TextBlock Foreground="{StaticResource Muted}" FontSize="12">
-                                                    <Run Text="{Binding Remote, Mode=OneWay}"/><Run Text="  ·  "/><Run Text="{Binding Duration, Mode=OneWay}"/>
-                                                </TextBlock>
-                                            </StackPanel>
-                                            <Border Grid.Column="2" CornerRadius="10" Padding="10,3" Margin="0,0,14,0" VerticalAlignment="Center"
-                                                    Background="{Binding ChipBg, Mode=OneWay}">
-                                                <TextBlock Text="{Binding State, Mode=OneWay}" FontSize="11" FontWeight="SemiBold" Foreground="{Binding ChipFg, Mode=OneWay}"/>
-                                            </Border>
-                                            <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center">
-                                                <Button Content="Expulsar" Style="{StaticResource SmallButton}" Tag="{Binding Id}" Click="Kick_Click"/>
-                                                <Button Content="Banir" Style="{StaticResource SmallDanger}" Margin="8,0,0,0" Tag="{Binding Remote}" Click="Ban_Click"/>
-                                            </StackPanel>
-                                        </Grid>
-                                    </Border>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-                    </ScrollViewer>
-                    <StackPanel x:Name="ViewerEmpty" HorizontalAlignment="Center" VerticalAlignment="Center">
-                        <TextBlock Text="&#xE716;" FontFamily="{StaticResource Icons}" FontSize="40" Foreground="{StaticResource Surface3}" HorizontalAlignment="Center"/>
-                        <TextBlock Text="Ninguém conectado ainda" Foreground="{StaticResource Muted}" Margin="0,8,0,0" HorizontalAlignment="Center"/>
-                    </StackPanel>
-                </Grid>
-            </TabItem>
-
-            <!-- Áudio dos apps -->
-            <TabItem>
-                <TabItem.Header>
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="&#xE767;" FontFamily="{StaticResource Icons}" Margin="0,2,8,0" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=TabItem}}"/>
-                        <TextBlock Text="Áudio dos apps" FontWeight="SemiBold" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=TabItem}}"/>
-                    </StackPanel>
-                </TabItem.Header>
-                <DockPanel>
-                    <TextBlock DockPanel.Dock="Top" TextWrapping="Wrap" Foreground="{StaticResource Muted}" Margin="2,0,0,10"
-                               Text="Apps silenciados não vão para a transmissão (você continua ouvindo normalmente). A lista mostra os apps que já emitiram som."/>
-                    <Grid>
-                        <ScrollViewer VerticalScrollBarVisibility="Auto">
-                            <ItemsControl x:Name="AppList" Margin="0,0,10,0">
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate>
-                                        <Border Background="{StaticResource Surface}" BorderBrush="{StaticResource Line}" BorderThickness="1"
-                                                CornerRadius="12" Padding="14,10" Margin="0,0,0,8">
+<Window x:Class="LanCast.MainWindow" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:local="clr-namespace:LanCast"
+ Title="LanCast" Width="1200" Height="900" MinWidth="1000" MinHeight="720" WindowStartupLocation="CenterScreen" FontFamily="{StaticResource ProductFont}" FontSize="14"
+ Background="{DynamicResource Bg}" Foreground="{DynamicResource Text}" Icon="pack://application:,,,/Assets/app.ico" SourceInitialized="Window_SourceInitialized" PreviewKeyDown="Window_KeyDown">
+ <Window.Resources><local:InverseBoolToVisibility x:Key="InvVis"/><local:NavWidthConverter x:Key="NavWidth"/><BooleanToVisibilityConverter x:Key="Vis"/></Window.Resources>
+ <Grid>
+ <Grid x:Name="AppShell" Background="{DynamicResource Bg}"><Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+ <Border Background="{DynamicResource Sidebar}" Width="{Binding NavCollapsed, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource NavWidth}}">
+ <Grid Margin="12,16,12,16"><Grid.RowDefinitions><RowDefinition Height="70"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+ <Grid Grid.Row="0"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="28"/></Grid.ColumnDefinitions>
+ <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Visibility="{Binding NavCollapsed, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource InvVis}}">
+ <Border Width="36" Height="36" Background="{DynamicResource Accent}" CornerRadius="8"><Image Source="Assets/Design/host-imgIconeMonitor.png" Width="24" Height="24"/></Border><TextBlock Text="LanCast" FontWeight="SemiBold" FontSize="18" Margin="8,0,0,0" VerticalAlignment="Center"/></StackPanel>
+ <Button x:Name="NavToggle" Grid.ColumnSpan="2" HorizontalAlignment="Right" VerticalAlignment="Center" Width="28" Height="28" Padding="6" Click="NavToggle_Click" ToolTip="Recolher menu" AutomationProperties.Name="Recolher menu"><Image x:Name="NavToggleImage" Source="Assets/Design/host-imgRecolherMenu.png" Width="16" Height="16"/></Button>
+ </Grid>
+ <StackPanel Grid.Row="1"><TextBlock Text="SEU ESTÚDIO" Foreground="{DynamicResource Muted}" FontSize="11" Margin="8,8,0,8" Visibility="{Binding NavCollapsed, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource InvVis}}"/>
+ <ListBox x:Name="NavList" Background="Transparent" BorderThickness="0" ScrollViewer.HorizontalScrollBarVisibility="Disabled" SelectedIndex="{Binding SelectedIndex, ElementName=Tabs, Mode=TwoWay}" SelectionChanged="Navigation_Changed"><ListBox.Template><ControlTemplate TargetType="ListBox"><ScrollViewer Focusable="False" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto"><ItemsPresenter/></ScrollViewer></ControlTemplate></ListBox.Template><ListBoxItem Style="{StaticResource NavItem}" ToolTip="Compartilhar" AutomationProperties.Name="Compartilhar"><StackPanel Orientation="Horizontal"><Image Source="Assets/Design/host-imgLanCastIconMonitor.png" Width="20" Height="20"/><TextBlock Text="Compartilhar" Margin="12,0,0,0" FontWeight="SemiBold" VerticalAlignment="Center" Visibility="{Binding NavCollapsed, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource InvVis}}"/></StackPanel></ListBoxItem><ListBoxItem Style="{StaticResource NavItem}" ToolTip="Espectadores" AutomationProperties.Name="Espectadores"><StackPanel Orientation="Horizontal"><Image Source="Assets/Design/host-imgLanCastIconUsers.png" Width="20" Height="20"/><TextBlock Text="Espectadores" Margin="12,0,0,0" FontWeight="SemiBold" VerticalAlignment="Center" Visibility="{Binding NavCollapsed, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource InvVis}}"/></StackPanel></ListBoxItem><ListBoxItem Style="{StaticResource NavItem}" ToolTip="Áudio dos apps" AutomationProperties.Name="Áudio dos apps"><StackPanel Orientation="Horizontal"><Image Source="Assets/Design/host-imgLanCastIconAudio.png" Width="20" Height="20"/><TextBlock Text="Áudio dos apps" Margin="12,0,0,0" FontWeight="SemiBold" VerticalAlignment="Center" Visibility="{Binding NavCollapsed, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource InvVis}}"/></StackPanel></ListBoxItem><ListBoxItem Style="{StaticResource NavItem}" ToolTip="Microfone" AutomationProperties.Name="Microfone"><StackPanel Orientation="Horizontal"><Image Source="Assets/Design/host-imgLanCastIconMic.png" Width="20" Height="20"/><TextBlock Text="Microfone" Margin="12,0,0,0" FontWeight="SemiBold" VerticalAlignment="Center" Visibility="{Binding NavCollapsed, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource InvVis}}"/></StackPanel></ListBoxItem><ListBoxItem Style="{StaticResource NavItem}" ToolTip="Banidos" AutomationProperties.Name="Banidos"><StackPanel Orientation="Horizontal"><Image Source="Assets/Design/host-imgLanCastIconBan.png" Width="20" Height="20"/><TextBlock Text="Banidos" Margin="12,0,0,0" FontWeight="SemiBold" VerticalAlignment="Center" Visibility="{Binding NavCollapsed, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource InvVis}}"/><Border x:Name="BanBadge" Background="{DynamicResource DangerSoft}" CornerRadius="8" Padding="5,1" Margin="6,0,0,0" Visibility="Collapsed"><TextBlock x:Name="BanBadgeText" Foreground="{DynamicResource DangerText}" FontSize="11"/></Border></StackPanel></ListBoxItem><ListBoxItem Style="{StaticResource NavItem}" ToolTip="Configurações" AutomationProperties.Name="Configurações"><StackPanel Orientation="Horizontal"><Image Source="Assets/Design/host-imgLanCastIconSettings.png" Width="20" Height="20"/><TextBlock Text="Configurações" Margin="12,0,0,0" FontWeight="SemiBold" VerticalAlignment="Center" Visibility="{Binding NavCollapsed, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource InvVis}}"/></StackPanel></ListBoxItem></ListBox></StackPanel>
+ <Border Grid.Row="3" Style="{StaticResource Panel}" Padding="12" Visibility="{Binding NavCollapsed, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource InvVis}}"><StackPanel><TextBlock Text="●  Rede detectada" Foreground="{DynamicResource Ok}" FontSize="12"/><TextBlock x:Name="NetworkLabel" Text="Rede local" Foreground="{DynamicResource Muted}" FontSize="12" Margin="0,8,0,0"/><TextBlock Text="Acesso não verificado" Foreground="{DynamicResource Muted}" FontSize="12"/></StackPanel></Border>
+ <Image Grid.Row="3" Source="Assets/Design/host-imgIconeNetwork.png" Width="20" Height="20" Margin="0,12" ToolTip="Rede detectada · acesso não verificado" Visibility="{Binding NavCollapsed, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource Vis}}"/>
+ <TextBlock x:Name="SideVersion" Grid.Row="4" FontSize="11" Foreground="{DynamicResource Muted}" Margin="8,10,0,0" Visibility="{Binding NavCollapsed, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource InvVis}}"/>
+ </Grid></Border>
+ <Grid Grid.Column="1" Margin="28"><Grid.RowDefinitions><RowDefinition Height="64"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+ <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+ <StackPanel><TextBlock x:Name="PageTitle" Text="Compartilhar" FontSize="26" FontWeight="SemiBold"/><TextBlock x:Name="PageSubtitle" Text="Escolha o que seus amigos vão ver." FontSize="14" Foreground="{DynamicResource Muted}" Margin="0,4,0,0" TextTrimming="CharacterEllipsis"/></StackPanel>
+ <Border Grid.Column="1" Background="{DynamicResource Surface2}" CornerRadius="8" Padding="12,5" Margin="16,0,20,0" VerticalAlignment="Center"><StackPanel Orientation="Horizontal"><Ellipse x:Name="StatusDot" Width="5" Height="5" Fill="{DynamicResource Muted}" VerticalAlignment="Center" Margin="0,0,6,0"/><TextBlock x:Name="StatusText" Text="PARADO" FontSize="11" Foreground="{DynamicResource Muted}"/></StackPanel></Border>
+ <Button x:Name="StartStop" Grid.Column="2" Height="44" Width="186" Style="{StaticResource PrimaryButton}" VerticalAlignment="Center" Click="StartStop_Click" Content="Iniciar transmissão"/>
+ </Grid>
+ <TabControl x:Name="Tabs" Grid.Row="1" Margin="0,20,0,0">
+ <TabItem x:Name="ShareTab"><Grid><Grid.Resources><DataTemplate x:Key="PICKCARD">
+                                        <Button Style="{StaticResource CardButton}" Tag="{Binding Pick}" Click="Source_Click" Margin="0,0,0,6" AutomationProperties.Name="{Binding Name, Mode=OneWay}"
+                                                Background="{Binding SelBg, Mode=OneWay}" BorderBrush="{Binding SelBorder, Mode=OneWay}">
                                             <Grid>
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition Width="Auto"/>
                                                     <ColumnDefinition Width="*"/>
                                                     <ColumnDefinition Width="Auto"/>
                                                 </Grid.ColumnDefinitions>
-                                                <Ellipse Width="10" Height="10" Fill="{Binding Dot, Mode=OneWay}" VerticalAlignment="Center" Margin="0,0,12,0"/>
+                                                <Image Source="{Binding IconImage}" Width="20" Height="20" VerticalAlignment="Center" Margin="0,0,12,0"/>
                                                 <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                                    <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="14"/>
-                                                    <TextBlock Text="{Binding Title, Mode=OneWay}" Foreground="{StaticResource Muted}" FontSize="12" TextTrimming="CharacterEllipsis"/>
+                                                    <TextBlock Text="{Binding Name, Mode=OneWay}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/>
+                                                    <TextBlock Text="{Binding Title, Mode=OneWay}" Foreground="{DynamicResource Muted}" FontSize="11" TextTrimming="CharacterEllipsis"/>
                                                 </StackPanel>
-                                                <Button Grid.Column="2" Content="{Binding Label, Mode=OneWay}" Tag="{Binding Name}" Click="Mute_Click"
-                                                        Style="{StaticResource SmallButton}" MinWidth="130"
-                                                        Background="{Binding MuteBg, Mode=OneWay}" Foreground="{Binding MuteFg, Mode=OneWay}"/>
+                                                <TextBlock Grid.Column="2" Text="&#xE73E;" FontFamily="{StaticResource Icons}" Foreground="{DynamicResource Accent}"
+                                                           FontSize="16" VerticalAlignment="Center" Visibility="{Binding CheckVis, Mode=OneWay}"/>
                                             </Grid>
-                                        </Border>
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
-                        </ScrollViewer>
-                        <StackPanel x:Name="AppEmpty" HorizontalAlignment="Center" VerticalAlignment="Center">
-                            <TextBlock Text="&#xE767;" FontFamily="{StaticResource Icons}" FontSize="40" Foreground="{StaticResource Surface3}" HorizontalAlignment="Center"/>
-                            <TextBlock Text="Inicie a transmissão para listar os apps com áudio" Foreground="{StaticResource Muted}" Margin="0,8,0,0"/>
-                        </StackPanel>
-                    </Grid>
-                </DockPanel>
-            </TabItem>
-
-            <!-- Microfone -->
-            <TabItem>
-                <TabItem.Header>
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="&#xE720;" FontFamily="{StaticResource Icons}" Margin="0,2,8,0" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=TabItem}}"/>
-                        <TextBlock Text="Microfone" FontWeight="SemiBold" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=TabItem}}"/>
-                    </StackPanel>
-                </TabItem.Header>
-                <Border Background="{StaticResource Surface}" BorderBrush="{StaticResource Line}" BorderThickness="1" CornerRadius="14"
-                        Padding="22" HorizontalAlignment="Left" VerticalAlignment="Top" MaxWidth="520">
-                    <StackPanel>
-                        <TextBlock TextWrapping="Wrap" Foreground="{StaticResource Muted}" Margin="0,0,0,14"
-                                   Text="Quando ligado, o seu microfone é enviado junto com a transmissão para todos os espectadores."/>
-                        <Button x:Name="MicToggle" Click="MicToggle_Click" FontSize="15" Padding="22,12" HorizontalAlignment="Left"/>
-                        <TextBlock Text="DISPOSITIVO" FontSize="11" FontWeight="SemiBold" Foreground="{StaticResource Muted}" Margin="0,20,0,6"/>
-                        <ComboBox x:Name="MicDevice" SelectionChanged="MicDevice_Changed">
-                            <ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Name}"/></DataTemplate></ComboBox.ItemTemplate>
-                        </ComboBox>
-                        <TextBlock Text="VOLUME DO MICROFONE" FontSize="11" FontWeight="SemiBold" Foreground="{StaticResource Muted}" Margin="0,18,0,6"/>
-                        <Slider x:Name="MicGain" Minimum="0" Maximum="2" SmallChange="0.05" LargeChange="0.25" ValueChanged="MicGain_Changed"/>
-                        <TextBlock Text="NÍVEL" FontSize="11" FontWeight="SemiBold" Foreground="{StaticResource Muted}" Margin="0,18,0,8"/>
-                        <ProgressBar x:Name="MicLevel" Maximum="1"/>
-                        <TextBlock x:Name="MicMsg" Foreground="{StaticResource Danger}" TextWrapping="Wrap" Margin="0,12,0,0"/>
-                        <TextBlock Margin="0,12,0,0" TextWrapping="Wrap" Foreground="{StaticResource Muted}" FontSize="12"
-                                   Text="Sem som? Configurações do Windows > Privacidade > Microfone > permitir apps da área de trabalho."/>
-                    </StackPanel>
-                </Border>
-            </TabItem>
-
-            <!-- Banidos -->
-            <TabItem>
-                <TabItem.Header>
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="&#xE72E;" FontFamily="{StaticResource Icons}" Margin="0,2,8,0" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=TabItem}}"/>
-                        <TextBlock Text="Banidos" FontWeight="SemiBold" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=TabItem}}"/>
-                        <Border x:Name="BanBadge" CornerRadius="8" Padding="6,0" Margin="8,0,0,0" Background="{StaticResource Danger}" Visibility="Collapsed">
-                            <TextBlock x:Name="BanBadgeText" FontSize="11" FontWeight="Bold" Foreground="White"/>
-                        </Border>
-                    </StackPanel>
-                </TabItem.Header>
-                <DockPanel>
-                    <Grid DockPanel.Dock="Top" Margin="0,0,0,10">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="220"/>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <TextBox x:Name="BanIp" Tag="IP para banir (ex.: 26.10.20.30)" KeyDown="BanIp_KeyDown"/>
-                        <Button Grid.Column="1" Content="Banir IP" Style="{StaticResource DangerOutline}" Margin="8,0,0,0" Click="BanAdd_Click"/>
-                        <TextBlock Grid.Column="2" x:Name="BanMsg" Foreground="{StaticResource Muted}" VerticalAlignment="Center" Margin="12,0,0,0" TextTrimming="CharacterEllipsis"/>
-                    </Grid>
-                    <Grid>
-                        <ScrollViewer VerticalScrollBarVisibility="Auto">
-                            <ItemsControl x:Name="BanList" Margin="0,0,10,0">
+                                        </Button>
+                                    </DataTemplate></Grid.Resources><Grid.ColumnDefinitions><ColumnDefinition Width="3*"/><ColumnDefinition Width="2*"/></Grid.ColumnDefinitions>
+ <Border Style="{StaticResource Panel}" Margin="0,0,20,0"><Grid><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+ <Grid Margin="0,0,0,16"><TextBlock Text="●  PRÉVIA LOCAL" FontSize="11" Foreground="{DynamicResource Muted}"/><TextBlock Text="Visível somente para você" FontSize="12" Foreground="{DynamicResource Muted}" HorizontalAlignment="Right"/></Grid>
+ <Border Grid.Row="1" Background="#080C12" CornerRadius="8" ClipToBounds="True" MinHeight="170"><Grid><Image x:Name="PreviewImg" Stretch="Uniform"/><StackPanel VerticalAlignment="Center" Margin="24"><TextBlock x:Name="PreviewMsg" Text="Preparando prévia…" Foreground="{DynamicResource Muted}" TextWrapping="Wrap" TextAlignment="Center"/><Button x:Name="RecoverSource" Content="Escolher outra fonte" HorizontalAlignment="Center" Margin="0,16,0,0" Click="RecoverSource_Click" Visibility="Collapsed"/></StackPanel></Grid></Border>
+ <StackPanel Grid.Row="2" Margin="0,12,0,14"><TextBlock x:Name="SourceLabel" FontWeight="SemiBold" TextWrapping="Wrap"/><TextBlock x:Name="SourceHint" FontSize="12" Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Margin="0,4,0,0"/></StackPanel>
+ <Grid Grid.Row="3" Margin="0,12,0,12"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions><CheckBox x:Name="PreviewCheck" Content="Prévia ao vivo" Style="{StaticResource Switch}" Click="PreviewCheck_Click"/><CheckBox x:Name="ShareMicCheck" Grid.Column="1" Content="Microfone desligado" Style="{StaticResource Switch}" Click="MicToggle_Click" Margin="16,0,0,0"/></Grid>
+ <TextBlock x:Name="CaptureNotice" Grid.Row="4" Text="Tela inteira inclui notificações e outras janelas.&#10;Prefira uma janela para limitar o que aparece." FontSize="12" Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Margin="0,12,0,0"/>
+ </Grid></Border>
+ <Border Grid.Column="1" Style="{StaticResource Panel}"><DockPanel><Grid DockPanel.Dock="Top" Margin="0,0,0,16"><TextBlock Text="Fonte da transmissão" FontWeight="SemiBold"/><Button HorizontalAlignment="Right" Width="28" Height="28" Padding="6" ToolTip="Atualizar fontes" Style="{StaticResource GhostButton}" Click="RefreshWindows_Click"><Image Source="Assets/Design/host-imgIconeRefresh.png" Width="16" Height="16"/></Button></Grid>
+ <ScrollViewer VerticalScrollBarVisibility="Auto"><StackPanel><TextBlock Text="TELAS" Style="{StaticResource FieldLabel}" Margin="0,0,0,12"/><ItemsControl x:Name="MonitorList" ItemTemplate="{StaticResource PICKCARD}"/><TextBlock Text="JANELAS E APLICATIVOS" Style="{StaticResource FieldLabel}" Margin="0,16,0,12"/><ItemsControl x:Name="WindowList" ItemTemplate="{StaticResource PICKCARD}"/><TextBlock x:Name="WindowEmpty" Text="Nenhuma janela aberta encontrada" Foreground="{DynamicResource Muted}" FontSize="12" TextWrapping="Wrap"/><TextBlock x:Name="SourceAudioHint" Text="Áudio de todos os apps não silenciados." Foreground="{DynamicResource Muted}" FontSize="12" TextWrapping="Wrap" Margin="0,12,0,0"/></StackPanel></ScrollViewer></DockPanel></Border>
+ </Grid></TabItem>
+ <TabItem><Grid><Grid.RowDefinitions><RowDefinition Height="112"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions><UniformGrid Columns="3" Margin="0,0,0,20">
+ <Border Style="{StaticResource Panel}" Margin="0,0,14,0"><StackPanel><TextBlock x:Name="ViewerCount" Text="0" FontSize="26" FontWeight="SemiBold"/><TextBlock Text="Conectados agora" Foreground="{DynamicResource Muted}" FontSize="12"/></StackPanel></Border>
+ <Border Style="{StaticResource Panel}" Margin="0,0,14,0"><StackPanel><TextBlock x:Name="ConnectingCount" Text="0" FontSize="26" FontWeight="SemiBold"/><TextBlock Text="Conectando" Foreground="{DynamicResource Muted}" FontSize="12"/></StackPanel></Border>
+ <Border Style="{StaticResource Panel}"><StackPanel><TextBlock x:Name="BannedCount" Text="0" FontSize="26" FontWeight="SemiBold"/><TextBlock Text="IPs banidos" Foreground="{DynamicResource Muted}" FontSize="12"/></StackPanel></Border></UniformGrid>
+ <Border Grid.Row="1" Style="{StaticResource Panel}"><Grid><ScrollViewer VerticalScrollBarVisibility="Auto"><ItemsControl x:Name="ViewerList" Margin="0,0,10,0">
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
-                                        <Border Background="{StaticResource Surface}" BorderBrush="{StaticResource Line}" BorderThickness="1"
+                                        <Border Background="{DynamicResource Surface}" BorderBrush="{DynamicResource Line}" BorderThickness="1"
                                                 CornerRadius="12" Padding="14,10" Margin="0,0,0,8">
                                             <Grid>
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition Width="Auto"/>
                                                     <ColumnDefinition Width="*"/>
                                                     <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="Auto"/>
                                                 </Grid.ColumnDefinitions>
-                                                <Border Width="40" Height="40" CornerRadius="20" Background="{StaticResource DangerSoft}">
-                                                    <TextBlock Text="&#xE72E;" FontFamily="{StaticResource Icons}" FontSize="16" Foreground="{StaticResource Danger}"
+                                                <Border Width="40" Height="40" CornerRadius="20" Background="{DynamicResource Accent}">
+                                                    <TextBlock Text="{Binding Initial}" FontSize="17" FontWeight="Bold" Foreground="{DynamicResource OnAccent}"
                                                                HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                                 </Border>
                                                 <StackPanel Grid.Column="1" Margin="12,0" VerticalAlignment="Center">
-                                                    <TextBlock Text="{Binding Remote}" FontFamily="Consolas" FontWeight="SemiBold" FontSize="14"/>
-                                                    <TextBlock Text="{Binding Title}" Foreground="{StaticResource Muted}" FontSize="12" TextTrimming="CharacterEllipsis"/>
+                                                    <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="14" TextTrimming="CharacterEllipsis"/>
+                                                    <TextBlock Foreground="{DynamicResource Muted}" FontSize="12">
+                                                        <Run Text="{Binding Remote, Mode=OneWay}"/><Run Text="  ·  "/><Run Text="{Binding Duration, Mode=OneWay}"/>
+                                                    </TextBlock>
                                                 </StackPanel>
-                                                <Button Grid.Column="2" Content="Desbanir" Style="{StaticResource SmallButton}" Tag="{Binding Remote}" Click="Unban_Click"/>
+                                                <Border Grid.Column="2" CornerRadius="10" Padding="10,3" Margin="0,0,14,0" VerticalAlignment="Center"
+                                                        Background="{Binding ChipBg, Mode=OneWay}">
+                                                    <TextBlock Text="{Binding State, Mode=OneWay}" FontSize="11" FontWeight="SemiBold" Foreground="{Binding ChipFg, Mode=OneWay}"/>
+                                                </Border>
+                                                <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center">
+                                                    <Button Content="Expulsar" Style="{StaticResource SmallButton}" Tag="{Binding Id}" Click="Kick_Click"/>
+                                                    <Button Content="Banir" Style="{StaticResource SmallDanger}" Margin="8,0,0,0" Tag="{Binding Remote}" Click="Ban_Click"/>
+                                                </StackPanel>
                                             </Grid>
                                         </Border>
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
-                            </ItemsControl>
-                        </ScrollViewer>
-                        <StackPanel x:Name="BanEmpty" HorizontalAlignment="Center" VerticalAlignment="Center">
-                            <TextBlock Text="&#xE72E;" FontFamily="{StaticResource Icons}" FontSize="40" Foreground="{StaticResource Surface3}" HorizontalAlignment="Center"/>
-                            <TextBlock Text="Nenhum IP banido" Foreground="{StaticResource Muted}" Margin="0,8,0,0" HorizontalAlignment="Center"/>
-                        </StackPanel>
-                    </Grid>
-                </DockPanel>
-            </TabItem>
-
-            <!-- Configurações -->
-            <TabItem>
-                <TabItem.Header>
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="&#xE713;" FontFamily="{StaticResource Icons}" Margin="0,2,8,0" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=TabItem}}"/>
-                        <TextBlock Text="Configurações" FontWeight="SemiBold" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=TabItem}}"/>
-                    </StackPanel>
-                </TabItem.Header>
-                <ScrollViewer VerticalScrollBarVisibility="Auto">
-                    <Border Background="{StaticResource Surface}" BorderBrush="{StaticResource Line}" BorderThickness="1" CornerRadius="14"
-                            Padding="22" HorizontalAlignment="Left" Width="520" Margin="0,0,10,0">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="190"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                            </Grid.RowDefinitions>
-
-                            <TextBlock Grid.Row="0" Text="Porta" VerticalAlignment="Center" Margin="0,6"/>
-                            <TextBox Grid.Row="0" Grid.Column="1" x:Name="SPort" Margin="0,6"/>
-                            <TextBlock Grid.Row="1" Text="Senha (opcional)" VerticalAlignment="Center" Margin="0,6"/>
-                            <TextBox Grid.Row="1" Grid.Column="1" x:Name="SPassword" Margin="0,6"/>
-                            <TextBlock Grid.Row="2" Text="Monitor (0 = principal)" VerticalAlignment="Center" Margin="0,6" Visibility="Collapsed"/>
-                            <TextBox Grid.Row="2" Grid.Column="1" x:Name="SMonitor" Margin="0,6" Visibility="Collapsed"/>
-                            <TextBlock Grid.Row="3" Text="FPS" VerticalAlignment="Center" Margin="0,6"/>
-                            <ComboBox Grid.Row="3" Grid.Column="1" x:Name="SFps" Margin="0,6"/>
-                            <TextBlock Grid.Row="4" Text="Qualidade do vídeo (kbps)" VerticalAlignment="Center" Margin="0,6"/>
-                            <TextBox Grid.Row="4" Grid.Column="1" x:Name="SBitrate" Margin="0,6"/>
-                            <TextBlock Grid.Row="5" Text="Resolução" VerticalAlignment="Center" Margin="0,6"/>
-                            <ComboBox Grid.Row="5" Grid.Column="1" x:Name="SHeight" Margin="0,6">
-                                <ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Key}"/></DataTemplate></ComboBox.ItemTemplate>
-                            </ComboBox>
-                            <TextBlock Grid.Row="6" Text="Codificador de vídeo" VerticalAlignment="Center" Margin="0,6"/>
-                            <ComboBox Grid.Row="6" Grid.Column="1" x:Name="SEncoder" Margin="0,6">
-                                <ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Key}"/></DataTemplate></ComboBox.ItemTemplate>
-                            </ComboBox>
-                            <CheckBox Grid.Row="7" Grid.ColumnSpan="2" x:Name="SCursor" Content="Mostrar cursor do mouse" Margin="0,14,0,6"/>
-                            <StackPanel Grid.Row="8" Grid.ColumnSpan="2">
-                                <CheckBox x:Name="SAuto" Content="Iniciar a transmissão ao abrir o programa" Margin="0,6,0,6"/>
-                                <CheckBox x:Name="SLive" Content="Mostrar indicador AO VIVO" Margin="0,6,0,6"/>
-                            </StackPanel>
-                            <StackPanel Grid.Row="9" Grid.ColumnSpan="2" Margin="0,18,0,0">
-                                <StackPanel Orientation="Horizontal">
-                                    <Button Content="Salvar e aplicar" Style="{StaticResource PrimaryButton}" Click="Apply_Click"/>
-                                    <Button Content="Liberar no Firewall (admin)" Margin="10,0,0,0" Click="Firewall_Click"/>
-                                    <Button Content="Abrir log" Margin="10,0,0,0" Click="Log_Click"/>
-                                </StackPanel>
-                                <TextBlock x:Name="SMsg" Margin="0,10,0,0" TextWrapping="Wrap" Foreground="{StaticResource Muted}"/>
-                            </StackPanel>
-                        </Grid>
-                    </Border>
-                </ScrollViewer>
-            </TabItem>
-        </TabControl>
-
-        <TextBlock Grid.Row="3" x:Name="Footer" Foreground="{StaticResource Muted}" FontSize="11" HorizontalAlignment="Right" Margin="0,8,0,0"/>
-    </Grid>
-</Window>
+                            </ItemsControl></ScrollViewer><StackPanel x:Name="ViewerEmpty" VerticalAlignment="Center" HorizontalAlignment="Center"><TextBlock Text="Ninguém conectado ainda" FontSize="18" FontWeight="SemiBold" HorizontalAlignment="Center"/><TextBlock Text="Copie o link abaixo e convide seus amigos." Foreground="{DynamicResource Muted}" Margin="0,12"/><Button Content="Não conseguem entrar?" Click="ConnectionHelp_Click" Style="{StaticResource GhostButton}"/></StackPanel></Grid></Border>
+ <StackPanel Grid.Row="2" Margin="0,16,0,0"><TextBlock Text="Você controla quem fica" FontWeight="SemiBold"/><TextBlock Text="Expulsar encerra a conexão atual. Banir bloqueia novas conexões desse IP até você desbanir." Foreground="{DynamicResource Muted}" FontSize="12" TextWrapping="Wrap" Margin="0,4,0,0"/></StackPanel></Grid></TabItem>
+ <TabItem><Grid><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+ <Border Style="{StaticResource Panel}" Margin="0,0,0,20"><StackPanel><TextBlock Text="Seu som continua igual" FontWeight="SemiBold"/><TextBlock Text="Os apps permitidos entram quando a transmissão está ativa. Você continua ouvindo normalmente." Foreground="{DynamicResource Muted}" FontSize="12" Margin="0,8,0,0" TextWrapping="Wrap"/></StackPanel></Border>
+ <Border Grid.Row="1" Style="{StaticResource Panel}"><DockPanel><TextBlock DockPanel.Dock="Top" Text="Aplicativos detectados" Style="{StaticResource Heading}" Margin="0,0,0,16"/><Grid><ScrollViewer VerticalScrollBarVisibility="Auto"><ItemsControl x:Name="AppList" Margin="0,0,10,0">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border Background="{DynamicResource Surface}" BorderBrush="{DynamicResource Line}" BorderThickness="1"
+                                                    CornerRadius="12" Padding="14,10" Margin="0,0,0,8">
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <Ellipse Width="10" Height="10" Fill="{Binding Dot, Mode=OneWay}" VerticalAlignment="Center" Margin="0,0,12,0"/>
+                                                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                                        <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="14"/>
+                                                        <TextBlock Text="{Binding Title, Mode=OneWay}" Foreground="{DynamicResource Muted}" FontSize="12" TextTrimming="CharacterEllipsis"/>
+                                                    </StackPanel>
+                                                    <Button Grid.Column="2" Content="{Binding Label, Mode=OneWay}" Tag="{Binding Name}" Click="Mute_Click"
+                                                            Style="{StaticResource SmallButton}" MinWidth="130"
+                                                            Background="{Binding MuteBg, Mode=OneWay}" Foreground="{Binding MuteFg, Mode=OneWay}"/>
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl></ScrollViewer><StackPanel x:Name="AppEmpty" HorizontalAlignment="Center" VerticalAlignment="Center"><TextBlock Text="Nenhum aplicativo com áudio detectado" Foreground="{DynamicResource Muted}"/><TextBlock Text="Abra um aplicativo e reproduza um som para ele aparecer aqui." FontSize="12" Foreground="{DynamicResource Muted}" Margin="0,8,0,0"/></StackPanel></Grid></DockPanel></Border>
+ <Border Grid.Row="2" Style="{StaticResource Panel}" Margin="0,20,0,0"><StackPanel><CheckBox x:Name="OnlyAudioCheck" Content="Somente áudio do app compartilhado" Style="{StaticResource Switch}" Click="OnlyAudio_Click"/><TextBlock x:Name="OnlyAudioHint" Text="Escolha uma janela em Compartilhar para habilitar." Foreground="{DynamicResource Muted}" FontSize="12" TextWrapping="Wrap" Margin="0,8,0,0"/></StackPanel></Border></Grid></TabItem>
+ <TabItem><ScrollViewer VerticalScrollBarVisibility="Auto"><StackPanel><Border Style="{StaticResource Panel}"><StackPanel>
+ <CheckBox x:Name="MicToggle" Content="Microfone desligado" Style="{StaticResource Switch}" Click="MicToggle_Click" FontWeight="SemiBold"/><TextBlock x:Name="MicStateDescription" Text="Sua voz não está sendo enviada." Foreground="{DynamicResource Muted}" FontSize="12" Margin="0,8,0,20"/>
+ <Separator Background="{DynamicResource Line}" Margin="0,0,0,20"/><TextBlock Text="Dispositivo de entrada" Style="{StaticResource FieldLabel}" Margin="0,0,0,8"/><ComboBox x:Name="MicDevice" SelectionChanged="MicDevice_Changed"><ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Name}"/></DataTemplate></ComboBox.ItemTemplate></ComboBox>
+ <Grid Margin="0,20,0,8"><TextBlock Text="Volume do microfone" FontWeight="SemiBold"/><TextBlock x:Name="MicGainLabel" Text="100%" Foreground="{DynamicResource OnAccentSoft}" HorizontalAlignment="Right"/></Grid><Slider x:Name="MicGain" Minimum="0" Maximum="1" SmallChange="0.05" LargeChange="0.25" ValueChanged="MicGain_Changed"/>
+ <TextBlock Text="NÍVEL DE ENTRADA LOCAL" Style="{StaticResource FieldLabel}" Margin="0,30,0,12"/><ProgressBar x:Name="MicLevel" Maximum="1" Height="20"/><TextBlock Text="O medidor mostra a entrada local. Sua voz só é enviada com o microfone ligado." Foreground="{DynamicResource Muted}" FontSize="12" TextWrapping="Wrap" Margin="0,20,0,0"/><TextBlock x:Name="MicMsg" Foreground="{DynamicResource DangerText}" TextWrapping="Wrap" Margin="0,12,0,0"/>
+ </StackPanel></Border><Border Style="{StaticResource Panel}" Margin="0,20,0,0"><StackPanel><TextBlock Text="Não está saindo som?" Style="{StaticResource Heading}"/><TextBlock Text="Confira o dispositivo selecionado e permita o acesso ao microfone nas configurações de privacidade do Windows." Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Margin="0,8,0,0"/></StackPanel></Border></StackPanel></ScrollViewer></TabItem>
+ <TabItem><Grid><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions><Border Style="{StaticResource Panel}" Margin="0,0,0,20"><StackPanel><TextBlock Text="Bloquear um IP" Style="{StaticResource Heading}"/><TextBlock Text="Endereço IP" Style="{StaticResource FieldLabel}" Margin="0,16,0,8"/><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><TextBox x:Name="BanIp" Tag="ex.: 26.10.20.30" KeyDown="BanIp_KeyDown"/><Button Grid.Column="1" Content="Banir IP" Style="{StaticResource DangerOutline}" Margin="12,0,0,0" Click="BanAdd_Click"/></Grid><TextBlock x:Name="BanMsg" Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Margin="0,8,0,0"/></StackPanel></Border>
+ <Grid Grid.Row="1"><ScrollViewer VerticalScrollBarVisibility="Auto"><ItemsControl x:Name="BanList" Margin="0,0,10,0">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border Background="{DynamicResource Surface}" BorderBrush="{DynamicResource Line}" BorderThickness="1"
+                                                    CornerRadius="12" Padding="14,10" Margin="0,0,0,8">
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <Border Width="40" Height="40" CornerRadius="20" Background="{DynamicResource DangerSoft}">
+                                                        <TextBlock Text="&#xE72E;" FontFamily="{StaticResource Icons}" FontSize="16" Foreground="{DynamicResource Danger}"
+                                                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                    </Border>
+                                                    <StackPanel Grid.Column="1" Margin="12,0" VerticalAlignment="Center">
+                                                        <TextBlock Text="{Binding Remote}" FontFamily="Consolas" FontWeight="SemiBold" FontSize="14"/>
+                                                        <TextBlock Text="{Binding Title}" Foreground="{DynamicResource Muted}" FontSize="12" TextTrimming="CharacterEllipsis"/>
+                                                    </StackPanel>
+                                                    <Button Grid.Column="2" Content="Desbanir" Style="{StaticResource SmallButton}" Tag="{Binding Remote}" Click="Unban_Click"/>
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl></ScrollViewer><StackPanel x:Name="BanEmpty" HorizontalAlignment="Center" VerticalAlignment="Center"><TextBlock Text="Nenhum IP banido" Foreground="{DynamicResource Muted}" FontSize="18"/></StackPanel></Grid>
+ <Border Grid.Row="2" Style="{StaticResource Panel}" Margin="0,20,0,0"><StackPanel><TextBlock Text="O bloqueio é por endereço IP" FontWeight="SemiBold"/><TextBlock Text="Um IP banido não consegue abrir a página nem entrar na transmissão. Ao desbanir, a pessoa pode acessar novamente pelo mesmo link; ela não é reconectada automaticamente." Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Margin="0,8,0,0"/></StackPanel></Border></Grid></TabItem>
+ <TabItem><Grid><Grid.RowDefinitions><RowDefinition Height="40"/><RowDefinition Height="*"/></Grid.RowDefinitions><StackPanel Orientation="Horizontal"><Button x:Name="TransmissionSettingsButton" Content="Transmissão" Tag="0" Width="140" Margin="0,0,8,0" Style="{StaticResource SettingsTabButton}" Click="SettingsTab_Click"/><Button x:Name="AppearanceSettingsButton" Content="Aparência" Tag="1" Width="126" Style="{StaticResource GhostButton}" Click="SettingsTab_Click"/></StackPanel>
+ <TabControl x:Name="SettingsTabs" SelectedIndex="0" Grid.Row="1" Margin="0,20,0,0"><TabItem><Grid><Grid.RowDefinitions><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions><ScrollViewer VerticalScrollBarVisibility="Auto"><StackPanel><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+ <Border Style="{StaticResource Panel}" Margin="0,0,20,0"><StackPanel><TextBlock Text="Vídeo" Style="{StaticResource Heading}"/><Grid Margin="0,16,0,0"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions><StackPanel Margin="0,0,16,0"><TextBlock Text="Resolução" Style="{StaticResource FieldLabel}" Margin="0,0,0,8"/><ComboBox x:Name="SHeight" SelectionChanged="Settings_Changed"><ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Key}"/></DataTemplate></ComboBox.ItemTemplate></ComboBox></StackPanel><StackPanel Grid.Column="1"><TextBlock Text="Taxa de quadros" Style="{StaticResource FieldLabel}" Margin="0,0,0,8"/><ComboBox x:Name="SFps" SelectionChanged="Settings_Changed"/></StackPanel></Grid>
+ <TextBlock Text="Codificador de vídeo" Style="{StaticResource FieldLabel}" Margin="0,20,0,8"/><ComboBox x:Name="SEncoder" SelectionChanged="Settings_Changed"><ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Key}"/></DataTemplate></ComboBox.ItemTemplate></ComboBox><TextBlock Text="Taxa de bits do vídeo (kbps)" Style="{StaticResource FieldLabel}" Margin="0,20,0,8"/><TextBox x:Name="SBitrate" TextChanged="Settings_Changed"/><TextBlock x:Name="BitrateHint" Text="10.000 kbps = 10 Mbps por espectador." FontSize="12" Foreground="{DynamicResource Muted}" Margin="0,12,0,20" TextWrapping="Wrap"/><CheckBox x:Name="SCursor" Content="Mostrar cursor do mouse" Style="{StaticResource Switch}" Click="Settings_Changed"/><TextBlock Text="Inclui o ponteiro na captura." Foreground="{DynamicResource Muted}" FontSize="12" Margin="0,8,0,0"/>
+ </StackPanel></Border>
+ <Border Grid.Column="1" Style="{StaticResource Panel}"><StackPanel><TextBlock Text="Conexão e acesso" Style="{StaticResource Heading}"/><TextBlock Text="Porta" Style="{StaticResource FieldLabel}" Margin="0,16,0,8"/><TextBox x:Name="SPort" TextChanged="Settings_Changed"/><TextBlock Text="Senha da transmissão (opcional)" Style="{StaticResource FieldLabel}" Margin="0,20,0,8"/><PasswordBox x:Name="SPassword" PasswordChanged="Settings_Changed"/><TextBlock Text="Compartilhe a senha apenas com seus convidados." Foreground="{DynamicResource Muted}" FontSize="12" TextWrapping="Wrap" Margin="0,16,0,20"/><UniformGrid Columns="2"><Button Content="Liberar no Firewall" Click="Firewall_Click" Margin="0,0,12,0"/><Button Content="Abrir log" Click="Log_Click"/></UniformGrid><TextBlock Text="O Windows pode solicitar permissão de administrador." Foreground="{DynamicResource Muted}" FontSize="12" TextWrapping="Wrap" Margin="0,20,0,0"/></StackPanel></Border></Grid>
+ <Border Style="{StaticResource Panel}" Margin="0,20,0,20"><StackPanel><TextBlock Text="Ao abrir e durante a transmissão" Style="{StaticResource Heading}"/><UniformGrid Columns="2" Margin="0,16,0,0"><StackPanel Margin="0,0,16,0"><CheckBox x:Name="SAuto" Content="Iniciar ao abrir o LanCast" Style="{StaticResource Switch}" Click="Settings_Changed"/><TextBlock Text="Sua fonte e seu áudio serão enviados ao abrir." Foreground="{DynamicResource Muted}" FontSize="12" TextWrapping="Wrap" Margin="0,8,0,0"/></StackPanel><StackPanel><CheckBox x:Name="SLive" Content="Mostrar indicador AO VIVO" Style="{StaticResource Switch}" Click="Settings_Changed"/><TextBlock Text="Visível para você; não aparece na captura." Foreground="{DynamicResource Muted}" FontSize="12" TextWrapping="Wrap" Margin="0,8,0,0"/></StackPanel></UniformGrid></StackPanel></Border>
+ </StackPanel></ScrollViewer>
+<Grid Grid.Row="1" Margin="0,16,0,0"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><TextBlock x:Name="SMsg" Text="Configurações salvas." Foreground="{DynamicResource Muted}" FontSize="12" TextWrapping="Wrap" VerticalAlignment="Center" Margin="0,0,20,0"/><Button x:Name="ApplySettingsButton" Grid.Column="1" Content="Configurações salvas" Style="{StaticResource PrimaryButton}" Width="210" Height="44" Click="Apply_Click" IsEnabled="False"/></Grid>
+</Grid></TabItem>
+ <TabItem><ScrollViewer VerticalScrollBarVisibility="Auto"><StackPanel><Border Style="{StaticResource Panel}"><StackPanel><TextBlock Text="Temas" Style="{StaticResource Heading}"/><TextBlock Text="Escolha uma paleta para personalizar as cores da interface." Foreground="{DynamicResource Muted}" Margin="0,8,0,16"/>
+ <ListBox x:Name="STheme" Background="Transparent" BorderThickness="0" SelectionChanged="Theme_Changed" ScrollViewer.HorizontalScrollBarVisibility="Disabled"><ListBox.ItemsPanel><ItemsPanelTemplate><UniformGrid Columns="3"/></ItemsPanelTemplate></ListBox.ItemsPanel><ListBox.ItemContainerStyle><Style TargetType="ListBoxItem"><Setter Property="HorizontalContentAlignment" Value="Stretch"/><Setter Property="VerticalContentAlignment" Value="Stretch"/><Setter Property="Padding" Value="0"/><Setter Property="Margin" Value="0,0,0,0"/><Setter Property="Template"><Setter.Value><ControlTemplate TargetType="ListBoxItem"><Border x:Name="card" Margin="0,0,12,16" Background="{DynamicResource Bg}" BorderBrush="{DynamicResource Line}" BorderThickness="1" CornerRadius="12" Padding="12"><ContentPresenter/></Border><ControlTemplate.Triggers><Trigger Property="IsSelected" Value="True"><Setter TargetName="card" Property="BorderBrush" Value="{DynamicResource Accent}"/><Setter TargetName="card" Property="BorderThickness" Value="2"/></Trigger><Trigger Property="IsKeyboardFocusWithin" Value="True"><Setter TargetName="card" Property="BorderBrush" Value="{DynamicResource Accent}"/></Trigger></ControlTemplate.Triggers></ControlTemplate></Setter.Value></Setter></Style></ListBox.ItemContainerStyle>
+ <ListBox.ItemTemplate><DataTemplate><StackPanel Height="158"><Border Height="88" CornerRadius="8" Background="{Binding Bg}" ClipToBounds="True"><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="38"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions><Border Background="{Binding Sidebar}"><StackPanel Margin="8,10"><Border Height="14" CornerRadius="3" Background="{Binding Accent}"/><Border Height="5" CornerRadius="3" Background="{Binding Line}" Margin="0,6,0,0"/><Border Height="5" CornerRadius="3" Background="{Binding Line}" Margin="0,6,0,0"/><Border Height="5" CornerRadius="3" Background="{Binding Line}" Margin="0,6,0,0"/></StackPanel></Border><StackPanel Grid.Column="1" Margin="10"><Border Background="{Binding Text}" Height="5" Width="84" HorizontalAlignment="Left" CornerRadius="2"/><Border Background="{Binding Surface}" Height="39" Margin="0,7,0,7" CornerRadius="5"><StackPanel Margin="8"><Border Height="4" Width="92" Background="{Binding Line}" HorizontalAlignment="Left" CornerRadius="2"/><Border Height="4" Width="134" Background="{Binding Line}" HorizontalAlignment="Left" CornerRadius="2" Margin="0,5,0,0"/></StackPanel></Border><Border Background="{Binding Accent}" Width="58" Height="10" HorizontalAlignment="Left" CornerRadius="3"/></StackPanel></Grid></Border>
+ <Grid Margin="0,8,0,0" Height="26"><TextBlock Text="{Binding Name}" FontWeight="SemiBold" VerticalAlignment="Center"/><Border Background="{DynamicResource AccentSoft}" CornerRadius="8" Padding="10,4" HorizontalAlignment="Right"><Border.Style><Style TargetType="Border"><Setter Property="Visibility" Value="Collapsed"/><Style.Triggers><DataTrigger Binding="{Binding IsSelected, RelativeSource={RelativeSource AncestorType=ListBoxItem}}" Value="True"><Setter Property="Visibility" Value="Visible"/></DataTrigger></Style.Triggers></Style></Border.Style><TextBlock Text="Atual" Foreground="{DynamicResource OnAccentSoft}" FontSize="11"/></Border></Grid><TextBlock Text="{Binding Description}" Foreground="{DynamicResource Muted}" FontSize="12" Margin="0,8,0,0" TextWrapping="Wrap"/></StackPanel></DataTemplate></ListBox.ItemTemplate></ListBox>
+ </StackPanel></Border><Border Style="{StaticResource Panel}" Margin="0,20,0,20"><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><StackPanel><TextBlock x:Name="ThemeStatus" Text="Tema Escuro aplicado." FontWeight="SemiBold"/><TextBlock Text="A mudança é imediata e não interrompe a transmissão." Foreground="{DynamicResource Muted}" FontSize="12" Margin="0,4,0,0" TextWrapping="Wrap"/></StackPanel><Button Grid.Column="1" Content="Restaurar padrão" Margin="16,0,0,0" Click="RestoreTheme_Click"/></Grid></Border><TextBlock Text="O tema personaliza o seu LanCast. A imagem transmitida permanece igual." Foreground="{DynamicResource Muted}" FontSize="12" TextWrapping="Wrap"/></StackPanel></ScrollViewer></TabItem></TabControl>
+ </Grid></TabItem>
+ </TabControl>
+ <Border x:Name="InvitePanel" Grid.Row="2" Style="{StaticResource Panel}" Margin="0,20,0,0"><StackPanel><Grid Margin="0,0,0,12"><TextBlock Text="Convide seus amigos" FontWeight="SemiBold"/><TextBlock Text="Mesma rede local ou Radmin VPN" FontSize="12" Foreground="{DynamicResource Muted}" HorizontalAlignment="Right"/></Grid><ItemsControl x:Name="Addresses"><ItemsControl.ItemsPanel><ItemsPanelTemplate><UniformGrid Columns="2"/></ItemsPanelTemplate></ItemsControl.ItemsPanel><ItemsControl.ItemTemplate><DataTemplate><Border Background="{DynamicResource Surface2}" CornerRadius="8" Padding="12" Margin="0,0,12,0"><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><StackPanel><TextBlock Text="{Binding Label}" Foreground="{Binding ChipFg}" FontSize="11"/><TextBlock Text="{Binding Url}" FontSize="12" TextTrimming="CharacterEllipsis" ToolTip="{Binding Url}" Margin="0,4,10,0"/></StackPanel><Button Grid.Column="1" Content="Copiar" Style="{StaticResource SmallButton}" Tag="{Binding Url}" Click="Copy_Click" MinWidth="100" Height="44"/></Grid></Border></DataTemplate></ItemsControl.ItemTemplate></ItemsControl></StackPanel></Border>
+ <StackPanel Grid.Row="3" Orientation="Horizontal" Margin="0,16,0,0"><Image Source="Assets/Design/host-imgIconeShield.png" Width="16" Height="16" Margin="0,0,8,0"/><TextBlock x:Name="Footer" Foreground="{DynamicResource Muted}" FontSize="12"/><TextBlock x:Name="SubStatus" Visibility="Collapsed"/></StackPanel>
+ </Grid></Grid>
+ <Grid x:Name="DialogLayer" Visibility="Collapsed" Background="#AD000000" MouseDown="DialogBackdrop_Click"><Border Style="{StaticResource Panel}" Width="520" Padding="28" CornerRadius="16" HorizontalAlignment="Center" VerticalAlignment="Center" MouseDown="DialogPanel_Click"><StackPanel><TextBlock x:Name="DialogTitle" FontSize="26" FontWeight="SemiBold" TextWrapping="Wrap"/><TextBlock x:Name="DialogMessage" Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Margin="0,20,0,0"/><Border x:Name="DialogPerson" Background="{DynamicResource Surface2}" CornerRadius="8" Padding="12" Margin="0,20,0,0" Visibility="Collapsed"><StackPanel><TextBlock x:Name="DialogPersonName" FontWeight="SemiBold"/><TextBlock x:Name="DialogPersonIp" Foreground="{DynamicResource Muted}" FontSize="12" Margin="0,4,0,0"/></StackPanel></Border><ScrollViewer x:Name="DialogSourcePicker" Height="300" VerticalScrollBarVisibility="Auto" Margin="0,20,0,0" Visibility="Collapsed"><StackPanel><TextBlock Text="TELAS" Style="{StaticResource FieldLabel}"/><ItemsControl x:Name="DialogMonitorList"/><TextBlock Text="JANELAS E APLICATIVOS" Style="{StaticResource FieldLabel}" Margin="0,16,0,8"/><ItemsControl x:Name="DialogWindowList"/></StackPanel></ScrollViewer><StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,20,0,0"><Button x:Name="DialogCancel" Content="Cancelar" MinWidth="120" Height="44" Click="DialogCancel_Click" Margin="0,0,16,0"/><Button x:Name="DialogConfirm" Content="Confirmar" MinWidth="180" Height="44" Style="{StaticResource DangerOutline}" Click="DialogConfirm_Click"/></StackPanel></StackPanel></Border></Grid>
+ <Border x:Name="Toast" Visibility="Collapsed" Background="{DynamicResource Surface2}" BorderBrush="{DynamicResource Line}" BorderThickness="1" CornerRadius="8" Padding="16,12" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="28"><TextBlock x:Name="ToastText" TextWrapping="Wrap" MaxWidth="480"/></Border>
+ </Grid>
+ </Window>

@@ -16,6 +16,7 @@ public partial class App : Application
             return;
         }
         base.OnStartup(e);
+        ThemeManager.Apply(StreamConfig.Load().Theme);
         new MainWindow().Show();
     }
 }

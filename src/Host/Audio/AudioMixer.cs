@@ -111,6 +111,49 @@ public sealed class AudioMixer : IDisposable
 
     // ---------- descoberta de sessões ----------
 
+    public static HashSet<string> ReadMuted(IEnumerable<string> defaults)
+    {
+        try { if (File.Exists(Paths.MutesFile)) return new HashSet<string>(JsonSerializer.Deserialize<string[]>(File.ReadAllText(Paths.MutesFile)) ?? Array.Empty<string>(), StringComparer.OrdinalIgnoreCase); } catch { }
+        return new HashSet<string>(defaults, StringComparer.OrdinalIgnoreCase);
+    }
+    public static void SaveMutedPreference(string name, bool muted, IEnumerable<string> defaults)
+    {
+        var names = ReadMuted(defaults);
+        if (muted) names.Add(name); else names.Remove(name);
+        File.WriteAllText(Paths.MutesFile, JsonSerializer.Serialize(names));
+    }
+    /// <summary>Enumera sessões sem iniciar captura nem transmitir áudio.</summary>
+    public static IReadOnlyList<AppAudioInfo> DiscoverApps(IEnumerable<string> defaults)
+    {
+        var muted = ReadMuted(defaults);
+        var apps = new Dictionary<string, AppAudioInfo>(StringComparer.OrdinalIgnoreCase);
+        try
+        {
+            using var enumerator = new MMDeviceEnumerator();
+            using var device = enumerator.GetDefaultAudioEndpoint(DataFlow.Render, Role.Multimedia);
+            device.AudioSessionManager.RefreshSessions();
+            var sessions = device.AudioSessionManager.Sessions;
+            for (int i = 0; i < sessions.Count; i++)
+            {
+                var session = sessions[i];
+                int pid = (int)session.GetProcessID;
+                if (pid == 0 || pid == Environment.ProcessId || session.IsSystemSoundsSession) continue;
+                try
+                {
+                    using var process = Process.GetProcessById(pid);
+                    string name = process.ProcessName;
+                    bool active = session.State == AudioSessionState.AudioSessionStateActive && session.AudioMeterInformation.MasterPeakValue > 0.001f;
+                    apps.TryGetValue(name, out var previous);
+                    apps[name] = new(name, string.IsNullOrEmpty(process.MainWindowTitle) ? previous?.Title ?? "" : process.MainWindowTitle, muted.Contains(name), active || previous?.Playing == true, (previous?.Pids ?? 0) + 1);
+                }
+                catch { }
+            }
+        }
+        catch { }
+        foreach (var name in muted) if (!apps.ContainsKey(name)) apps[name] = new(name, "Sem atividade", true, false, 0);
+        return apps.Values.OrderByDescending(a => a.Playing).ThenBy(a => a.Name).ToList();
+    }
+
     private void WatchSessions()
     {
         using var enumerator = new MMDeviceEnumerator();

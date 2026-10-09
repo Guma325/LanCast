@@ -64,6 +64,13 @@ public sealed class StreamService
 
         app.MapGet("/", () => Results.Text(indexHtml, "text/html; charset=utf-8"));
         app.MapGet("/favicon.ico", () => Results.NoContent());
+        app.MapGet("/assets/{name}", (string name) =>
+        {
+            if (name.IndexOfAny(new[] { '/', '\\' }) >= 0) return Results.NotFound();
+            var resource = Assembly.GetExecutingAssembly().GetManifestResourceStream("assets/" + name);
+            if (resource == null) return Results.NotFound();
+            return Results.Stream(resource, name.EndsWith(".woff2", StringComparison.OrdinalIgnoreCase) ? "font/woff2" : "image/svg+xml");
+        });
         app.MapGet("/api/info", () => new { passwordRequired = cfg.Password.Length > 0 });
         app.MapGet("/api/viewers", () => new { count = hub.ViewerCount, names = hub.ConnectedNames });
         app.MapPost("/api/offer", async (OfferRequest req, HttpContext ctx) =>
