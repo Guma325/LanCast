@@ -1,54 +1,129 @@
 # LanCast
 
-Compartilhamento de tela local com baixa latência (H.264 NVENC + WebRTC) para usar com VPN (Radmin).
+Compartilhamento de tela **local, de baixa latência**, pensado para jogar/assistir junto com amigos por VPN (Radmin).
+Você transmite sua tela (ou só uma janela) e quem assiste abre um link no navegador. Sem conta, sem instalar nada do lado de quem assiste.
 
-## Duas formas de usar (arquivos em pastas separadas)
+![Demonstração do LanCast](docs/img/demo.gif)
+
+- **Vídeo:** H.264 por GPU (NVIDIA NVENC, com fallback para AMD, Intel e software) até 60 FPS.
+- **Áudio:** Opus de 10 ms, com mixagem por aplicativo e microfone opcional.
+- **Transporte:** WebRTC direto entre você e cada espectador (nenhum servidor na nuvem).
+- **Quem assiste:** só precisa do Chrome ou Edge.
+
+## Download
+
+Baixe na página de [**Releases**](https://github.com/Guma325/LanCast/releases/latest):
 
 | Modo | Arquivo | Para quê |
 |---|---|---|
-| **Portátil** | `dist\portable\LanCast.exe` | Abre direto, sem instalar. Pode ficar em um pendrive. |
-| **Instalador** | `dist\installer\LanCast-Setup-1.0.0.exe` | Instala em Arquivos de Programas, cria atalhos (Menu Iniciar / Área de Trabalho), libera o Firewall e adiciona desinstalador. |
+| **Instalador** | `LanCast-Setup-x.y.z.exe` | Instala em Arquivos de Programas, cria atalhos (Menu Iniciar / Área de Trabalho), libera o Firewall e adiciona desinstalador. |
+| **Portátil** | `LanCast-Portable-x.y.z.exe` | Abre direto, sem instalar. Pode ficar em um pendrive. |
 
 Os dois compartilham as mesmas configurações em `%AppData%\LanCast`.
 
-## Usar
-1. Abra o app e clique em **Iniciar transmissão**. Copie o link da Radmin e mande para os amigos.
-2. Quem assiste abre o link no Chrome/Edge, digita um nome e clica em **Assistir**.
-3. Na primeira vez (modo portátil), aceite o aviso do Firewall ou use Configurações > Liberar no Firewall.
+**Requisitos:** Windows 10 2004 ou mais novo / Windows 11. GPU NVIDIA é o ideal (AMD, Intel e CPU também funcionam, com mais uso de processador).
 
-Fechar a janela só esconde o app na bandeja; para sair use o ícone da bandeja > Sair.
+## Como usar
 
-## Recursos
-- Contador de conectados e lista com nome/IP de cada espectador, com **Expulsar** e **Banir**.
-- Aba **Compartilhar**: pré-visualização ao vivo e escolha do que transmitir: uma **tela** específica ou **só uma janela/aplicativo**.
-  Dá para trocar durante a transmissão sem derrubar os espectadores. Se a janela fechar, o app espera e volta sozinho quando ela reaparecer.
-  Com uma janela escolhida, a opção "Enviar só o áudio do app compartilhado" deixa os outros apps fora da transmissão.
-- Aba **Banidos**: lista de IPs banidos, **Desbanir** e banimento manual por IP. Banido não consegue nem abrir a página.
-- Nome escolhido pelo espectador (sem login). Senha opcional.
-- Aba **Áudio dos apps**: silencia apps específicos na transmissão (você continua ouvindo).
-- Aba **Microfone**: liga/desliga o seu mic na transmissão, dispositivo e volume.
-- Configurações: porta, monitor, FPS, qualidade, resolução, iniciar ao abrir.
+1. Abra o LanCast. A transmissão começa com **Iniciar transmissão** (ou automaticamente, se você ativar essa opção nas Configurações).
+2. Em **Links para compartilhar**, clique em **Copiar** no link da **Radmin VPN** e envie para os amigos. O link **Rede local** serve para quem está na mesma rede.
+3. Quem assiste abre o link no Chrome/Edge, digita um nome e clica em **Assistir**.
+4. Na primeira vez (modo portátil), aceite o aviso do Firewall do Windows ou use **Configurações > Liberar no Firewall**.
+
+Fechar a janela só esconde o app na bandeja do sistema. Para sair de verdade, use o ícone da bandeja > **Sair**.
+
+## Funcionalidades
+
+### Compartilhar: tela inteira ou só uma janela
+
+![Aba Compartilhar](docs/img/share.png)
+
+- Escolha uma **tela** específica ou **só uma janela/aplicativo**.
+- A **pré-visualização ao vivo** mostra exatamente o que os espectadores veem.
+- Dá para trocar a fonte **durante a transmissão** sem derrubar ninguém. Se a janela fechar, o LanCast espera e volta sozinho quando ela reaparecer.
+- Com uma janela escolhida, **"Enviar só o áudio do app compartilhado"** deixa o resto do seu PC (música, Discord...) fora da transmissão.
+
+### Espectadores: quem está assistindo
+
+![Aba Espectadores](docs/img/viewers.png)
+
+- O contador mostra quantos estão conectados; a lista traz o **nome** (escolhido por eles), o **IP** e o tempo de conexão.
+- **Expulsar** derruba a pessoa (ela pode voltar). **Banir** bloqueia o IP dela.
+- Senha opcional nas Configurações, caso queira restringir o acesso.
+
+### O que o espectador vê
+
+![Página do espectador](docs/img/viewer.png)
+
+Uma página simples com o vídeo em tela cheia, controle de volume, contador de quem está assistindo e o botão **Stats** (latência, FPS e bitrate). Se a conexão cair, aparece o aviso "Conexão perdida" e basta clicar em **Assistir** para reconectar.
+
+### Áudio dos apps
+
+![Aba Áudio dos apps](docs/img/audio.png)
+
+Lista os aplicativos que já emitiram som. Clique para **silenciar** um app na transmissão. Você continua ouvindo normalmente, só os espectadores deixam de ouvir.
+
+### Microfone
+
+![Aba Microfone](docs/img/mic.png)
+
+Liga e desliga o seu microfone na transmissão, com escolha de dispositivo, ajuste de volume e medidor de nível.
+
+### Banidos
+
+![Aba Banidos](docs/img/bans.png)
+
+Lista de IPs banidos, com **Desbanir** e banimento manual por IP. Quem foi banido não consegue nem abrir a página. Na Radmin cada pessoa tem um IP fixo, então o banimento funciona bem.
+
+### Configurações
+
+![Aba Configurações](docs/img/settings.png)
+
+Porta, senha opcional, FPS, qualidade (bitrate), resolução, codificador de vídeo, cursor do mouse, iniciar a transmissão ao abrir e o indicador **AO VIVO**.
+
+### Indicador AO VIVO
+
+Para você não esquecer que está transmitindo (como o ponto vermelho do Android), enquanto a transmissão está ativa o LanCast mostra:
+
+- uma **bolinha vermelha** no ícone da bandeja e no botão da barra de tarefas;
+- uma **pílula vermelha "AO VIVO"** no topo da tela, com o número de espectadores.
+
+A pílula não rouba o foco, deixa o mouse passar e **não aparece na transmissão**. Dá para desligá-la em **Configurações > Mostrar indicador AO VIVO**.
 
 ## Se o vídeo ficar preto
+
 O app tenta sozinho, em ordem: NVIDIA (NVENC) > AMD (AMF) > Intel (Quick Sync) > software (x264), e captura por GPU > CPU > GDI,
 e fica no primeiro que realmente produzir vídeo. O método em uso aparece no cabeçalho ("Sem vídeo" em amarelo enquanto procura).
-Se ainda falhar, abra **Configurações > Abrir log** (arquivo `%AppData%\LanCast\log.txt`, lista GPUs/drivers e erros do ffmpeg)
-e envie o arquivo. Dá para forçar um codificador em Configurações > Codificador de vídeo.
-
-## Gerar os arquivos
-`publicar.bat` gera o portátil e o instalador (usa `tools\InnoSetup`, instalado localmente no projeto).
-
-## Versionamento
-- A versão fica em `src\Host\LanCast.csproj` (`<Version>`); o `publicar.bat` repassa para o instalador.
-- Releases são tags git `vMAJOR.MINOR.PATCH` (ver `CHANGELOG.md`).
-- Os `.exe` gerados **não** vão no repositório: baixe na página **Releases** do GitHub.
-- `tools\ffmpeg.exe` também não está no repositório; coloque-o nessa pasta antes de gerar os arquivos.
-
-## Código (`src\Host`)
-`ScreenEncoder` (ffmpeg ddagrab + NVENC -> RTP local), `AudioMixer`/`ProcessLoopbackCapture`/`MicCapture` (áudio por app + mic, Opus 10 ms),
-`StreamHub` (WebRTC/SIPSorcery), `StreamService` (servidor web), `MainWindow` + `App.xaml` (WPF, tema escuro).
+Se ainda falhar, abra **Configurações > Abrir log** (arquivo `%AppData%\LanCast\log.txt`, lista GPUs/drivers e erros do ffmpeg) e envie o arquivo.
+Dá para forçar um codificador em Configurações > Codificador de vídeo.
 
 ## Limitações
+
 - Perda de pacotes só se recupera no próximo keyframe (padrão 1 s).
-- Requer GPU NVIDIA (AMD/Intel: trocar `h264_nvenc` em `ScreenEncoder.BuildArgs`).
-- Windows 10 2004+ / 11. Ban é por IP (na Radmin cada pessoa tem IP fixo, então funciona bem).
+- O banimento é por IP.
+- O link usa o IP da Radmin (ex.: `http://26.x.x.x:8080/`). O LanCast não cria nomes de DNS.
+
+## Para desenvolvedores
+
+### Gerar os arquivos
+
+Requisitos: .NET 6 SDK. O LanCast embute o ffmpeg, que **não** está no repositório:
+
+1. Baixe um `ffmpeg.exe` para Windows e coloque em `tools\ffmpeg.exe`.
+2. Comprima-o para `tools\ffmpeg.exe.gz` (o projeto embute esse arquivo):
+   ```powershell
+   $in = [IO.File]::OpenRead("tools\ffmpeg.exe"); $out = [IO.File]::Create("tools\ffmpeg.exe.gz")
+   $gz = New-Object IO.Compression.GZipStream($out, [IO.Compression.CompressionLevel]::Optimal); $in.CopyTo($gz); $gz.Dispose(); $out.Dispose(); $in.Dispose()
+   ```
+3. Rode `publicar.bat`. Ele gera o portátil em `dist\portable\` e o instalador em `dist\installer\` (usa `tools\InnoSetup`, que acompanha o projeto).
+
+### Versionamento
+
+- A versão fica em `src\Host\LanCastHost.csproj` (`<Version>`); o `publicar.bat` repassa para o instalador.
+- Releases são tags git `vMAJOR.MINOR.PATCH` ([SemVer](https://semver.org/)); veja o `CHANGELOG.md`.
+- Os `.exe` gerados **não** vão no repositório: ficam na página de **Releases**.
+
+### Código (`src\Host`)
+
+`ScreenEncoder` (ffmpeg ddagrab + NVENC -> RTP local), `AudioMixer`/`ProcessLoopbackCapture`/`MicCapture` (áudio por app + mic, Opus 10 ms),
+`StreamHub` (WebRTC/SIPSorcery), `StreamService` (servidor web), `MainWindow` + `App.xaml` (WPF, tema escuro), `LiveIndicator` (pílula AO VIVO).
