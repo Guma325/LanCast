@@ -16,8 +16,10 @@ for /f "usebackq delims=" %%v in (`powershell -NoProfile -Command "([xml](Get-Co
 if errorlevel 1 goto :erro
 
 echo.
+copy /y "dist\portable\LanCast.exe" "dist\portable\LanCast-Portable-%APPVER%.exe" >nul
+if errorlevel 1 goto :erro
 echo Pronto:
-echo   Portatil:   dist\portable\LanCast.exe
+echo   Portatil:   dist\portable\LanCast-Portable-%APPVER%.exe
 echo   Instalador: dist\installer\
 goto :fim
 :erro
