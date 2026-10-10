@@ -127,6 +127,7 @@ public partial class MainWindow : Window
             if (Tabs.SelectedIndex < 0) Tabs.SelectedIndex = 0;
             if (NavList.SelectedIndex < 0) NavList.SelectedIndex = 0;
             if (_cfg.StartOnLaunch) await StartAsync();
+            await InitializeUpdatesAsync();
         };
         Closing += OnClosing;
     }
@@ -140,7 +141,7 @@ public partial class MainWindow : Window
 
     private async Task StartAsync()
     {
-        if (_busy || _svc.Running) return;
+        if (_busy || _svc.Running || _applyingUpdate || _exiting) return;
         _localMic?.Dispose(); _localMic = null;
         _busy = true; StartStop.IsEnabled = false;
         try
@@ -169,6 +170,7 @@ public partial class MainWindow : Window
 
     private void Refresh()
     {
+        RefreshUpdateButton();
         bool run = _svc.Running;
         var enc = _svc.Encoder;
         bool sourceUnavailable = _cfg.SourceType == "window" && ScreenSources.ResolveWindow(_cfg.WindowExe, _cfg.WindowTitle) is not { Minimized: false };
@@ -749,7 +751,10 @@ public partial class MainWindow : Window
 
     private async Task ExitAsync()
     {
+        if (_exiting) return;
         _exiting = true;
+        _updateTimer.Stop();
+        _updateCancellation.Cancel();
         _timer.Stop();
         _preview?.Dispose();
         _localMic?.Dispose();

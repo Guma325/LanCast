@@ -34,6 +34,21 @@ Fechar a janela só esconde o app na bandeja do sistema. Para sair de verdade, u
 
 ## Funcionalidades
 
+### Atualizações pelo aplicativo
+
+Em **Configurações > Transmissão > Atualizações**, use **Verificar agora** e **Atualizar e reiniciar**.
+Por padrão, o LanCast verifica novas Releases estáveis ao abrir e a cada 6 horas; essa verificação pode ser desativada.
+O download e a instalação começam após a confirmação, com a transmissão parada. As configurações em `%AppData%\LanCast` são preservadas.
+No modo instalado, o Windows pede permissão de administrador. No portátil, o executável é substituído no mesmo local, que precisa permitir gravação.
+O download é validado pelo tamanho e pelo SHA-256 publicado pelo GitHub; arquivos sem esse hash não são executados.
+
+Para distribuir atualizações, aumente `<Version>` no `.csproj`, rode `publicar.bat` e crie uma Release pública estável com a tag `vMAJOR.MINOR.PATCH`.
+Anexe **ambos** os arquivos gerados: `LanCast-Setup-x.y.z.exe` e `LanCast-Portable-x.y.z.exe`, com a mesma versão da tag.
+Marque essa Release como a mais recente (**Latest**). Não basta enviar commits ou criar somente uma tag.
+Quem usa uma versão anterior ao atualizador precisa instalar esta versão manualmente uma vez, por cima da instalação existente.
+
+Validação do atualizador: `dotnet run --project tests\UpdateChecks` (testes locais, sem instalar ou baixar Releases reais).
+
 ### Compartilhar: tela inteira ou só uma janela
 
 ![Aba Compartilhar](docs/img/share.png)
