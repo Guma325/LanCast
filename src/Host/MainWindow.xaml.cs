@@ -36,6 +36,13 @@ public sealed class Row : INotifyPropertyChanged
     public string Label => (string?)this["Label"] ?? "";
     public string Url => (string?)this["Url"] ?? "";
     public double Volume => (double)(this["Volume"] ?? 1.0);
+    public string Address => (string?)this["Address"] ?? "";
+    public string StatusText => (string?)this["StatusText"] ?? "";
+    public Brush StatusFg => (Brush?)this["StatusFg"] ?? Brushes.Gray;
+    public Brush IconBg => (Brush?)this["IconBg"] ?? Brushes.Transparent;
+    public Brush IconFg => (Brush?)this["IconFg"] ?? Brushes.Gray;
+    public Visibility NameVis => (Visibility?)this["NameVis"] ?? Visibility.Visible;
+    public Visibility EditVis => (Visibility?)this["EditVis"] ?? Visibility.Collapsed;
     public Visibility WavesVis => (Visibility?)this["WavesVis"] ?? Visibility.Visible;
     public Visibility XVis => (Visibility?)this["XVis"] ?? Visibility.Collapsed;
     public string MuteTip => (string?)this["MuteTip"] ?? "";
@@ -99,6 +106,7 @@ public partial class MainWindow : Window
         AppList.ItemsSource = _apps;
         Addresses.ItemsSource = _addrs;
         BanList.ItemsSource = _bans;
+        InitSavedStreams();
         MonitorList.ItemsSource = _monRows;
         WindowList.ItemsSource = _winRows;
         _preview = new PreviewCapture(_cfg, () => _svc.Encoder?.ActiveKind);

@@ -37,6 +37,8 @@ public sealed class StreamConfig
     public bool ShowLiveIndicator { get; set; } = true;
     /// <summary>Esconde o IP nos links de convite (os botões Copiar continuam copiando o link real).</summary>
     public bool HideAddresses { get; set; } = false;
+    /// <summary>Transmissões favoritas (aba "Transmissões salvas"). Substitua a lista inteira ao alterar.</summary>
+    public List<SavedStream> SavedStreams { get; set; } = new();
     /// <summary>Id do tema de cores (Dark, Light, Dracula, Nord, Solarized, Monokai).</summary>
     public string Theme { get; set; } = "Dark";
     /// <summary>Menu lateral recolhido (só ícones).</summary>
@@ -130,6 +132,14 @@ public static class SystemInfo
         if (list.Count == 0) list.Add("(não foi possível listar)");
         return list;
     }
+}
+
+public sealed class SavedStream
+{
+    public Guid Id { get; set; } = Guid.NewGuid();
+    public string Name { get; set; } = "";
+    public string Host { get; set; } = "";
+    public int Port { get; set; } = 8080;
 }
 
 public sealed class BanEntry
