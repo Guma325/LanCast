@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#090909">
+  <meta name="description" content="Compartilhe sua tela e seu áudio com amigos pela rede local ou Radmin VPN. LanCast para Windows: quem assiste só precisa de um link e um navegador.">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="LanCast · Compartilhe sua tela. Fique perto.">
+  <meta property="og:description" content="O jogo, o filme, a conversa. Transmita sua tela e seu áudio para os amigos pela rede local ou Radmin VPN.">
+  <title>LanCast · Compartilhe sua tela. Fique perto.</title>
+  <link rel="icon" href="assets/monitor.svg" type="image/svg+xml">
+  <link rel="preload" href="assets/InterVariable.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="styles.css">
+  <script src="script.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" href="#inicio" aria-label="LanCast, início">
+        <span class="icon icon-brand"><img src="assets/monitor.svg" alt="" width="20" height="20"></span>
+        <span>LanCast</span>
+      </a>
+      <nav class="desktop-nav" aria-label="Navegação principal">
+        <a href="#recursos">Recursos</a>
+        <a href="#como-funciona">Como funciona</a>
+        <a href="#perguntas">Perguntas frequentes</a>
+      </nav>
+      <a class="button button-primary header-download" href="https://github.com/Guma325/LanCast/releases/latest">Baixar LanCast</a>
+      <details class="mobile-menu">
+        <summary>Menu</summary>
+        <nav aria-label="Navegação mobile">
+          <a href="#recursos">Recursos</a>
+          <a href="#como-funciona">Como funciona</a>
+          <a href="#perguntas">Perguntas frequentes</a>
+          <a href="#download">Baixar LanCast</a>
+        </nav>
+      </details>
+    </div>
+  </header>
+
+  <main id="conteudo">
+    <section class="hero" id="inicio" aria-labelledby="hero-title">
+      <picture class="hero-background" aria-hidden="true">
+        <source media="(max-width: 767px)" srcset="assets/hero-grid-mobile.svg">
+        <img src="assets/hero-grid.svg" alt="" width="1440" height="1407">
+      </picture>
+      <div class="hero-copy">
+        <p class="eyebrow hero-eyebrow">Compartilhe o momento</p>
+        <h1 id="hero-title">Compartilhe sua tela.<br>Fique perto.</h1>
+        <p class="hero-description">O jogo, o filme, a conversa. Transmita sua tela e seu áudio para os amigos pela rede local ou Radmin VPN.</p>
+        <div class="actions">
+          <a class="button button-primary" href="https://github.com/Guma325/LanCast/releases/latest">Baixar para Windows</a>
+          <a class="button button-secondary" href="https://github.com/Guma325/LanCast">Ver no GitHub</a>
+        </div>
+        <p class="small muted">Windows 10 / 11 · Instalador ou portátil</p>
+      </div>
+      <figure class="product-preview">
+        <div class="preview-frame">
+          <img src="assets/lancast-preview.png" alt="Interface do LanCast no Windows, com prévia da tela ao vivo, seleção de monitor ou janela, controles de áudio e links para compartilhar." width="1000" height="750" fetchpriority="high" decoding="async">
+        </div>
+        <figcaption>Uma tela para compartilhar. Um link para reunir todo mundo.</figcaption>
+      </figure>
+    </section>
+
+    <section class="manifesto" aria-labelledby="manifesto-title">
+      <p class="eyebrow">Feito para estar junto</p>
+      <h2 id="manifesto-title">Sua tela. Seu grupo. Seu momento.</h2>
+      <p>Conexão direta entre seu PC e seus amigos. Quem assiste só precisa de um link e um navegador.</p>
+    </section>
+
+    <section class="features section" id="recursos" aria-labelledby="features-title">
+      <div class="section-heading">
+        <h2 id="features-title">Tudo para compartilhar.<br>Nada para complicar.</h2>
+        <p>Escolha o que transmitir, controle o som e reúna seus amigos.<br class="desktop-break">O LanCast deixa o momento no centro.</p>
+      </div>
+      <div class="feature-grid container">
+        <article class="feature">
+          <h3><span class="icon icon-feature"><img src="assets/monitor.svg" alt="" width="20" height="20"></span>Vídeo fluido</h3>
+          <p>Transmita sua tela em até 60 FPS, com codificação por GPU e alternativas por software.</p>
+        </article>
+        <article class="feature">
+          <h3><span class="icon icon-feature"><img src="assets/window.svg" alt="" width="20" height="20"></span>Tela ou janela</h3>
+          <p>Compartilhe o monitor inteiro ou escolha uma janela. Troque a fonte durante a sessão.</p>
+        </article>
+        <article class="feature">
+          <h3><span class="icon icon-feature"><img src="assets/users.svg" alt="" width="20" height="20"></span>Um link para assistir</h3>
+          <p>Seus amigos entram pelo Chrome ou Edge. Sem conta e sem instalar o LanCast.</p>
+        </article>
+        <article class="feature">
+          <h3><span class="icon icon-feature"><img src="assets/audio.svg" alt="" width="20" height="20"></span>Áudio por aplicativo</h3>
+          <p>Escolha quais apps entram na transmissão e deixe os outros sons só com você.</p>
+        </article>
+        <article class="feature">
+          <h3><span class="icon icon-feature"><img src="assets/mic.svg" alt="" width="20" height="20"></span>Sua voz, quando quiser</h3>
+          <p>Inclua o microfone, escolha o dispositivo e ajuste o volume direto no aplicativo.</p>
+        </article>
+        <article class="feature">
+          <h3><span class="icon icon-feature"><img src="assets/settings.svg" alt="" width="20" height="20"></span>Controle de acesso</h3>
+          <p>Proteja a sessão com senha, acompanhe os espectadores e bloqueie acessos por IP.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="how-it-works" id="como-funciona" aria-labelledby="how-title">
+      <div class="container">
+        <div class="section-heading">
+          <h2 id="how-title">Como funciona</h2>
+          <p>Da sua tela para os amigos em três passos. Escolha, compartilhe e aproveite o momento.</p>
+        </div>
+        <div class="step-track" aria-hidden="true">
+          <img class="step-connector" src="assets/steps.svg" alt="" width="1128" height="32">
+          <span>1</span><span>2</span><span>3</span>
+        </div>
+        <ol class="step-cards">
+          <li class="step-card">
+            <div class="step-badge"><span class="step-number" aria-hidden="true">1</span><span class="icon icon-step"><img src="assets/monitor.svg" alt="" width="20" height="20"></span></div>
+            <div class="step-copy"><h3>Escolha sua tela</h3><p>Abra o LanCast no Windows e escolha o que seus amigos vão acompanhar.</p></div>
+            <ul class="step-list"><li>Selecione um monitor ou uma janela</li><li>Confira a prévia antes de transmitir</li><li>Defina quais aplicativos enviam áudio</li></ul>
+          </li>
+          <li class="step-card">
+            <div class="step-badge"><span class="step-number" aria-hidden="true">2</span><span class="icon icon-step"><img src="assets/window.svg" alt="" width="20" height="20"></span></div>
+            <div class="step-copy"><h3>Compartilhe o link</h3><p>Inicie a transmissão e copie o endereço certo para o seu grupo.</p></div>
+            <ul class="step-list"><li>Rede local para quem está na mesma rede</li><li>Radmin VPN para reunir amigos à distância</li><li>Senha opcional para controlar o acesso</li></ul>
+          </li>
+          <li class="step-card">
+            <div class="step-badge"><span class="step-number" aria-hidden="true">3</span><span class="icon icon-step"><img src="assets/users.svg" alt="" width="20" height="20"></span></div>
+            <div class="step-copy"><h3>Assistam juntos</h3><p>Seus amigos abrem o link no navegador, escolhem um nome e entram na sessão.</p></div>
+            <ul class="step-list"><li>Acesso pelo Chrome ou Edge</li><li>Sem conta e sem instalar o LanCast</li><li>Volume e tela cheia no próprio player</li></ul>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="faq section" id="perguntas" aria-labelledby="faq-title">
+      <div class="faq-layout container">
+        <div class="faq-intro">
+          <p class="small muted">FAQ</p>
+          <h2 id="faq-title">Perguntas<br>frequentes</h2>
+          <p>O essencial para sua primeira sessão.<br>Não encontrou a resposta que procurava?</p>
+          <a class="help-link" href="https://github.com/Guma325/LanCast#como-usar">Consulte a ajuda no GitHub ↗</a>
+        </div>
+        <div class="faq-list">
+          <details name="faq"><summary>Quem precisa instalar o LanCast?<img src="assets/chevron.svg" alt="" width="16" height="16"></summary><p>Só quem transmite precisa instalar ou abrir a versão portátil no Windows. Seus amigos assistem pelo Chrome ou Edge.</p></details>
+          <details name="faq"><summary>Como assistir com amigos à distância?<img src="assets/chevron.svg" alt="" width="16" height="16"></summary><p>Todos precisam estar na mesma rede virtual, como a Radmin VPN. Para quem está na mesma rede local, basta usar o link de rede local.</p></details>
+          <details name="faq"><summary>Preciso de uma GPU NVIDIA?<img src="assets/chevron.svg" alt="" width="16" height="16"></summary><p>Não. O LanCast também oferece codificação AMD, Intel e por software. O desempenho depende do computador e da rede.</p></details>
+          <details name="faq"><summary>Posso escolher o áudio que será enviado?<img src="assets/chevron.svg" alt="" width="16" height="16"></summary><p>Sim. Controle o áudio de cada aplicativo e inclua o microfone quando quiser. Ao compartilhar uma janela, você pode restringir o áudio ao app escolhido.</p></details>
+          <details name="faq"><summary>Como controlar quem entra na sessão?<img src="assets/chevron.svg" alt="" width="16" height="16"></summary><p>Use uma senha opcional, acompanhe a lista de espectadores e desconecte ou bloqueie acessos por IP.</p></details>
+          <details name="faq"><summary>O que fazer se o link não abrir?<img src="assets/chevron.svg" alt="" width="16" height="16"></summary><p>Confira se todos estão na mesma rede local ou Radmin VPN e permita o LanCast no Firewall do Windows. A ajuda e o log estão nas configurações do aplicativo.</p></details>
+        </div>
+      </div>
+    </section>
+
+    <section class="download" id="download" aria-labelledby="download-title">
+      <p class="eyebrow">Chame os amigos</p>
+      <h2 id="download-title">Sua próxima sessão<br>começa aqui.</h2>
+      <p>Baixe o LanCast. Compartilhe o link. Aproveitem juntos.</p>
+      <div class="actions">
+        <a class="button button-primary" href="https://github.com/Guma325/LanCast/releases/latest">Baixar para Windows</a>
+        <a class="button button-secondary" href="https://github.com/Guma325/LanCast/releases/latest">Ver versões e portátil</a>
+      </div>
+      <p class="small">Windows 10 (2004+) / 11 · Também disponível em versão portátil</p>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-top">
+        <a class="brand" href="#inicio" aria-label="LanCast, voltar ao início"><span class="icon icon-footer"><img src="assets/monitor.svg" alt="" width="20" height="20"></span><span>LanCast</span></a>
+        <a class="social-link" href="https://github.com/Guma325/LanCast" aria-label="Código do LanCast no GitHub"><img src="assets/github.svg" alt="" width="20" height="20"></a>
+      </div>
+      <div class="footer-bottom">
+        <div class="footer-credits"><p>© <span data-year>2026</span> LanCast</p><p>Compartilhe sua tela. Fique perto.</p></div>
+        <div class="footer-links">
+          <nav aria-label="Links do projeto"><a href="https://github.com/Guma325/LanCast/releases/latest">Download</a><a href="https://github.com/Guma325/LanCast">GitHub</a><a href="https://github.com/Guma325/LanCast#como-usar">Ajuda</a></nav>
+          <p>Windows 10 / 11 · Rede local e Radmin VPN</p>
+        </div>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>
