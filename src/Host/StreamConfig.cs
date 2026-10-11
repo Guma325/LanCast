@@ -35,6 +35,8 @@ public sealed class StreamConfig
     public bool StartOnLaunch { get; set; } = false;
     public bool CheckUpdatesOnLaunch { get; set; } = true;
     public bool ShowLiveIndicator { get; set; } = true;
+    /// <summary>Esconde o IP nos links de convite (os botões Copiar continuam copiando o link real).</summary>
+    public bool HideAddresses { get; set; } = false;
     /// <summary>Id do tema de cores (Dark, Light, Dracula, Nord, Solarized, Monokai).</summary>
     public string Theme { get; set; } = "Dark";
     /// <summary>Menu lateral recolhido (só ícones).</summary>

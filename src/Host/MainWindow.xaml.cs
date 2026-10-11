@@ -35,6 +35,7 @@ public sealed class Row : INotifyPropertyChanged
     public string State => (string?)this["State"] ?? "";
     public string Label => (string?)this["Label"] ?? "";
     public string Url => (string?)this["Url"] ?? "";
+    public string Display => (string?)this["Display"] ?? "";
     public string Pick => (string?)this["Pick"] ?? "";
     public string IconImage => (string?)this["IconImage"] ?? "";
     public string Icon => (string?)this["Icon"] ?? "";
@@ -254,6 +255,24 @@ public partial class MainWindow : Window
         try { if (_svc.Mixer is { } mixer) mixer.SetMuted(name, !muted); else AudioMixer.SaveMutedPreference(name, !muted, _cfg.DefaultMutedApps); }
         catch (Exception ex) { Notify("Não foi possível salvar o áudio: " + ex.Message); }
         Refresh();
+    }
+
+    // ---------- mostrar/ocultar o IP dos links (útil ao transmitir a própria tela) ----------
+
+    private string ShownAddress(string host) => $"http://{(_cfg.HideAddresses ? new string('•', 12) : host)}:{_cfg.Port}/";
+
+    private void UpdateAddressVisibilityIcon()
+    {
+        EyeOpenIcon.Visibility = _cfg.HideAddresses ? Visibility.Collapsed : Visibility.Visible;
+        EyeClosedIcon.Visibility = _cfg.HideAddresses ? Visibility.Visible : Visibility.Collapsed;
+        ToggleAddresses.ToolTip = _cfg.HideAddresses ? "Mostrar IP" : "Ocultar IP";
+    }
+
+    private void ToggleAddresses_Click(object sender, RoutedEventArgs e)
+    {
+        _cfg.HideAddresses = !_cfg.HideAddresses;
+        _cfg.Save();
+        RefreshAddresses();
     }
 
     private void Copy_Click(object sender, RoutedEventArgs e)
@@ -656,14 +675,15 @@ public partial class MainWindow : Window
         foreach (var f in found.OrderBy(f => f.prio))
         {
             var r = new Row();
-            r.Set("Url", $"http://{f.ip}:{_cfg.Port}/"); r.Set("Label", f.label);
+            r.Set("Url", $"http://{f.ip}:{_cfg.Port}/"); r.Set("Label", f.label); r.Set("Display", ShownAddress(f.ip));
             bool rad = f.prio == 0;
             r.Set("ChipBg", (Brush)FindResource(rad ? "AccentSoft" : "Surface3"));
             r.Set("ChipFg", (Brush)FindResource(rad ? "OnAccentSoft" : "Muted"));
             _addrs.Add(r);
         }
         NetworkLabel.Text = found.Any(f => f.prio == 0) ? "Radmin VPN" : "Rede local";
-        if (_addrs.Count == 0) { var r = new Row(); r.Set("Url", $"http://localhost:{_cfg.Port}/"); r.Set("Label", "Local"); _addrs.Add(r); }
+        if (_addrs.Count == 0) { var r = new Row(); r.Set("Url", $"http://localhost:{_cfg.Port}/"); r.Set("Label", "Local"); r.Set("Display", ShownAddress("localhost")); _addrs.Add(r); }
+        UpdateAddressVisibilityIcon();
     }
 
     // ---------- bandeja / fechar ----------

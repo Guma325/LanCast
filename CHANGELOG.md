@@ -4,6 +4,7 @@ Format based on [Keep a Changelog](https://keepachangelog.com/); versioning foll
 
 ## [Unreleased]
 - Added in-app GitHub Release updates for installed and portable builds, automatic checks, SHA-256 validation, and restart after installation.
+- Added an eye icon to "Convide seus amigos" to hide/show the IP in the invite links (the Copiar buttons still copy the real link). The choice is remembered.
 
 ## [1.2.1] - 2026-10-09
 - Integrated the LanCast Figma redesign into the Windows host and web viewer, including Inter typography and exported icons.
