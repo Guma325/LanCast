@@ -105,6 +105,10 @@ Dá para forçar um codificador em Configurações > Codificador de vídeo.
 
 ## Para desenvolvedores
 
+### Landing page
+
+A página de apresentação do LanCast fica em [`website/`](website/README.md). É um site estático, sem dependências de build. Para abrir localmente, rode `python -m http.server 4173 --bind 127.0.0.1 --directory website` e acesse `http://127.0.0.1:4173`.
+
 ### Gerar os arquivos
 
 Requisitos: .NET 6 SDK. O LanCast embute o ffmpeg, que **não** está no repositório:
