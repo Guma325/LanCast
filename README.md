@@ -3,12 +3,15 @@
 Compartilhamento de tela **local, de baixa latência**, pensado para jogar/assistir junto com amigos por VPN (Radmin).
 Você transmite sua tela (ou só uma janela) e quem assiste abre um link no navegador. Sem conta, sem instalar nada do lado de quem assiste.
 
-![Demonstração do LanCast](docs/img/demo.gif)
+![Aba Compartilhar do LanCast](docs/img/share.png)
 
 - **Vídeo:** H.264 por GPU (NVIDIA NVENC, com fallback para AMD, Intel e software) até 60 FPS.
 - **Áudio:** Opus de 10 ms, com mixagem por aplicativo e microfone opcional.
 - **Transporte:** WebRTC direto entre você e cada espectador (nenhum servidor na nuvem).
 - **Quem assiste:** só precisa do Chrome ou Edge.
+- **Visual:** menu lateral recolhível e seis temas (Escuro, Claro, Dracula, Nord, Solarized Dark e Monokai).
+
+![Tour pelas telas do LanCast](docs/img/demo.gif)
 
 ## Download
 
@@ -26,13 +29,98 @@ Os dois compartilham as mesmas configurações em `%AppData%\LanCast`.
 ## Como usar
 
 1. Abra o LanCast. A transmissão começa com **Iniciar transmissão** (ou automaticamente, se você ativar essa opção nas Configurações).
-2. Em **Links para compartilhar**, clique em **Copiar** no link da **Radmin VPN** e envie para os amigos. O link **Rede local** serve para quem está na mesma rede.
+2. Em **Convide seus amigos**, clique em **Copiar** no link da **Radmin VPN** e envie para os amigos. O link **Rede local** serve para quem está na mesma rede. O ícone de olho ao lado esconde o IP enquanto você transmite sua tela.
 3. Quem assiste abre o link no Chrome/Edge, digita um nome e clica em **Assistir**.
 4. Na primeira vez (modo portátil), aceite o aviso do Firewall do Windows ou use **Configurações > Liberar no Firewall**.
 
 Fechar a janela só esconde o app na bandeja do sistema. Para sair de verdade, use o ícone da bandeja > **Sair**.
 
 ## Funcionalidades
+
+### Menu lateral
+
+Todas as telas ficam no menu à esquerda: **Compartilhar**, **Espectadores**, **Áudio dos apps**, **Microfone**, **Banidos**, **Streams salvas** e **Configurações**. O botão no topo do menu recolhe a barra para ganhar espaço, e o estado da transmissão e o botão **Iniciar/Parar transmissão** ficam sempre visíveis no alto da tela.
+
+### Compartilhar: tela inteira ou só uma janela
+
+![Aba Compartilhar](docs/img/share.png)
+
+- Escolha uma **tela** específica ou **só uma janela/aplicativo** em **Fonte da transmissão**.
+- A **prévia local** mostra o que está sendo capturado (só você vê; ela não vai para os espectadores).
+- Dá para trocar a fonte **durante a transmissão** sem derrubar ninguém. Se a janela fechar, o LanCast espera e volta sozinho quando ela reaparecer.
+- **Convide seus amigos:** os links da Radmin VPN e da rede local, cada um com **Copiar**. O ícone de olho esconde ou mostra o IP (o **Copiar** continua copiando o link real), útil para não expor o endereço ao transmitir a própria tela. A escolha fica salva.
+
+### Espectadores: quem está assistindo
+
+![Aba Espectadores](docs/img/viewers.png)
+
+- Os contadores mostram quantos estão **conectados agora**, **conectando** e quantos **IPs estão banidos**.
+- A lista traz o **nome** (escolhido por eles), o **IP** e o tempo de conexão.
+- **Expulsar** derruba a pessoa (ela pode voltar). **Banir** bloqueia o IP dela.
+- Senha opcional nas Configurações, caso queira restringir o acesso.
+
+### O que o espectador vê
+
+![Página do espectador](docs/img/viewer.png)
+
+Uma página simples com o vídeo, o selo **AO VIVO**, o contador de quem está assistindo, **Silenciar** e volume (começa em 80%), **Estatísticas** (resolução, FPS, bitrate, latência) e **Tela cheia**. Se a conexão cair, aparece o aviso "Conexão perdida" e basta clicar em **Assistir** para reconectar.
+
+### Áudio dos apps
+
+![Aba Áudio dos apps](docs/img/audio.png)
+
+Cada aplicativo que já emitiu som aparece em **uma linha**: nome, barra de volume e botão de som.
+
+- **Volume por aplicativo:** de 0% a 200%. Vale só para a transmissão, o som que você ouve não muda. O ajuste fica salvo para a próxima vez.
+- **Botão de som:** verde com ondas = o app vai para a transmissão; vermelho com X = silenciado.
+- Passe o mouse sobre a linha para ver o título da janela do app.
+- **Somente áudio do app compartilhado** (embaixo) limita o áudio ao aplicativo da janela escolhida.
+
+### Microfone
+
+![Aba Microfone](docs/img/mic.png)
+
+Liga e desliga o seu microfone na transmissão, com escolha de dispositivo, volume e medidor de nível local.
+
+### Banidos
+
+![Aba Banidos](docs/img/bans.png)
+
+Lista de IPs banidos, com **Desbanir** e banimento manual por IP. Quem foi banido não consegue nem abrir a página. Na Radmin cada pessoa tem um IP fixo, então o banimento funciona bem.
+
+### Streams salvas
+
+![Aba Streams salvas](docs/img/saved.png)
+
+Guarde o endereço dos amigos que costumam transmitir e veja de relance quem está no ar.
+
+- **Salvar:** informe um nome (ex.: "Guma") e o endereço, no formato `26.51.157.46`, `26.51.157.46:8080` ou o link completo. Sem porta, vale 8080.
+- **Status:** o ícone fica **verde** e aparece "Ativa" (com o número de espectadores) quando o LanCast da outra pessoa está transmitindo; **Offline** em cinza quando não está. Um selo verde no menu mostra quantas estão ativas.
+- **Abrir** abre a transmissão no navegador, **Renomear** edita o nome ali mesmo e **Remover** apaga da lista.
+- O status é verificado a cada poucos segundos enquanto a aba está aberta.
+
+### Configurações
+
+![Aba Configurações](docs/img/settings.png)
+
+Na aba **Transmissão**: resolução, taxa de quadros, codificador de vídeo, bitrate, cursor do mouse, porta, senha opcional, **Liberar no Firewall**, **Abrir log**, iniciar ao abrir e o indicador **AO VIVO**.
+
+![Atualizações e opções de inicialização](docs/img/settings_updates.png)
+
+Mais abaixo ficam as opções de inicialização e as **Atualizações** (veja a seção abaixo).
+
+Na aba **Aparência** você escolhe o tema, com prévia de cada um. A mudança é imediata e não interrompe a transmissão; **Restaurar padrão** volta ao tema Escuro.
+
+![Temas do LanCast](docs/img/appearance.png)
+
+### Indicador AO VIVO
+
+Para você não esquecer que está transmitindo (como o ponto vermelho do Android), enquanto a transmissão está ativa o LanCast mostra:
+
+- uma **bolinha vermelha** no ícone da bandeja e no botão da barra de tarefas;
+- uma **pílula vermelha "AO VIVO"** no topo da tela, com o número de espectadores.
+
+A pílula não rouba o foco, deixa o mouse passar e **não aparece na transmissão**. Dá para desligá-la em **Configurações > Mostrar indicador AO VIVO**.
 
 ### Atualizações pelo aplicativo
 
@@ -48,62 +136,6 @@ Marque essa Release como a mais recente (**Latest**). Não basta enviar commits 
 Quem usa uma versão anterior ao atualizador precisa instalar esta versão manualmente uma vez, por cima da instalação existente.
 
 Validação do atualizador: `dotnet run --project tests\UpdateChecks` (testes locais, sem instalar ou baixar Releases reais).
-
-### Compartilhar: tela inteira ou só uma janela
-
-![Aba Compartilhar](docs/img/share.png)
-
-- Escolha uma **tela** específica ou **só uma janela/aplicativo**.
-- A **pré-visualização ao vivo** mostra exatamente o que os espectadores veem.
-- Dá para trocar a fonte **durante a transmissão** sem derrubar ninguém. Se a janela fechar, o LanCast espera e volta sozinho quando ela reaparecer.
-- Com uma janela escolhida, **"Enviar só o áudio do app compartilhado"** deixa o resto do seu PC (música, Discord...) fora da transmissão.
-
-### Espectadores: quem está assistindo
-
-![Aba Espectadores](docs/img/viewers.png)
-
-- O contador mostra quantos estão conectados; a lista traz o **nome** (escolhido por eles), o **IP** e o tempo de conexão.
-- **Expulsar** derruba a pessoa (ela pode voltar). **Banir** bloqueia o IP dela.
-- Senha opcional nas Configurações, caso queira restringir o acesso.
-
-### O que o espectador vê
-
-![Página do espectador](docs/img/viewer.png)
-
-Uma página simples com o vídeo em tela cheia, controle de volume, contador de quem está assistindo e o botão **Stats** (latência, FPS e bitrate). Se a conexão cair, aparece o aviso "Conexão perdida" e basta clicar em **Assistir** para reconectar.
-
-### Áudio dos apps
-
-![Aba Áudio dos apps](docs/img/audio.png)
-
-Lista os aplicativos que já emitiram som. Clique para **silenciar** um app na transmissão. Você continua ouvindo normalmente, só os espectadores deixam de ouvir.
-
-### Microfone
-
-![Aba Microfone](docs/img/mic.png)
-
-Liga e desliga o seu microfone na transmissão, com escolha de dispositivo, ajuste de volume e medidor de nível.
-
-### Banidos
-
-![Aba Banidos](docs/img/bans.png)
-
-Lista de IPs banidos, com **Desbanir** e banimento manual por IP. Quem foi banido não consegue nem abrir a página. Na Radmin cada pessoa tem um IP fixo, então o banimento funciona bem.
-
-### Configurações
-
-![Aba Configurações](docs/img/settings.png)
-
-Porta, senha opcional, FPS, qualidade (bitrate), resolução, codificador de vídeo, cursor do mouse, iniciar a transmissão ao abrir e o indicador **AO VIVO**.
-
-### Indicador AO VIVO
-
-Para você não esquecer que está transmitindo (como o ponto vermelho do Android), enquanto a transmissão está ativa o LanCast mostra:
-
-- uma **bolinha vermelha** no ícone da bandeja e no botão da barra de tarefas;
-- uma **pílula vermelha "AO VIVO"** no topo da tela, com o número de espectadores.
-
-A pílula não rouba o foco, deixa o mouse passar e **não aparece na transmissão**. Dá para desligá-la em **Configurações > Mostrar indicador AO VIVO**.
 
 ## Se o vídeo ficar preto
 
@@ -145,4 +177,4 @@ Requisitos: .NET 6 SDK. O LanCast embute o ffmpeg, que **não** está no reposit
 ### Código (`src\Host`)
 
 `ScreenEncoder` (ffmpeg ddagrab + NVENC -> RTP local), `AudioMixer`/`ProcessLoopbackCapture`/`MicCapture` (áudio por app + mic, Opus 10 ms),
-`StreamHub` (WebRTC/SIPSorcery), `StreamService` (servidor web), `MainWindow` + `App.xaml` (WPF, tema escuro), `LiveIndicator` (pílula AO VIVO).
+`StreamHub` (WebRTC/SIPSorcery), `StreamService` (servidor web), `MainWindow` + `App.xaml` (WPF, com temas em `Themes/`), `LiveIndicator` (pílula AO VIVO), `AppVolumes` (volume por aplicativo) e `MainWindow.SavedStreams` (aba Streams salvas).
