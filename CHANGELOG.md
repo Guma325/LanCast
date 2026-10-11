@@ -2,11 +2,12 @@
 
 Format based on [Keep a Changelog](https://keepachangelog.com/); versioning follows [SemVer](https://semver.org/).
 
-## [Unreleased]
+## [1.3.0] - 2026-10-11
 - Added in-app GitHub Release updates for installed and portable builds, automatic checks, SHA-256 validation, and restart after installation.
 - Added an eye icon to "Convide seus amigos" to hide/show the IP in the invite links (the Copiar buttons still copy the real link). The choice is remembered.
 - Added a per-application volume slider (0-200%) in the "Áudio dos apps" tab, same style as the microphone volume, saved in `volumes.json`. Each app is now a single row (name, volume, speaker button); the Permitido/Silenciado button became a green speaker with waves (on) or a red speaker with an X (muted).
 - Added a "Streams salvas" tab: save a friend's address (IP or IP:port) with a name and see whether their stream is active (green icon, viewer count) or offline. Rename, open in the browser and remove are supported; status is checked every 4 seconds while the tab is open.
+- Added a static landing page in `website/` (not part of the Windows app).
 
 ## [1.2.1] - 2026-10-09
 - Integrated the LanCast Figma redesign into the Windows host and web viewer, including Inter typography and exported icons.
