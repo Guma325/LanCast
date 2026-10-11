@@ -8,7 +8,7 @@ using NAudio.CoreAudioApi.Interfaces;
 
 namespace LanCast.Audio;
 
-public sealed record AppAudioInfo(string Name, string Title, bool Muted, bool Playing, int Pids);
+public sealed record AppAudioInfo(string Name, string Title, bool Muted, bool Playing, int Pids, double Volume = 1.0);
 
 /// <summary>
 /// Descobre os aplicativos com sessão de áudio, captura cada um separadamente (Process Loopback),
@@ -76,7 +76,7 @@ public sealed class AudioMixer : IDisposable
                 .Select(n =>
                 {
                     _known.TryGetValue(n, out var k);
-                    return new AppAudioInfo(n, k.Title ?? "", _muted.Contains(n), k.Playing, k.Pids);
+                    return new AppAudioInfo(n, k.Title ?? "", _muted.Contains(n), k.Playing, k.Pids, AppVolumes.Get(n));
                 })
                 .OrderByDescending(a => a.Playing).ThenBy(a => a.Name, StringComparer.OrdinalIgnoreCase)
                 .ToList();
@@ -144,13 +144,13 @@ public sealed class AudioMixer : IDisposable
                     string name = process.ProcessName;
                     bool active = session.State == AudioSessionState.AudioSessionStateActive && session.AudioMeterInformation.MasterPeakValue > 0.001f;
                     apps.TryGetValue(name, out var previous);
-                    apps[name] = new(name, string.IsNullOrEmpty(process.MainWindowTitle) ? previous?.Title ?? "" : process.MainWindowTitle, muted.Contains(name), active || previous?.Playing == true, (previous?.Pids ?? 0) + 1);
+                    apps[name] = new(name, string.IsNullOrEmpty(process.MainWindowTitle) ? previous?.Title ?? "" : process.MainWindowTitle, muted.Contains(name), active || previous?.Playing == true, (previous?.Pids ?? 0) + 1, AppVolumes.Get(name));
                 }
                 catch { }
             }
         }
         catch { }
-        foreach (var name in muted) if (!apps.ContainsKey(name)) apps[name] = new(name, "Sem atividade", true, false, 0);
+        foreach (var name in muted) if (!apps.ContainsKey(name)) apps[name] = new(name, "Sem atividade", true, false, 0, AppVolumes.Get(name));
         return apps.Values.OrderByDescending(a => a.Playing).ThenBy(a => a.Name).ToList();
     }
 
@@ -252,7 +252,7 @@ public sealed class AudioMixer : IDisposable
             lock (_lock)
             {
                 foreach (var s in _sources.Values)
-                    s.Buffer.MixInto(acc, FrameValues, _maxBacklogValues);
+                    s.Buffer.MixInto(acc, FrameValues, _maxBacklogValues, (float)AppVolumes.Get(s.Name));
                 if (_mic != null) _micBuf.MixInto(acc, FrameValues, _maxBacklogValues);
             }
             for (int i = 0; i < FrameValues; i++)

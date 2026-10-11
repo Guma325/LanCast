@@ -35,6 +35,13 @@ public sealed class Row : INotifyPropertyChanged
     public string State => (string?)this["State"] ?? "";
     public string Label => (string?)this["Label"] ?? "";
     public string Url => (string?)this["Url"] ?? "";
+    public double Volume => (double)(this["Volume"] ?? 1.0);
+    public Visibility WavesVis => (Visibility?)this["WavesVis"] ?? Visibility.Visible;
+    public Visibility XVis => (Visibility?)this["XVis"] ?? Visibility.Collapsed;
+    public string MuteTip => (string?)this["MuteTip"] ?? "";
+    public double SliderOpacity => (double?)this["SliderOpacity"] ?? 1.0;
+    public Brush PctFg => (Brush?)this["PctFg"] ?? Brushes.White;
+    public string VolumeText => (string?)this["VolumeText"] ?? "100%";
     public string Display => (string?)this["Display"] ?? "";
     public string Pick => (string?)this["Pick"] ?? "";
     public string IconImage => (string?)this["IconImage"] ?? "";
@@ -206,14 +213,22 @@ public partial class MainWindow : Window
         ViewerList.Visibility = _viewers.Count == 0 ? Visibility.Collapsed : Visibility.Visible;
 
         var apps = _svc.Mixer?.GetApps() ?? AudioMixer.DiscoverApps(_cfg.DefaultMutedApps);
-        Sync(_apps, apps, a => a.Name, (row, a) =>
+        _syncingApps = true;
+        try { Sync(_apps, apps, a => a.Name, (row, a) =>
         {
             row.Set("Name", a.Name); row.Set("Title", (a.Playing ? "Áudio ativo" : "Sem atividade") + (string.IsNullOrEmpty(a.Title) ? "" : " · " + a.Title));
             row.Set("Label", a.Muted ? "Silenciado" : "Permitido");
-            row.Set("Dot", (Brush)FindResource(a.Muted ? "Danger" : a.Playing ? "Ok" : "Muted"));
+            row.Set("Dot", (Brush)FindResource(a.Playing ? "Ok" : "Muted"));
             row.Set("MuteBg", (Brush)FindResource(a.Muted ? "DangerSoft" : "OkSoft"));
             row.Set("MuteFg", (Brush)FindResource(a.Muted ? "Danger" : "Ok"));
-        });
+            row.Set("Volume", a.Volume); row.Set("VolumeText", $"{a.Volume * 100:0}%");
+            row.Set("WavesVis", a.Muted ? Visibility.Collapsed : Visibility.Visible);
+            row.Set("XVis", a.Muted ? Visibility.Visible : Visibility.Collapsed);
+            row.Set("MuteTip", a.Muted ? "Silenciado: clique para liberar" : "Na transmissão: clique para silenciar");
+            row.Set("SliderOpacity", a.Muted ? 0.45 : 1.0);
+            row.Set("PctFg", (Brush)FindResource(a.Muted ? "Muted" : "OnAccentSoft"));
+        }); }
+        finally { _syncingApps = false; }
         AppEmpty.Visibility = _apps.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
 
         UpdatePreviewState();
@@ -246,6 +261,16 @@ public partial class MainWindow : Window
         if (((FrameworkElement)sender).Tag is not Guid id) return;
         var viewer = _svc.Hub?.GetViewers().FirstOrDefault(v => v.Id == id);
         if (viewer != null && await ConfirmAsync("Desconectar espectador?", "A pessoa poderá entrar novamente usando o link. Seu IP não será banido.", "Desconectar", viewer.Name, viewer.Remote)) { _svc.Hub?.Kick(id); Notify("Espectador desconectado."); }
+    }
+
+    private bool _syncingApps;
+
+    private void AppVolume_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)
+    {
+        if (_syncingApps || _loading || ((FrameworkElement)sender).Tag is not string name) return;
+        double v = Math.Clamp(Math.Round(e.NewValue, 2), AppVolumes.Min, AppVolumes.Max);
+        AppVolumes.Set(name, v);
+        if (_apps.FirstOrDefault(a => a.Name == name) is { } row) { row.Set("Volume", v); row.Set("VolumeText", $"{v * 100:0}%"); }
     }
 
     private void Mute_Click(object sender, RoutedEventArgs e)
@@ -779,6 +804,7 @@ public partial class MainWindow : Window
         _preview?.Dispose();
         _localMic?.Dispose();
         _cfg.Save();
+        AppVolumes.Flush();
         await _svc.StopAsync();
         _liveBadge?.Close();
         _tray.Visible = false; _tray.Dispose();

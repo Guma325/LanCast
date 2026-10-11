@@ -148,6 +148,7 @@ public static class Paths
 
     public static string SettingsFile => Path.Combine(DataDir, "settings.json");
     public static string MutesFile => Path.Combine(DataDir, "mutes.json");
+    public static string VolumesFile => Path.Combine(DataDir, "volumes.json");
 
     /// <summary>Extrai o ffmpeg embutido (comprimido) na primeira execução / quando muda.</summary>
     private static readonly object FfmpegLock = new();

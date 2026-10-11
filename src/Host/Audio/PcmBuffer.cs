@@ -23,7 +23,7 @@ public sealed class PcmBuffer
     }
 
     /// <summary>Soma 'count' amostras no acumulador. Falta de dados vira silêncio.</summary>
-    public void MixInto(int[] acc, int count, int maxBacklog)
+    public void MixInto(int[] acc, int count, int maxBacklog, float gain = 1f)
     {
         lock (_lock)
         {
@@ -36,7 +36,7 @@ public sealed class PcmBuffer
             }
             int n = Math.Min(count, _count);
             for (int i = 0; i < n; i++)
-                acc[i] += _ring[(_read + i) % _ring.Length];
+                acc[i] += gain == 1f ? _ring[(_read + i) % _ring.Length] : (int)(_ring[(_read + i) % _ring.Length] * gain);
             _read = (_read + n) % _ring.Length;
             _count -= n;
         }
