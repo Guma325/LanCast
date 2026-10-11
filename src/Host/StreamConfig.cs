@@ -33,6 +33,7 @@ public sealed class StreamConfig
     /// <summary>auto | nvenc | amf | qsv | x264</summary>
     public string Encoder { get; set; } = "auto";
     public bool StartOnLaunch { get; set; } = false;
+    public bool CheckUpdatesOnLaunch { get; set; } = true;
     public bool ShowLiveIndicator { get; set; } = true;
     /// <summary>Id do tema de cores (Dark, Light, Dracula, Nord, Solarized, Monokai).</summary>
     public string Theme { get; set; } = "Dark";

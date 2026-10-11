@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+  <ItemGroup>
+    <Using Include="System.IO" />
+    <Compile Include="../../src/Host/Updates/UpdateService.cs" Link="UpdateService.cs" />
+    <Compile Include="../../src/Host/Updates/UpdateWorker.cs" Link="UpdateWorker.cs" />
+  </ItemGroup>
+</Project>

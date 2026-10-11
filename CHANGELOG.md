@@ -2,6 +2,9 @@
 
 Format based on [Keep a Changelog](https://keepachangelog.com/); versioning follows [SemVer](https://semver.org/).
 
+## [Unreleased]
+- Added in-app GitHub Release updates for installed and portable builds, automatic checks, SHA-256 validation, and restart after installation.
+
 ## [1.2.1] - 2026-10-09
 - Integrated the LanCast Figma redesign into the Windows host and web viewer, including Inter typography and exported icons.
 - Added a persistent collapsible sidebar and six appearance themes with live previews and restore-default action.
