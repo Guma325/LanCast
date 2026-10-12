@@ -62,8 +62,6 @@ switch ($Command) {
         Invoke-Native 'dotnet' @('build', (Join-Path $root 'LanCast.sln'))
     }
     'run' {
-        # O app ainda mira o .NET 6; isto deixa rodar no runtime mais novo instalado.
-        $env:DOTNET_ROLL_FORWARD = 'Major'
         Invoke-Native 'dotnet' @('run', '--project', $host_)
     }
     'test' {

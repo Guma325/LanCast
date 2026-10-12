@@ -3,8 +3,7 @@
     "LanCast": {
       "commandName": "Project",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development",
-        "DOTNET_ROLL_FORWARD": "Major"
+        "ASPNETCORE_ENVIRONMENT": "Development"
       }
     }
   }
