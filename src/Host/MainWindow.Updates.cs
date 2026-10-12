@@ -20,7 +20,7 @@ public partial class MainWindow
         _updateTimer.Tick += async (_, _) => { if (_cfg.CheckUpdatesOnLaunch) await CheckUpdatesAsync(false); };
         if (!UpdateService.CanApply)
         {
-            UpdateStatus.Text += " Atualizações são aplicadas nas versões distribuídas pelo publicar.bat.";
+            UpdateStatus.Text += " Atualizações são aplicadas nas versões distribuídas pelo publish.bat.";
             return;
         }
         _updateTimer.Start();

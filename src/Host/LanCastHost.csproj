@@ -38,4 +38,9 @@
     <EmbeddedResource Include="wwwroot\index.html" LogicalName="index.html" />
     <EmbeddedResource Include="..\..\tools\ffmpeg.exe.gz" LogicalName="ffmpeg.exe.gz" />
   </ItemGroup>
+  <!-- O ffmpeg não fica no repositório: na primeira compilação, baixa e gera tools\ffmpeg.exe.gz. -->
+  <Target Name="EnsureFfmpeg" BeforeTargets="BeforeBuild" Condition="!Exists('$(MSBuildThisFileDirectory)..\..\tools\ffmpeg.exe.gz')">
+    <Message Importance="high" Text="tools\ffmpeg.exe.gz não encontrado; baixando o ffmpeg..." />
+    <Exec Command="powershell -NoProfile -ExecutionPolicy Bypass -File &quot;$(MSBuildThisFileDirectory)..\..\tools\download-ffmpeg.ps1&quot;" />
+  </Target>
 </Project>
