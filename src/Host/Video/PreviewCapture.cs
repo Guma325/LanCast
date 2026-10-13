@@ -10,6 +10,7 @@ public sealed class PreviewCapture : IDisposable
 {
     private readonly StreamConfig _cfg;
     private readonly Func<CapKind?> _preferred;
+    private readonly Func<string?>? _blocked;
     private CancellationTokenSource? _cts;
     private Process? _ffmpeg;
     private volatile bool _restart;
@@ -20,7 +21,8 @@ public sealed class PreviewCapture : IDisposable
     public string? Status { get; private set; }
     public bool Running => _cts != null;
 
-    public PreviewCapture(StreamConfig cfg, Func<CapKind?> preferred) { _cfg = cfg; _preferred = preferred; }
+    /// <param name="blocked">Devolve uma mensagem quando a fonte não pode ser aberta agora (ex.: câmera em uso pela transmissão).</param>
+    public PreviewCapture(StreamConfig cfg, Func<CapKind?> preferred, Func<string?>? blocked = null) { _cfg = cfg; _preferred = preferred; _blocked = blocked; }
 
     public void Start()
     {
@@ -57,6 +59,7 @@ public sealed class PreviewCapture : IDisposable
         while (!ct.IsCancellationRequested)
         {
             _restart = false;
+            if (_blocked?.Invoke() is { } why) { Status = why; Wait(ct, 1000); continue; }
             var kinds = new List<CapKind>();
             if (good is { } g) kinds.Add(g);
             if (_preferred() is { } p && !kinds.Contains(p)) kinds.Add(p);
@@ -66,7 +69,7 @@ public sealed class PreviewCapture : IDisposable
             foreach (var kind in kinds)
             {
                 if (ct.IsCancellationRequested || _restart) break;
-                var cap = CaptureArgs.Build(_cfg, kind, 8, true, out var err);
+                var cap = CaptureArgs.Build(_cfg, kind, 8, true, out var err, relaxed: _cfg.SourceType == "camera");
                 if (cap == null)
                 {
                     if (err != null) { Status = err; Wait(ct, 1200); anyStarted = true; break; }   // ex.: janela fechada
@@ -85,7 +88,8 @@ public sealed class PreviewCapture : IDisposable
     private bool RunOnce(string ffmpegPath, CaptureInput cap, CancellationToken ct)
     {
         string cfr = cap.NeedsCfr ? " -r 8 -fps_mode cfr" : "";
-        string args = $"-hide_banner -loglevel error -fflags nobuffer {cap.InputArgs} -vf \"scale=640:-2:flags=fast_bilinear,format=yuvj420p\"{cfr} -c:v mjpeg -q:v 6 -f image2pipe pipe:1";
+        string flip = cap.Filter != null ? cap.Filter + "," : "";
+        string args = $"-hide_banner -loglevel error -fflags nobuffer {cap.InputArgs} -vf \"{flip}scale=640:-2:flags=fast_bilinear,format=yuvj420p\"{cfr} -c:v mjpeg -q:v 6 -f image2pipe pipe:1";
         try
         {
             _ffmpeg = Process.Start(new ProcessStartInfo(ffmpegPath, args)
@@ -145,7 +149,12 @@ public sealed class PreviewCapture : IDisposable
             watchdog.Dispose();
             try { if (!proc.HasExited) proc.Kill(true); } catch { }
         }
-        if (!got) Status = string.IsNullOrEmpty(lastErr) ? "sem imagem" : lastErr;
+        if (!got)
+        {
+            if (_cfg.SourceType == "camera" && lastErr.Contains("Could not run graph", StringComparison.OrdinalIgnoreCase)) lastErr = "A câmera está em uso por outro aplicativo.";
+            else if (_cfg.SourceType == "camera" && lastErr.Contains("Could not find", StringComparison.OrdinalIgnoreCase)) lastErr = "Câmera não encontrada. Conecte-a e clique em Atualizar.";
+            Status = string.IsNullOrEmpty(lastErr) ? "sem imagem" : lastErr;
+        }
         return got;
     }
 

@@ -1,9 +1,9 @@
 namespace LanCast.Video;
 
-public enum CapKind { Dda, Wgc, Gdi }
+public enum CapKind { Dda, Wgc, Gdi, Cam }
 
 /// <summary>Argumentos de entrada do ffmpeg para a fonte escolhida (tela ou janela).</summary>
-public sealed record CaptureInput(string InputArgs, bool HwFrames, bool NeedsCfr, string Description);
+public sealed record CaptureInput(string InputArgs, bool HwFrames, bool NeedsCfr, string Description, string? Filter = null);
 
 public static class CaptureArgs
 {
@@ -11,23 +11,39 @@ public static class CaptureArgs
     {
         CapKind.Dda => "captura DXGI",
         CapKind.Wgc => "captura Windows",
+        CapKind.Cam => "câmera",
         _ => "captura GDI",
     };
 
     /// <summary>Métodos de captura em ordem de preferência para o tipo de fonte.</summary>
-    public static CapKind[] Kinds(StreamConfig cfg) => cfg.SourceType == "window"
-        ? new[] { CapKind.Wgc }                       // GDI sai preta em janelas aceleradas por GPU; DXGI não captura janelas
-        : new[] { CapKind.Dda, CapKind.Wgc, CapKind.Gdi };
+    public static CapKind[] Kinds(StreamConfig cfg) => cfg.SourceType switch
+    {
+        "camera" => new[] { CapKind.Cam },
+        "window" => new[] { CapKind.Wgc },            // GDI sai preta em janelas aceleradas por GPU; DXGI não captura janelas
+        _ => new[] { CapKind.Dda, CapKind.Wgc, CapKind.Gdi },
+    };
 
     /// <summary>
     /// Monta a entrada. Retorna null com 'error' quando a fonte não existe (janela fechada) ou o método não se aplica.
     /// cpuFrames: true quando o consumidor precisa de quadros em memória (acrescenta hwdownload).
     /// </summary>
-    public static CaptureInput? Build(StreamConfig cfg, CapKind kind, int fps, bool cpuFrames, out string? error)
+    /// <param name="relaxed">Câmera: não pede resolução/FPS (usa o modo padrão da câmera).</param>
+    public static CaptureInput? Build(StreamConfig cfg, CapKind kind, int fps, bool cpuFrames, out string? error, bool relaxed = false)
     {
         error = null;
         string mouse = cfg.ShowCursor ? "1" : "0";
         string down = cpuFrames ? ",hwdownload,format=bgra" : "";
+
+        if (cfg.SourceType == "camera")
+        {
+            if (kind != CapKind.Cam) return null;
+            if (string.IsNullOrWhiteSpace(cfg.CameraName)) { error = "nenhuma câmera encontrada: escolha uma na aba Câmera"; return null; }
+            var (height, camFps) = CameraSources.Resolve(cfg);
+            string options = relaxed ? "" : $"-video_size {CameraSources.WidthFor(height)}x{height} -framerate {camFps} ";
+            string camName = cfg.CameraName.Replace("\"", "");
+            return new CaptureInput($"-f dshow -rtbufsize 128M {options}-i video=\"{camName}\"",
+                HwFrames: false, NeedsCfr: true, $"câmera {camName}", cfg.CameraMirror ? "hflip" : null);
+        }
 
         if (cfg.SourceType == "window")
         {

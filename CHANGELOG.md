@@ -2,6 +2,9 @@
 
 Format based on [Keep a Changelog](https://keepachangelog.com/); versioning follows [SemVer](https://semver.org/).
 
+## [Unreleased]
+- Added a "Câmera" tab: pick a camera (webcam, phone-as-webcam or virtual camera such as OBS), preview it, switch between normal and mirrored image, and share it as the stream source. Resolution and FPS are automatic (720p/30, falling back to the camera's default mode) and can be changed in Settings > Câmera.
+
 ## [1.3.0] - 2026-10-11
 - Added in-app GitHub Release updates for installed and portable builds, automatic checks, SHA-256 validation, and restart after installation.
 - Added an eye icon to "Convide seus amigos" to hide/show the IP in the invite links (the Copiar buttons still copy the real link). The choice is remembered.

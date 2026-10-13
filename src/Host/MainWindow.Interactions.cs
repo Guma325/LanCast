@@ -55,12 +55,13 @@ public partial class MainWindow
     private void Navigation_Changed(object sender, SelectionChangedEventArgs e)
     {
         if (_loading || PageTitle == null) return;
-        string[] titles = { "Compartilhar", "Espectadores", "Áudio dos aplicativos", "Microfone", "Banidos", "Streams salvas", "Configurações" };
-        string[] descriptions = { "Escolha o que deseja transmitir para sua rede.", "Gerencie quem está assistindo à transmissão.", "Escolha quais aplicativos os espectadores podem ouvir.", "Configure sua voz para a transmissão.", "Gerencie os IPs bloqueados na transmissão.", "Veja quais streams de amigos estão ativas agora.", "Personalize a transmissão e a aparência do LanCast." };
-        int index = Math.Clamp(NavList.SelectedIndex, 0, 6);
+        string[] titles = { "Compartilhar", "Espectadores", "Áudio dos aplicativos", "Microfone", "Câmera", "Banidos", "Streams salvas", "Configurações" };
+        string[] descriptions = { "Escolha o que deseja transmitir para sua rede.", "Gerencie quem está assistindo à transmissão.", "Escolha quais aplicativos os espectadores podem ouvir.", "Configure sua voz para a transmissão.", "Escolha a câmera e como a imagem aparece para os espectadores.", "Gerencie os IPs bloqueados na transmissão.", "Veja quais streams de amigos estão ativas agora.", "Personalize a transmissão e a aparência do LanCast." };
+        int index = Math.Clamp(NavList.SelectedIndex, 0, 7);
         PageTitle.Text = titles[index]; PageSubtitle.Text = descriptions[index];
         InvitePanel.Visibility = index is 0 or 1 ? Visibility.Visible : Visibility.Collapsed;
         UpdatePreviewState(); UpdateLocalMeter();
+        if (CameraTab.IsSelected) OnCameraTabShown(); else UpdateCameraPreviewState();
         if (SavedTab.IsSelected) { RefreshSavedRows(); _ = CheckSavedAsync(); }
     }
     private void SettingsTab_Click(object sender, RoutedEventArgs e)
@@ -80,6 +81,8 @@ public partial class MainWindow
         bool dirty = SPort.Text != _cfg.Port.ToString() || SPassword.Password != _cfg.Password || SBitrate.Text != _cfg.VideoBitrateKbps.ToString()
             || !Equals(SFps.SelectedItem, _cfg.Fps) || SHeight.SelectedItem is not KeyValuePair<string, int> height || height.Value != _cfg.Height
             || SEncoder.SelectedItem is not KeyValuePair<string, string> encoder || encoder.Value != _cfg.Encoder
+            || SCamHeight.SelectedItem is not KeyValuePair<string, int> camH || camH.Value != _cfg.CameraHeight
+            || SCamFps.SelectedItem is not KeyValuePair<string, int> camF || camF.Value != _cfg.CameraFps
             || (SCursor.IsChecked == true) != _cfg.ShowCursor || (SAuto.IsChecked == true) != _cfg.StartOnLaunch || (SLive.IsChecked == true) != _cfg.ShowLiveIndicator;
         ApplySettingsButton.IsEnabled = dirty && !_busy;
         ApplySettingsButton.Content = dirty ? "Aplicar configurações" : "Configurações salvas";

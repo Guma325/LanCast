@@ -37,6 +37,13 @@ public sealed class StreamConfig
     public bool ShowLiveIndicator { get; set; } = true;
     /// <summary>Esconde o IP nos links de convite (os botões Copiar continuam copiando o link real).</summary>
     public bool HideAddresses { get; set; } = false;
+    /// <summary>Câmera (aba "Câmera"). SourceType "camera" transmite a câmera escolhida.</summary>
+    public string CameraName { get; set; } = "";
+    public bool CameraMirror { get; set; } = false;
+    /// <summary>0 = automático (720p; recua para o modo padrão da câmera se ela não aceitar).</summary>
+    public int CameraHeight { get; set; } = 0;
+    /// <summary>0 = automático (30 FPS).</summary>
+    public int CameraFps { get; set; } = 0;
     /// <summary>Transmissões favoritas (aba "Transmissões salvas"). Substitua a lista inteira ao alterar.</summary>
     public List<SavedStream> SavedStreams { get; set; } = new();
     /// <summary>Id do tema de cores (Dark, Light, Dracula, Nord, Solarized, Monokai).</summary>

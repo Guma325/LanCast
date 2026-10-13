@@ -109,7 +109,8 @@ public partial class MainWindow : Window
         InitSavedStreams();
         MonitorList.ItemsSource = _monRows;
         WindowList.ItemsSource = _winRows;
-        _preview = new PreviewCapture(_cfg, () => _svc.Encoder?.ActiveKind);
+        _preview = new PreviewCapture(_cfg, () => _svc.Encoder?.ActiveKind, () => CameraBusyMessage(null));
+        InitCamera();
         _preview.Frame += jpg => { _pendingJpeg = jpg; if (Interlocked.Exchange(ref _decoding, 1) == 0) Dispatcher.BeginInvoke(DispatcherPriority.Background, ShowFrame); };
         PreviewCheck.IsChecked = _cfg.ShowPreview;
         OnlyAudioCheck.IsChecked = _cfg.OnlyAppAudio;
@@ -118,6 +119,8 @@ public partial class MainWindow : Window
         SideVersion.Text = "LANCAST  ·  v" + (typeof(MainWindow).Assembly.GetName().Version?.ToString(3) ?? "1.0.0");
 
         SFps.ItemsSource = new[] { 30, 60 };
+        SCamHeight.ItemsSource = new[] { new KeyValuePair<string, int>("Automático", 0), new("1080p", 1080), new("720p", 720), new("480p", 480) };
+        SCamFps.ItemsSource = new[] { new KeyValuePair<string, int>("Automático", 0), new("60", 60), new("30", 30), new("15", 15) };
         SEncoder.ItemsSource = new[] { new KeyValuePair<string, string>("Automático (recomendado)", "auto"), new("NVIDIA (NVENC)", "nvenc"),
             new("AMD (AMF)", "amf"), new("Intel (Quick Sync)", "qsv"), new("Software (CPU)", "x264") };
         STheme.ItemsSource = ThemeManager.Themes;
@@ -240,6 +243,7 @@ public partial class MainWindow : Window
         AppEmpty.Visibility = _apps.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
 
         UpdatePreviewState();
+        UpdateCameraPreviewState();
         if (++_tick % 4 == 0 && IsVisible && ShareTab.IsSelected) RefreshSources();
 
         UpdateLocalMeter();
@@ -327,11 +331,12 @@ public partial class MainWindow : Window
         _monitors = ScreenSources.ListMonitors();
         var selMon = ScreenSources.ResolveMonitor(_cfg.MonitorDevice, _cfg.Monitor);
         bool winMode = _cfg.SourceType == "window";
+        bool camMode = _cfg.SourceType == "camera";
         Sync(_monRows, _monitors, m => m.Index.ToString(), (row, m) =>
         {
             row.Set("IconImage", "Assets/Design/host-imgLanCastIconMonitor.png"); row.Set("Pick", "m:" + m.Index); row.Set("Icon", "\uE7F4");
             row.Set("Name", m.Label); row.Set("Title", m.Detail);
-            SetSelected(row, !winMode && selMon?.Index == m.Index);
+            SetSelected(row, !winMode && !camMode && selMon?.Index == m.Index);
         });
 
         _wins = ScreenSources.ListWindows().OrderBy(w => w.Exe, StringComparer.OrdinalIgnoreCase).ThenBy(w => w.Title).ToList();
@@ -346,7 +351,12 @@ public partial class MainWindow : Window
         WindowEmpty.Visibility = _winRows.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
 
         // rótulo da fonte atual
-        if (winMode)
+        if (camMode)
+        {
+            SourceLabel.Text = $"Fonte selecionada: câmera {_cfg.CameraName}";
+            SourceHint.Text = "Escolha uma tela ou janela aqui para voltar a compartilhar a tela. A câmera é configurada na aba Câmera.";
+        }
+        else if (winMode)
         {
             SourceLabel.Text = $"Fonte selecionada: {(selWin?.Title ?? _cfg.WindowTitle)}";
             SourceHint.Text = selWin == null ? $"A janela de {_cfg.WindowExe} não está aberta. A transmissão volta sozinha quando ela aparecer."
@@ -602,6 +612,8 @@ public partial class MainWindow : Window
             .FirstOrDefault(k => k.Value == _cfg.Height, new("Nativa", 0));
         SEncoder.SelectedItem = ((IEnumerable<KeyValuePair<string, string>>)SEncoder.ItemsSource)
             .FirstOrDefault(k => k.Value == _cfg.Encoder, new("Automático (recomendado)", "auto"));
+        SCamHeight.SelectedItem = ((IEnumerable<KeyValuePair<string, int>>)SCamHeight.ItemsSource).FirstOrDefault(k => k.Value == _cfg.CameraHeight, new("Automático", 0));
+        SCamFps.SelectedItem = ((IEnumerable<KeyValuePair<string, int>>)SCamFps.ItemsSource).FirstOrDefault(k => k.Value == _cfg.CameraFps, new("Automático", 0));
         SCursor.IsChecked = _cfg.ShowCursor;
         SAuto.IsChecked = _cfg.StartOnLaunch;
         SLive.IsChecked = _cfg.ShowLiveIndicator;
@@ -640,6 +652,8 @@ public partial class MainWindow : Window
         _cfg.Fps = (int)SFps.SelectedItem; _cfg.VideoBitrateKbps = br;
         _cfg.Height = ((KeyValuePair<string, int>)SHeight.SelectedItem).Value;
         _cfg.Encoder = ((KeyValuePair<string, string>)SEncoder.SelectedItem).Value;
+        _cfg.CameraHeight = ((KeyValuePair<string, int>)SCamHeight.SelectedItem).Value;
+        _cfg.CameraFps = ((KeyValuePair<string, int>)SCamFps.SelectedItem).Value;
         _cfg.ShowCursor = SCursor.IsChecked == true; _cfg.StartOnLaunch = SAuto.IsChecked == true;
         _cfg.ShowLiveIndicator = SLive.IsChecked == true;
         _cfg.Save();

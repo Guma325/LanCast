@@ -13,7 +13,7 @@ public sealed record RtpVideoPacket(byte[] Payload, uint Timestamp, bool Marker,
 /// </summary>
 public sealed class ScreenEncoder : IDisposable
 {
-    private sealed record Attempt(string Label, string Encoder, CapKind Kind, bool Cpu);
+    private sealed record Attempt(string Label, string Encoder, CapKind Kind, bool Cpu, bool Relaxed = false);
 
     private enum Result { Worked, Failed, Missing }
 
@@ -68,6 +68,12 @@ public sealed class ScreenEncoder : IDisposable
             foreach (var enc in encs)
             {
                 string name = $"{EncName(enc)} · {CaptureArgs.KindName(kind)}";
+                if (kind == CapKind.Cam)                   // câmera entrega quadros em memória; se não aceitar 720p/30, usa o modo padrão dela
+                {
+                    l.Add(new(name, enc, kind, true));
+                    l.Add(new($"{name} (modo padrão)", enc, kind, true, Relaxed: true));
+                    continue;
+                }
                 if (kind != CapKind.Gdi && enc is "nvenc" or "amf") l.Add(new($"{name} (GPU)", enc, kind, false));
                 l.Add(new(name, enc, kind, true));
             }
@@ -188,8 +194,15 @@ public sealed class ScreenEncoder : IDisposable
         try { if (!_ffmpeg.HasExited) _ffmpeg.Kill(true); } catch { }
         if (!got)
         {
-            string last; lock (tail) last = tail.LastOrDefault() ?? "";
+            string last; lock (tail) last = string.Join(" | ", tail);
             LastError = string.IsNullOrEmpty(last) ? (LastError ?? "o ffmpeg encerrou sem gerar vídeo") : last;
+            if (at.Kind == CapKind.Cam)
+            {
+                // "Could not set video options" = a câmera não oferece essa resolução/FPS: segue para a tentativa no modo padrão dela
+                if (last.Contains("Could not set video options", StringComparison.OrdinalIgnoreCase)) { LastError = "a câmera não aceita essa resolução/FPS"; return Result.Failed; }
+                if (last.Contains("Could not find video device", StringComparison.OrdinalIgnoreCase)) { LastError = "câmera não encontrada: conecte-a ou escolha outra na aba Câmera"; return Result.Missing; }
+                if (last.Contains("Could not run graph", StringComparison.OrdinalIgnoreCase)) { LastError = "a câmera está em uso por outro aplicativo"; return Result.Missing; }
+            }
         }
         return got ? Result.Worked : Result.Failed;
     }
@@ -197,21 +210,24 @@ public sealed class ScreenEncoder : IDisposable
     private string? BuildArgs(Attempt at, int port, out string? error)
     {
         bool soft = at.Encoder == "x264";
-        int fps = soft ? Math.Min(_cfg.Fps, 30) : _cfg.Fps;          // software: limita para não travar a CPU
-        int height = _cfg.Height > 0 ? _cfg.Height : (soft ? 720 : 0);
-        bool cpu = at.Cpu || height > 0;                            // escalar exige quadros em memória
+        bool cam = at.Kind == CapKind.Cam;
+        int fps = cam ? CameraSources.Resolve(_cfg).Fps : _cfg.Fps;
+        if (soft) fps = Math.Min(fps, 30);                          // software: limita para não travar a CPU
+        int height = cam ? (soft ? 720 : 0) : (_cfg.Height > 0 ? _cfg.Height : (soft ? 720 : 0));   // a câmera usa a própria resolução (aba Configurações > Câmera)
+        bool cpu = at.Cpu || height > 0 || cam;                     // escalar/espelhar exige quadros em memória
         int br = _cfg.VideoBitrateKbps;
         int gop = Math.Max(1, (int)(fps * _cfg.KeyframeSeconds));
         int buf = Math.Max(200, br / fps * 3);
 
-        var cap = CaptureArgs.Build(_cfg, at.Kind, fps, cpu, out error);
+        var cap = CaptureArgs.Build(_cfg, at.Kind, fps, cpu, out error, at.Relaxed);
         if (cap == null) return null;
 
         var a = new List<string> { "-hide_banner -loglevel warning -fflags nobuffer", cap.InputArgs };
         if (cpu)
         {
+            string flip = cap.Filter != null ? cap.Filter + "," : "";
             string scale = height > 0 ? $"scale=-2:{height}:flags=fast_bilinear," : "";
-            a.Add($"-vf \"{scale}format=yuv420p\"");
+            a.Add($"-vf \"{flip}{scale}format=yuv420p\"");
         }
         // a captura de janela só gera quadros quando o conteúdo muda; repete o último para manter taxa constante
         if (cap.NeedsCfr) a.Add($"-r {fps} -fps_mode cfr");
