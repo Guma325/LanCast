@@ -65,7 +65,7 @@ a:focus-visible, summary:focus-visible { outline: 2px solid #dcdcdc; outline-off
 .hero-background img { position: absolute; top: 0; left: 50%; transform: translateX(-50%); max-width: none; }
 .hero-copy { width: 100%; max-width: 1100px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 24px; }
 .hero-eyebrow { font-size: 12px; letter-spacing: 2px; color: var(--muted); }
-.hero h1 { font-size: 80px; line-height: 1.08; letter-spacing: -3.2px; font-weight: 500; }
+.hero h1 { font-size: 80px; line-height: 1.08; letter-spacing: -3.2px; font-weight: 500; text-wrap: balance; }
 .hero-description { max-width: 690px; color: var(--muted); font-size: 18px; }
 .product-preview { width: 100%; max-width: 1000px; display: flex; flex-direction: column; gap: 16px; text-align: center; }
 .preview-frame { border: 1px solid #333; border-radius: 16px; overflow: hidden; background: #151515; box-shadow: 0 20px 60px #0007; }
