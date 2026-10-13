@@ -1,0 +1,27 @@
+# LanCast: configuração para hospedar o site na Hostinger (LiteSpeed/Apache) com o deploy por Git.
+#
+# O deploy por Git clona o repositório inteiro em public_html, e o site fica na subpasta website/.
+# Este arquivo serve website/ na raiz do domínio, então o endereço do site não mostra "/website".
+# Qualquer outro caminho do repositório (src, tools, installer, docs...) cai em website/ e dá 404,
+# ou seja, o código-fonte do app não fica exposto pelo navegador.
+#
+# Passo a passo: website/README.md
+
+DirectoryIndex index.html
+Options -Indexes
+
+<IfModule mod_rewrite.c>
+RewriteEngine On
+
+# A validação do certificado SSL (Let's Encrypt) precisa acessar /.well-known sem redirecionar nem reescrever
+RewriteRule ^\.well-known/ - [L]
+
+# Sempre HTTPS (ative o SSL gratuito no hPanel antes de publicar)
+RewriteCond %{HTTPS} !=on
+RewriteCond %{HTTP:X-Forwarded-Proto} !=https
+RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# Serve o site de website/ na raiz do domínio
+RewriteCond %{REQUEST_URI} !^/website/
+RewriteRule ^(.*)$ website/$1 [L]
+</IfModule>

@@ -183,7 +183,7 @@ Se o arquivo não existir, a compilação roda esse script sozinha. Para usar ou
 
 ### Landing page
 
-A página de apresentação do LanCast fica em [`website/`](website/README.md). É um site estático, sem dependências de build: rode `.\dev.cmd site` e acesse `http://127.0.0.1:4173`.
+A página de apresentação do LanCast fica em [`website/`](website/README.md). É um site estático, sem dependências de build: rode `.\dev.cmd site` e acesse `http://127.0.0.1:4173`. Para publicar na Hostinger, veja [website/README.md](website/README.md#hospedar-na-hostinger).
 
 ### Gerar os arquivos
 
