@@ -130,12 +130,12 @@ O download e a instalação começam após a confirmação, com a transmissão p
 No modo instalado, o Windows pede permissão de administrador. No portátil, o executável é substituído no mesmo local, que precisa permitir gravação.
 O download é validado pelo tamanho e pelo SHA-256 publicado pelo GitHub; arquivos sem esse hash não são executados.
 
-Para distribuir atualizações, aumente `<Version>` no `.csproj`, rode `publicar.bat` e crie uma Release pública estável com a tag `vMAJOR.MINOR.PATCH`.
+Para distribuir atualizações, aumente `<Version>` no `.csproj`, rode `publish.bat` e crie uma Release pública estável com a tag `vMAJOR.MINOR.PATCH`.
 Anexe **ambos** os arquivos gerados: `LanCast-Setup-x.y.z.exe` e `LanCast-Portable-x.y.z.exe`, com a mesma versão da tag.
 Marque essa Release como a mais recente (**Latest**). Não basta enviar commits ou criar somente uma tag.
 Quem usa uma versão anterior ao atualizador precisa instalar esta versão manualmente uma vez, por cima da instalação existente.
 
-Validação do atualizador: `dotnet run --project tests\UpdateChecks` (testes locais, sem instalar ou baixar Releases reais).
+Validação do atualizador: `.\dev.cmd test` (testes locais, sem instalar ou baixar Releases reais).
 
 ## Se o vídeo ficar preto
 
@@ -152,25 +152,46 @@ Dá para forçar um codificador em Configurações > Codificador de vídeo.
 
 ## Para desenvolvedores
 
+### Rodar localmente
+
+Requisitos: Windows 10/11 e .NET 8 SDK (ou mais novo). Na raiz do repositório:
+
+```powershell
+.\dev.cmd setup   # confere o SDK, baixa o ffmpeg e restaura os pacotes (só na primeira vez)
+.\dev.cmd run     # roda o app
+```
+
+Comandos do `dev.cmd`:
+
+| Comando   | O que faz |
+|-----------|-----------|
+| `setup`   | Confere o .NET SDK, baixa o ffmpeg para `tools\ffmpeg.exe.gz` e restaura os pacotes. `-Force` baixa o ffmpeg de novo. |
+| `build`   | Compila o app e os testes (`LanCast.sln`). |
+| `run`     | Roda o app. |
+| `test`    | Roda os testes do atualizador (`tests\UpdateChecks`). |
+| `site`    | Serve a landing page em `http://127.0.0.1:4173`. |
+| `publish` | Gera o portátil e o instalador em `dist\` (o mesmo que `publish.bat`). |
+
+O `dev.cmd` só chama o `dev.ps1` ignorando a política de execução do PowerShell; se ela permitir scripts, `.\dev.ps1 <comando>` também funciona.
+
+No Visual Studio, abra o `LanCast.sln` e aperte F5.
+
+### ffmpeg
+
+O LanCast embute o ffmpeg, que **não** está no repositório. O `tools\download-ffmpeg.ps1` baixa o build "release essentials" da [gyan.dev](https://www.gyan.dev/ffmpeg/builds/), confere o SHA-256 e gera `tools\ffmpeg.exe.gz`.
+Se o arquivo não existir, a compilação roda esse script sozinha. Para usar outro ffmpeg, coloque o `ffmpeg.exe` em `tools\`, apague o `tools\ffmpeg.exe.gz` e rode `.\dev.cmd setup`: o script reaproveita o `ffmpeg.exe` existente.
+
 ### Landing page
 
-A página de apresentação do LanCast fica em [`website/`](website/README.md). É um site estático, sem dependências de build. Para abrir localmente, rode `python -m http.server 4173 --bind 127.0.0.1 --directory website` e acesse `http://127.0.0.1:4173`.
+A página de apresentação do LanCast fica em [`website/`](website/README.md). É um site estático, sem dependências de build: rode `.\dev.cmd site` e acesse `http://127.0.0.1:4173`.
 
 ### Gerar os arquivos
 
-Requisitos: .NET 6 SDK. O LanCast embute o ffmpeg, que **não** está no repositório:
-
-1. Baixe um `ffmpeg.exe` para Windows e coloque em `tools\ffmpeg.exe`.
-2. Comprima-o para `tools\ffmpeg.exe.gz` (o projeto embute esse arquivo):
-   ```powershell
-   $in = [IO.File]::OpenRead("tools\ffmpeg.exe"); $out = [IO.File]::Create("tools\ffmpeg.exe.gz")
-   $gz = New-Object IO.Compression.GZipStream($out, [IO.Compression.CompressionLevel]::Optimal); $in.CopyTo($gz); $gz.Dispose(); $out.Dispose(); $in.Dispose()
-   ```
-3. Rode `publicar.bat`. Ele gera o portátil em `dist\portable\` e o instalador em `dist\installer\` (usa `tools\InnoSetup`, que acompanha o projeto).
+Rode `publish.bat` (ou `.\dev.cmd publish`). Ele gera o portátil em `dist\portable\` e o instalador em `dist\installer\` (usa `tools\InnoSetup`, que acompanha o projeto).
 
 ### Versionamento
 
-- A versão fica em `src\Host\LanCastHost.csproj` (`<Version>`); o `publicar.bat` repassa para o instalador.
+- A versão fica em `src\Host\LanCastHost.csproj` (`<Version>`); o `publish.bat` repassa para o instalador.
 - Releases são tags git `vMAJOR.MINOR.PATCH` ([SemVer](https://semver.org/)); veja o `CHANGELOG.md`.
 - Os `.exe` gerados **não** vão no repositório: ficam na página de **Releases**.
 

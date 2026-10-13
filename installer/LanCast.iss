@@ -1,5 +1,5 @@
 ; Instalador do LanCast (Inno Setup 6)
-; Gere com: publicar.bat  (ou ISCC.exe installer\LanCast.iss depois de publicar o modo portátil)
+; Gere com: publish.bat  (ou ISCC.exe installer\LanCast.iss depois de publicar o modo portátil)
 
 #define AppName "LanCast"
 #ifndef AppVersion
