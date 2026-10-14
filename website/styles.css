@@ -146,7 +146,7 @@ a:focus-visible, summary:focus-visible { outline: 2px solid #dcdcdc; outline-off
   .mobile-menu nav a { padding: 14px 12px; border-radius: 6px; }
   .mobile-menu nav a:hover { background: #252525; color: #fff; }
   .hero { padding-top: 64px; padding-bottom: 48px; gap: 40px; }
-  .hero h1 { font-size: 44px; letter-spacing: -1.4px; }
+  .hero h1 { font-size: min(44px, calc((100vw - 52px) / 8.7)); letter-spacing: -1.4px; }   /* cada linha do título cabe sem quebrar */
   .hero-description { font-size: 16px; }
   .hero-background img { width: auto; height: auto; }
   .actions { flex-direction: column; align-items: center; }
@@ -179,7 +179,6 @@ a:focus-visible, summary:focus-visible { outline: 2px solid #dcdcdc; outline-off
 }
 
 @media (max-width: 359px) {
-  .hero h1 { font-size: 38px; }
   .section-heading h2, .how-it-works .section-heading h2 { font-size: 30px; }
   .feature { padding: 24px; }
 }
