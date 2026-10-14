@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#090909">
+  <meta name="description" content="Todas as versões do LanCast para Windows: baixe a mais recente ou uma anterior, em instalador ou versão portátil, com as novidades de cada uma.">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Versões do LanCast">
+  <meta property="og:description" content="Histórico de versões do LanCast para Windows, com instalador, versão portátil e as novidades de cada lançamento.">
+  <title>Versões do LanCast</title>
+  <link rel="icon" href="assets/monitor.svg" type="image/svg+xml">
+  <link rel="preload" href="assets/InterVariable.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="styles.css">
+  <script src="script.js" defer></script>
+  <script src="versoes.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" href="./" aria-label="LanCast, início">
+        <span class="icon icon-brand"><img src="assets/monitor.svg" alt="" width="20" height="20"></span>
+        <span>LanCast</span>
+      </a>
+      <nav class="desktop-nav" aria-label="Navegação principal">
+        <a href="./#recursos">Recursos</a>
+        <a href="./#como-funciona">Como funciona</a>
+        <a href="./#perguntas">Perguntas frequentes</a>
+      </nav>
+      <a class="button button-primary header-download" href="https://github.com/Guma325/LanCast/releases/latest" data-download>Baixar LanCast</a>
+      <details class="mobile-menu">
+        <summary>Menu</summary>
+        <nav aria-label="Navegação mobile">
+          <a href="./#recursos">Recursos</a>
+          <a href="./#como-funciona">Como funciona</a>
+          <a href="./#perguntas">Perguntas frequentes</a>
+          <a href="./#download">Baixar LanCast</a>
+        </nav>
+      </details>
+    </div>
+  </header>
+
+  <main id="conteudo">
+    <section class="versions-hero" aria-labelledby="versions-title">
+      <p class="eyebrow">Histórico</p>
+      <h1 id="versions-title">Versões do LanCast</h1>
+      <p class="versions-lead">Baixe a versão mais recente ou volte a uma anterior. Cada versão tem o instalador e a versão portátil, que abre direto, sem instalar.</p>
+    </section>
+
+    <section class="versions container" aria-label="Lista de versões">
+      <div id="releases" class="release-list" aria-live="polite" aria-busy="true">
+        <p class="versions-status muted">Carregando versões…</p>
+      </div>
+      <noscript>
+        <p class="versions-status">Ative o JavaScript para ver a lista, ou veja todas as versões <a class="inline-link" href="https://github.com/Guma325/LanCast/releases">no GitHub</a>.</p>
+      </noscript>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-top">
+        <a class="brand" href="./" aria-label="LanCast, voltar ao início"><span class="icon icon-footer"><img src="assets/monitor.svg" alt="" width="20" height="20"></span><span>LanCast</span></a>
+        <a class="social-link" href="https://github.com/Guma325/LanCast" aria-label="Código do LanCast no GitHub"><img src="assets/github.svg" alt="" width="20" height="20"></a>
+      </div>
+      <div class="footer-bottom">
+        <div class="footer-credits"><p>© <span data-year>2026</span> LanCast</p><p>Compartilhe sua tela. Na hora, pela LAN.</p></div>
+        <div class="footer-links">
+          <nav aria-label="Links do projeto"><a href="https://github.com/Guma325/LanCast/releases/latest">Download</a><a href="versoes.html">Versões</a><a href="https://github.com/Guma325/LanCast">GitHub</a><a href="https://github.com/Guma325/LanCast#como-usar">Ajuda</a></nav>
+          <p>Windows 10 / 11 · Rede local e VPN</p>
+        </div>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

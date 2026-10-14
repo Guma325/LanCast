@@ -65,8 +65,8 @@ a:focus-visible, summary:focus-visible { outline: 2px solid #dcdcdc; outline-off
 .hero-background img { position: absolute; top: 0; left: 50%; transform: translateX(-50%); max-width: none; }
 .hero-copy { width: 100%; max-width: 1100px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 24px; }
 .hero-eyebrow { font-size: 12px; letter-spacing: 2px; color: var(--muted); }
-.hero h1 { font-size: 80px; line-height: 1.08; letter-spacing: -3.2px; font-weight: 500; }
-.hero-description { max-width: 690px; color: var(--muted); font-size: 18px; }
+.hero h1 { font-size: 80px; line-height: 1.08; letter-spacing: -3.2px; font-weight: 500; text-wrap: balance; }
+.hero-description { max-width: 690px; color: var(--muted); font-size: 18px; text-wrap: balance; }
 .product-preview { width: 100%; max-width: 1000px; display: flex; flex-direction: column; gap: 16px; text-align: center; }
 .preview-frame { border: 1px solid #333; border-radius: 16px; overflow: hidden; background: #151515; box-shadow: 0 20px 60px #0007; }
 .preview-frame img { width: 100%; height: auto; aspect-ratio: 4 / 3; }
@@ -146,7 +146,7 @@ a:focus-visible, summary:focus-visible { outline: 2px solid #dcdcdc; outline-off
   .mobile-menu nav a { padding: 14px 12px; border-radius: 6px; }
   .mobile-menu nav a:hover { background: #252525; color: #fff; }
   .hero { padding-top: 64px; padding-bottom: 48px; gap: 40px; }
-  .hero h1 { font-size: 44px; letter-spacing: -1.4px; }
+  .hero h1 { font-size: min(44px, calc((100vw - 52px) / 8.7)); letter-spacing: -1.4px; }   /* cada linha do título cabe sem quebrar */
   .hero-description { font-size: 16px; }
   .hero-background img { width: auto; height: auto; }
   .actions { flex-direction: column; align-items: center; }
@@ -179,7 +179,6 @@ a:focus-visible, summary:focus-visible { outline: 2px solid #dcdcdc; outline-off
 }
 
 @media (max-width: 359px) {
-  .hero h1 { font-size: 38px; }
   .section-heading h2, .how-it-works .section-heading h2 { font-size: 30px; }
   .feature { padding: 24px; }
 }
@@ -187,4 +186,65 @@ a:focus-visible, summary:focus-visible { outline: 2px solid #dcdcdc; outline-off
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   *, *::before, *::after { transition: none !important; }
+}
+
+/* Página de versões (versoes.html) */
+.versions-hero { display: flex; flex-direction: column; align-items: center; gap: 16px; padding: 72px 24px 40px; text-align: center; }
+.versions-hero h1 { font-size: 56px; line-height: 1.1; letter-spacing: -2px; font-weight: 500; text-wrap: balance; }
+.versions-lead { max-width: 620px; color: var(--muted); font-size: 18px; text-wrap: balance; }
+.versions { max-width: 820px; padding-bottom: 96px; }
+.release-list { display: flex; flex-direction: column; gap: 16px; }
+.release { display: flex; flex-direction: column; gap: 20px; padding: 28px; border: 1px solid var(--card-line); background: var(--card); border-radius: 16px; }
+.release-latest { border-color: #565656; }
+.release-head { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+.release-head h2 { font-size: 24px; font-weight: 600; }
+.release-badge { padding: 3px 10px; border-radius: 999px; background: #1d3a2b; color: #7be0ab; font-size: 12px; font-weight: 600; }
+.release-badge-pre { background: #3b321f; color: #e8c779; }
+.release-date { margin-left: auto; font-size: 14px; }
+.release-notes { display: flex; flex-direction: column; gap: 8px; color: #cfd6e2; font-size: 15px; }
+.release-notes ul { display: flex; flex-direction: column; gap: 6px; margin: 0; padding-left: 20px; }
+.release-notes code { padding: 1px 6px; border-radius: 4px; background: #232323; font-size: 13px; }
+.release-downloads { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+.release-downloads .button { min-height: 44px; padding: 10px 18px; }
+.release-size { margin-left: 4px; opacity: .6; font-weight: 400; }
+.release-github { margin-left: auto; color: var(--muted); font-size: 14px; }
+.release-github:hover, .inline-link { text-decoration: underline; text-underline-offset: 4px; }
+.release-github:hover { color: #fff; }
+.versions-status { padding: 32px 0; text-align: center; }
+@media (max-width: 767px) {
+  .versions-hero { padding: 48px 24px 24px; }
+  .versions-hero h1 { font-size: 36px; letter-spacing: -1.2px; }
+  .versions-lead { font-size: 16px; }
+  .versions { padding-bottom: 64px; }
+  .release { padding: 20px; }
+  .release-date { width: 100%; margin-left: 0; }
+  .release-downloads .button { flex: 1 1 100%; }
+  .release-github { margin-left: 0; }
+}
+
+/* Ícone do Windows nos botões de download */
+.btn-icon { width: 18px; height: 18px; margin-right: 10px; fill: currentColor; flex: none; }
+
+/* Janela "Baixar para Windows" */
+.download-dialog { width: min(560px, calc(100% - 32px)); padding: 0; border: 1px solid var(--card-line); border-radius: 20px; background: var(--card); color: var(--text); box-shadow: 0 30px 90px #000a; }
+.download-dialog::backdrop { background: #000c; backdrop-filter: blur(4px); }
+body:has(.download-dialog[open]) { overflow: hidden; }
+.download-card { position: relative; display: flex; flex-direction: column; gap: 12px; padding: 32px; }
+.download-card h2 { font-size: 28px; font-weight: 600; letter-spacing: -.5px; }
+.download-lead { font-size: 15px; }
+.download-close { position: absolute; top: 14px; right: 14px; width: 36px; height: 36px; border: 0; border-radius: 8px; background: transparent; color: var(--muted); font-size: 26px; line-height: 1; cursor: pointer; }
+.download-close:hover { background: #262626; color: #fff; }
+.download-close:focus-visible, .download-option:focus-visible, .download-all:focus-visible { outline: 2px solid #dcdcdc; outline-offset: 3px; }
+.download-options { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 8px; }
+.download-option { display: flex; flex-direction: column; gap: 8px; padding: 20px; border: 1px solid var(--card-line); border-radius: 14px; background: var(--background); transition: border-color .15s, background .15s, transform .15s; }
+.download-option:hover { border-color: #777; background: #141414; }
+.download-option:active { transform: translateY(1px); }
+.download-option strong { font-size: 18px; font-weight: 600; }
+.download-option span { color: #cfd6e2; font-size: 14px; }
+.download-meta { margin-top: auto; padding-top: 6px; font-size: 12px; }
+.download-all { align-self: center; margin-top: 8px; color: var(--muted); font-size: 14px; text-decoration: underline; text-underline-offset: 4px; }
+.download-all:hover { color: #fff; }
+@media (max-width: 767px) {
+  .download-card { padding: 28px 20px 24px; }
+  .download-options { grid-template-columns: 1fr; }
 }
