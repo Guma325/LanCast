@@ -221,3 +221,30 @@ a:focus-visible, summary:focus-visible { outline: 2px solid #dcdcdc; outline-off
   .release-downloads .button { flex: 1 1 100%; }
   .release-github { margin-left: 0; }
 }
+
+/* Ícone do Windows nos botões de download */
+.btn-icon { width: 18px; height: 18px; margin-right: 10px; fill: currentColor; flex: none; }
+
+/* Janela "Baixar para Windows" */
+.download-dialog { width: min(560px, calc(100% - 32px)); padding: 0; border: 1px solid var(--card-line); border-radius: 20px; background: var(--card); color: var(--text); box-shadow: 0 30px 90px #000a; }
+.download-dialog::backdrop { background: #000c; backdrop-filter: blur(4px); }
+body:has(.download-dialog[open]) { overflow: hidden; }
+.download-card { position: relative; display: flex; flex-direction: column; gap: 12px; padding: 32px; }
+.download-card h2 { font-size: 28px; font-weight: 600; letter-spacing: -.5px; }
+.download-lead { font-size: 15px; }
+.download-close { position: absolute; top: 14px; right: 14px; width: 36px; height: 36px; border: 0; border-radius: 8px; background: transparent; color: var(--muted); font-size: 26px; line-height: 1; cursor: pointer; }
+.download-close:hover { background: #262626; color: #fff; }
+.download-close:focus-visible, .download-option:focus-visible, .download-all:focus-visible { outline: 2px solid #dcdcdc; outline-offset: 3px; }
+.download-options { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 8px; }
+.download-option { display: flex; flex-direction: column; gap: 8px; padding: 20px; border: 1px solid var(--card-line); border-radius: 14px; background: var(--background); transition: border-color .15s, background .15s, transform .15s; }
+.download-option:hover { border-color: #777; background: #141414; }
+.download-option:active { transform: translateY(1px); }
+.download-option strong { font-size: 18px; font-weight: 600; }
+.download-option span { color: #cfd6e2; font-size: 14px; }
+.download-meta { margin-top: auto; padding-top: 6px; font-size: 12px; }
+.download-all { align-self: center; margin-top: 8px; color: var(--muted); font-size: 14px; text-decoration: underline; text-underline-offset: 4px; }
+.download-all:hover { color: #fff; }
+@media (max-width: 767px) {
+  .download-card { padding: 28px 20px 24px; }
+  .download-options { grid-template-columns: 1fr; }
+}
