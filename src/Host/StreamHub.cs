@@ -36,13 +36,20 @@ public sealed class StreamHub
 
     public void Kick(Guid id)
     {
-        if (_viewers.TryRemove(id, out var v)) { try { v.Pc.Close("removido pelo host"); } catch { } ViewersChanged?.Invoke(); }
+        if (_viewers.TryRemove(id, out var v)) { Release(v.Pc, "removido pelo host"); ViewersChanged?.Invoke(); }
     }
 
     /// <summary>Expulsa todos os espectadores de um IP (usado ao banir).</summary>
     public void KickIp(string ip)
     {
         foreach (var kv in _viewers.Where(v => v.Value.Remote == ip).ToList()) Kick(kv.Key);
+    }
+
+    /// <summary>Fecha a conexão do espectador. Só o Close do SIPSorcery deixa a thread de recepção SCTP (RTCSctpTransport.DoReceive) girando a 100% de CPU para sempre.</summary>
+    private static void Release(RTCPeerConnection pc, string reason)
+    {
+        try { pc.sctp?.Close(); } catch { }                      // encerra a thread de recepção SCTP antes de fechar o DTLS
+        try { pc.Close(reason); } catch { }
     }
 
     public void CloseAll()
@@ -76,7 +83,7 @@ public sealed class StreamHub
             ViewersChanged?.Invoke();
             if (state is RTCPeerConnectionState.failed or RTCPeerConnectionState.closed or RTCPeerConnectionState.disconnected)
             {
-                if (_viewers.TryRemove(id, out _)) pc.Close("encerrado");
+                if (_viewers.TryRemove(id, out _)) Release(pc, "encerrado");
             }
         };
 
