@@ -28,6 +28,7 @@ public sealed class ProcessLoopbackCapture : IDisposable
 
     public void Start()
     {
+        if (_stop) return;                                       // já foi encerrada: não cria thread que ninguém mais vai parar
         _thread = new Thread(Run) { IsBackground = true, Name = $"loopback-{_pid}", Priority = ThreadPriority.AboveNormal };
         _thread.Start();
     }

@@ -36,6 +36,7 @@ public sealed class AudioMixer : IDisposable
     private readonly CancellationTokenSource _cts = new();
     private readonly int _maxBacklogValues;
     private string? _onlyApp;
+    private bool _disposed;                                        // protegido por _lock: depois de true nenhuma captura nova pode nascer
     private PcmBuffer _micBuf = new();
     private MicCapture? _mic;
     public string? MicError { get; private set; }
@@ -88,24 +89,27 @@ public sealed class AudioMixer : IDisposable
     /// <summary>Quando definido, só o áudio desse aplicativo (nome do processo) vai para a transmissão.</summary>
     public void SetOnlyApp(string? name)
     {
+        List<Source> stopped;
         lock (_lock)
         {
             _onlyApp = string.IsNullOrWhiteSpace(name) ? null : name;
-            foreach (var s in _sources.Values.Where(s => !Allowed(s.Name)).ToList()) StopSource(s);
+            stopped = Detach(_sources.Values.Where(s => !Allowed(s.Name)));
         }
+        StopAll(stopped);
     }
 
     public string? OnlyApp { get { lock (_lock) return _onlyApp; } }
 
     public void SetMuted(string name, bool muted)
     {
+        List<Source> stopped;
         lock (_lock)
         {
             if (muted) _muted.Add(name); else _muted.Remove(name);
             // aplica na hora: para a captura dos apps silenciados
-            foreach (var s in _sources.Values.Where(s => _muted.Contains(s.Name)).ToList())
-                StopSource(s);
+            stopped = Detach(_sources.Values.Where(s => _muted.Contains(s.Name)));
         }
+        StopAll(stopped);
         SaveMutes();
     }
 
@@ -195,14 +199,15 @@ public sealed class AudioMixer : IDisposable
             info[name] = (string.IsNullOrEmpty(cur.Title) ? title : cur.Title, cur.Playing || playing, cur.Pids + 1);
         }
 
+        List<Source> stopped;
         lock (_lock)
         {
+            if (_disposed) return;                              // o mixer já foi encerrado: não inicia captura nenhuma (ela nunca seria parada)
             _known.Clear();
             foreach (var kv in info) _known[kv.Key] = kv.Value;
 
             // remove capturas de processos que sumiram ou foram silenciados
-            foreach (var s in _sources.Values.ToList())
-                if (!seen.ContainsKey(s.Pid) || s.Capture.Failed || _muted.Contains(s.Name) || !Allowed(s.Name)) StopSource(s);
+            stopped = Detach(_sources.Values.Where(s => !seen.ContainsKey(s.Pid) || s.Capture.Failed || _muted.Contains(s.Name) || !Allowed(s.Name)));
 
             // inicia capturas novas
             foreach (var (pid, name) in seen)
@@ -215,22 +220,41 @@ public sealed class AudioMixer : IDisposable
                 AppLog.Info($"[audio] capturando {name} (PID {pid})");
             }
         }
+        StopAll(stopped);
     }
 
-    private void StopSource(Source s)
+    /// <summary>Tira as fontes da lista (chamar com o _lock) e devolve para serem encerradas FORA do lock:
+    /// o Dispose da captura espera a thread terminar e, com o lock preso, travaria o mixer e a varredura.</summary>
+    private List<Source> Detach(IEnumerable<Source> sources)
     {
-        _sources.Remove(s.Pid);
-        s.Capture.Dispose();
-        AppLog.Info($"[audio] parou {s.Name} (PID {s.Pid})");
+        var list = sources.ToList();
+        foreach (var s in list) _sources.Remove(s.Pid);
+        return list;
+    }
+
+    private static void StopAll(List<Source> sources)
+    {
+        foreach (var s in sources)
+        {
+            s.Capture.Dispose();
+            AppLog.Info($"[audio] parou {s.Name} (PID {s.Pid})");
+        }
     }
 
     // ---------- mixagem ----------
 
     [DllImport("winmm.dll")] private static extern uint timeBeginPeriod(uint ms);
+    [DllImport("winmm.dll")] private static extern uint timeEndPeriod(uint ms);
 
     private void MixLoop()
     {
         timeBeginPeriod(1);
+        try { MixLoopCore(); }
+        finally { timeEndPeriod(1); }                           // devolve o relógio do Windows ao normal quando o mixer termina
+    }
+
+    private void MixLoopCore()
+    {
         var acc = new int[FrameValues];
         var pcm = new short[FrameValues];
         var packet = new byte[1275];
@@ -336,8 +360,15 @@ public sealed class AudioMixer : IDisposable
 
     public void Dispose()
     {
+        List<Source> stopped;
+        lock (_lock)
+        {
+            if (_disposed) return;
+            _disposed = true;                                   // a varredura em andamento não inicia mais capturas
+            _mic?.Dispose(); _mic = null;
+            stopped = Detach(_sources.Values);
+        }
         _cts.Cancel();
-        lock (_lock) { _mic?.Dispose(); _mic = null; }
-        lock (_lock) foreach (var s in _sources.Values.ToList()) StopSource(s);
+        StopAll(stopped);
     }
 }
