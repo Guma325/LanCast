@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8"><title>LanCast · Assistindo</title>
+<style>
+@font-face{font-family:Inter;src:url('/assets/InterVariable.woff2') format('woff2');font-weight:100 900;font-display:swap}
+:root{color-scheme:dark;--bg:#0b0e14;--surface:#151b26;--raised:#1d2635;--line:#2a3445;--text:#f3f6fc;--muted:#9aa9bf;--accent:#3568d4;--onaccent:#fff;--ok:#69deae;--danger:#ff818b;--warn:#f5ca7b}
+*{box-sizing:border-box}html,body{height:100%}body{margin:0;overflow:hidden;background:var(--bg);color:var(--text);font:14px Inter,system-ui,sans-serif;user-select:none}
+button,input{font:inherit}[hidden]{display:none!important}
+button{border:1px solid var(--line);border-radius:8px;background:var(--raised);color:var(--text);padding:0 14px;height:36px;cursor:pointer;font-weight:600;font-size:12px;display:inline-flex;align-items:center;gap:8px;white-space:nowrap}button svg{width:16px;height:16px;flex:none}
+button:hover{filter:brightness(1.15)}button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.primary{background:var(--accent);border-color:var(--accent);color:var(--onaccent)}
+.icon{width:36px;padding:0;justify-content:center}.icon svg{width:18px;height:18px}
+svg{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.bar{position:absolute;top:0;left:0;right:0;height:44px;display:flex;align-items:center;gap:8px}
+#count{color:var(--muted);font-size:12px;margin-right:auto}
+#stage{position:absolute;top:52px;left:0;right:0;bottom:0;display:grid;gap:8px;grid-template-columns:repeat(var(--cols,1),minmax(0,1fr));grid-auto-rows:minmax(0,1fr)}
+#stage.focus{grid-template-columns:repeat(var(--others,1),minmax(0,1fr));grid-template-rows:minmax(0,1fr) 22%;grid-auto-rows:0}
+#stage.focus .tile.focused{grid-column:1/-1;grid-row:1;order:-1}
+#stage.focus .tile:not(.focused) .controls .vol-range,#stage.focus .tile:not(.focused) .vol-value,#stage.focus .tile:not(.focused) .stats-btn{display:none}
+.tile{position:relative;min-width:0;min-height:0;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#080c12}
+.tile:fullscreen{border:0;border-radius:0}
+.tile.flash{animation:flash 1.2s ease-out}@keyframes flash{0%,40%{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent)}100%{box-shadow:0 0 0 0 transparent}}
+video{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#080c12}
+.top{position:absolute;top:10px;left:10px;right:10px;display:flex;align-items:center;gap:8px;pointer-events:none}
+.chip{display:inline-flex;align-items:center;gap:6px;max-width:100%;padding:5px 10px;border-radius:8px;background:#0b0e14cc;color:#f3f6fc;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chip b{font-weight:600;overflow:hidden;text-overflow:ellipsis}.dot{width:7px;height:7px;border-radius:50%;background:#9aa9bf;flex:none}.tile.live .dot{background:var(--ok)}
+.viewers{color:#c5d0e0}
+.controls{position:absolute;left:0;right:0;bottom:0;display:flex;align-items:center;gap:8px;padding:28px 10px 10px;background:linear-gradient(transparent,#000a);opacity:0;transition:opacity .15s}
+.tile:hover .controls,.tile:focus-within .controls{opacity:1}
+.controls button{background:#1d2635e6;border-color:#ffffff1f;color:#f3f6fc}
+.controls .spacer{flex:1}
+.vol-range{width:96px;accent-color:var(--accent)}.vol-value{font-size:12px;color:#f3f6fc;min-width:34px}
+.hud{position:absolute;top:48px;left:10px;padding:12px;border-radius:8px;background:#151b26ed;border:1px solid #2a3445;color:#f3f6fc;font-size:12px;line-height:1.7;white-space:pre-line;pointer-events:none}
+.overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:16px;background:#080c12e6;color:#f3f6fc;text-align:center}
+.card{max-width:340px;display:flex;flex-direction:column;align-items:center;gap:12px}
+.card h3{margin:0;font-size:16px;font-weight:600}.card p{margin:0;color:#9aa9bf;font-size:12px;line-height:1.6}
+.card .row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.card input{width:220px;height:36px;border:1px solid #2a3445;background:#1d2635;color:#f3f6fc;border-radius:8px;padding:0 12px}
+.spin{width:28px;height:28px;border:3px solid #ffffff26;border-top-color:var(--accent);border-radius:50%;animation:spin 1s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}
+.err{color:var(--danger)!important}
+#empty{position:absolute;inset:52px 0 0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;color:var(--muted);text-align:center}
+#empty b{color:var(--text);font-size:18px;font-weight:600}
+#toast{position:fixed;right:16px;bottom:16px;max-width:420px;padding:12px 16px;border-radius:8px;background:var(--raised);border:1px solid var(--line);font-size:13px;box-shadow:0 8px 24px #0006}
+</style></head><body>
+<div class="bar"><span id="count"></span><button id="popout"></button><button id="closeAll">Sair de todas</button></div>
+<main id="stage"></main>
+<div id="empty"><b>Nenhuma transmissão aberta</b><span>Em Streams salvas, clique em Assistir para abrir uma transmissão aqui.</span></div>
+<div id="toast" role="status" hidden></div>
+<script>
+const $=id=>document.getElementById(id),stage=$('stage'),webview=window.chrome&&window.chrome.webview;
+const ICON={
+ vol:'<svg viewBox="0 0 24 24"><path d="M11 5 6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/></svg>',
+ muted:'<svg viewBox="0 0 24 24"><path d="M11 5 6 9H3v6h3l5 4z"/><path d="m16 9 6 6M22 9l-6 6"/></svg>',
+ stats:'<svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>',
+ focus:'<svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="12" rx="2"/><path d="M3 19h4M10 19h4M17 19h4"/></svg>',
+ grid:'<svg viewBox="0 0 24 24"><rect x="3" y="3" width="8" height="8" rx="1"/><rect x="13" y="3" width="8" height="8" rx="1"/><rect x="3" y="13" width="8" height="8" rx="1"/><rect x="13" y="13" width="8" height="8" rx="1"/></svg>',
+ full:'<svg viewBox="0 0 24 24"><path d="M3 9V3h6M21 9V3h-6M3 15v6h6M21 15v6h-6"/></svg>',
+ close:'<svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg>',
+ popout:'<svg viewBox="0 0 24 24"><path d="M14 4h6v6M20 4l-9 9"/><path d="M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg>',
+ dock:'<svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16"/></svg>'};
+const tiles=new Map();let focused=null,popped=false,toastTimer;
+
+// ---- ponte com o LanCast (C#): pedidos com resposta (req) e eventos ----
+let seq=0;const pending=new Map();
+function post(m){webview&&webview.postMessage(m)}
+function call(method,data){return new Promise(resolve=>{const req=++seq;pending.set(req,resolve);post({req,method,...data});setTimeout(()=>{if(pending.delete(req))resolve({ok:false,status:0,error:'O LanCast não respondeu.'})},20000)})}
+webview&&webview.addEventListener('message',e=>{const m=e.data||{};
+ if(m.req){const done=pending.get(m.req);if(done){pending.delete(m.req);done(m)}return}
+ switch(m.cmd){
+  case 'add':{const t=tiles.get(m.stream.id);if(t){t.rename(m.stream.name);t.flash()}else{tiles.set(m.stream.id,new Tile(m.stream));layout()}break}
+  case 'closeAll':[...tiles.values()].forEach(t=>t.close());break;
+  case 'theme':for(const[k,v]of Object.entries(m.vars||{}))document.documentElement.style.setProperty('--'+k,v);document.documentElement.style.colorScheme=m.dark?'dark':'light';break;
+  case 'popped':popped=!!m.value;popoutButton();break;
+  case 'toast':toast(m.text);break;
+ }});
+
+function toast(text){$('toast').textContent=text;$('toast').hidden=false;clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('toast').hidden=true,4000)}
+function popoutButton(){$('popout').innerHTML=(popped?ICON.dock+'Voltar para o LanCast':ICON.popout+'Abrir em janela');$('popout').title=popped?'Volta a exibir as transmissões dentro do LanCast':'Abre as transmissões numa janela separada (bom para um segundo monitor)'}
+$('popout').onclick=()=>post({event:popped?'dock':'popout'});
+$('closeAll').onclick=()=>[...tiles.values()].forEach(t=>t.close());
+function setFocus(id){focused=focused===id?null:id;layout()}
+
+function layout(){
+ const n=tiles.size;if(focused&&(!tiles.has(focused)||n<2))focused=null;
+ stage.style.setProperty('--cols',n<=1?1:n<=4?2:3);stage.style.setProperty('--others',Math.max(1,n-1));
+ stage.classList.toggle('focus',!!focused);
+ for(const t of tiles.values()){t.el.classList.toggle('focused',t.id===focused);t.focusBtn.innerHTML=t.id===focused?ICON.grid:ICON.focus;const tip=t.id===focused?'Voltar para a grade':'Destacar esta transmissão';t.focusBtn.title=tip;t.focusBtn.setAttribute('aria-label',tip);t.focusBtn.hidden=n<2}
+ $('count').textContent=n===1?'1 transmissão':n+' transmissões';
+ $('empty').hidden=n>0;$('closeAll').hidden=n===0;
+}
+
+function button(cls,html,label,onclick){const b=document.createElement('button');b.className=cls;b.innerHTML=html;if(label){b.title=label;b.setAttribute('aria-label',label)}b.onclick=e=>{e.stopPropagation();onclick()};return b}
+
+class Tile{
+ constructor(s){
+  this.id=s.id;this.name=s.name;this.password='';this.gen=0;this.attempts=0;this.last={};
+  const el=this.el=document.createElement('section');el.className='tile';el.tabIndex=-1;
+  this.v=document.createElement('video');this.v.autoplay=true;this.v.playsInline=true;
+  let vol=.8;try{const saved=parseFloat(localStorage.getItem('vol-'+this.id));if(saved>=0&&saved<=1)vol=saved}catch{}
+  this.v.volume=vol;this.lastVolume=vol||.8;
+  this.v.ondblclick=()=>{if(tiles.size>1)setFocus(this.id);else this.fullscreen()};
+  const top=document.createElement('div');top.className='top';
+  this.chip=document.createElement('span');this.chip.className='chip';this.chip.innerHTML='<span class="dot"></span><b></b><span class="viewers"></span>';top.append(this.chip);
+  this.hud=document.createElement('div');this.hud.className='hud';this.hud.hidden=true;
+  this.overlay=document.createElement('div');this.overlay.className='overlay';
+  const c=document.createElement('div');c.className='controls';
+  this.muteBtn=button('icon',ICON.vol,'Silenciar',()=>this.toggleMute());
+  this.range=document.createElement('input');this.range.type='range';this.range.min=0;this.range.max=1;this.range.step=.01;this.range.className='vol-range';this.range.setAttribute('aria-label','Volume de '+this.name);
+  this.range.oninput=()=>{this.v.volume=+this.range.value;this.v.muted=false;if(this.v.volume>0)this.lastVolume=this.v.volume;this.volumeUI()};
+  this.volValue=document.createElement('span');this.volValue.className='vol-value';
+  const spacer=document.createElement('span');spacer.className='spacer';
+  const stats=button('icon stats-btn',ICON.stats,'Estatísticas',()=>{this.hud.hidden=!this.hud.hidden;this.stats()});
+  this.focusBtn=button('icon',ICON.focus,'Destacar esta transmissão',()=>setFocus(this.id));
+  const full=button('icon',ICON.full,'Tela cheia',()=>this.fullscreen());
+  const close=button('icon',ICON.close,'Fechar esta transmissão',()=>this.close());
+  c.append(this.muteBtn,this.range,this.volValue,spacer,stats,this.focusBtn,full,close);
+  el.append(this.v,top,this.hud,c,this.overlay);stage.append(el);
+  this.rename(s.name);this.volumeUI();this.connect();
+ }
+ flash(){this.el.classList.remove('flash');void this.el.offsetWidth;this.el.classList.add('flash')}
+ rename(name){this.name=name;this.chip.querySelector('b').textContent=name;this.range.setAttribute('aria-label','Volume de '+name)}
+ volumeUI(){const silent=this.v.muted||this.v.volume===0;this.muteBtn.innerHTML=silent?ICON.muted:ICON.vol;const tip=silent?'Ativar o áudio':'Silenciar';this.muteBtn.title=tip;this.muteBtn.setAttribute('aria-label',tip);const value=this.v.muted?0:this.v.volume;this.range.value=value;this.volValue.textContent=Math.round(value*100)+'%';try{localStorage.setItem('vol-'+this.id,String(value))}catch{}}
+ toggleMute(){if(this.v.muted||this.v.volume===0){this.v.muted=false;this.v.volume=this.lastVolume||.8;this.v.play().catch(()=>{})}else{this.lastVolume=this.v.volume;this.v.muted=true}this.volumeUI()}
+ fullscreen(){(document.fullscreenElement?document.exitFullscreen():this.el.requestFullscreen()).catch(()=>{})}
+ // estados sobre o vídeo: connecting | reconnecting | lost | password | banned | null (ao vivo)
+ show(state,message=''){
+  const o=this.overlay;o.hidden=!state;o.textContent='';if(!state)return;
+  const card=document.createElement('div');card.className='card';o.append(card);
+  const h=t=>{const e=document.createElement('h3');e.textContent=t;card.append(e)},p=(t,err)=>{if(!t)return;const e=document.createElement('p');e.textContent=t;if(err)e.className='err';card.append(e)};
+  const row=(...b)=>{const r=document.createElement('div');r.className='row';r.append(...b);card.append(r)};
+  const closeBtn=()=>button('', 'Fechar',null,()=>this.close());
+  if(state==='connecting'||state==='reconnecting'){const s=document.createElement('div');s.className='spin';card.append(s);h(state==='connecting'?'Conectando a '+this.name+'…':'Reconectando…');p(message);if(state==='reconnecting')row(closeBtn())}
+  else if(state==='lost'){h('Conexão interrompida');p(message||'A transmissão pode ter sido encerrada ou a conexão caiu.');row(button('primary','Reconectar',null,()=>{this.attempts=0;this.connect()}),closeBtn())}
+  else if(state==='banned'){h('Sem acesso');p('Seu IP foi banido desta transmissão. Fale com o anfitrião.');row(closeBtn())}
+  else if(state==='password'){h(this.name+' usa senha');p(message||'Digite a senha do anfitrião para assistir.',!!message);
+   const form=document.createElement('form');form.className='card';const input=document.createElement('input');input.type='password';input.placeholder='Senha';input.setAttribute('aria-label','Senha da transmissão');
+   const go=document.createElement('button');go.className='primary';go.type='submit';go.textContent='Entrar';
+   form.onsubmit=e=>{e.preventDefault();this.password=input.value;this.attempts=0;this.connect()};
+   const r=document.createElement('div');r.className='row';r.append(go,closeBtn());form.append(input,r);card.append(form);setTimeout(()=>input.focus(),0)}
+ }
+ teardown(){
+  this.gen++;clearTimeout(this.connectTimer);clearTimeout(this.retryTimer);clearInterval(this.statsTimer);clearInterval(this.viewersTimer);
+  if(this.pc){const pc=this.pc;this.pc=null;pc.onconnectionstatechange=null;pc.ontrack=null;pc.onicegatheringstatechange=null;pc.close()}
+  this.v.srcObject=null;this.last={};this.el.classList.remove('live');
+ }
+ async connect(){
+  this.teardown();const token=this.gen;this.show(this.attempts?'reconnecting':'connecting');
+  try{
+   const pc=this.pc=new RTCPeerConnection({iceServers:[]}),stream=new MediaStream();this.v.srcObject=stream;
+   pc.ontrack=e=>{if(token!==this.gen)return;stream.addTrack(e.track);try{e.receiver.jitterBufferTarget=0;e.receiver.playoutDelayHint=0}catch{}};
+   pc.addTransceiver('video',{direction:'recvonly'});pc.addTransceiver('audio',{direction:'recvonly'});
+   pc.onconnectionstatechange=()=>{if(token!==this.gen)return;const s=pc.connectionState;if(s==='connected')this.live();else if(s==='failed'||s==='disconnected'||s==='closed')this.lost()};
+   const offer=await pc.createOffer();offer.sdp=offer.sdp.replace(/(a=fmtp:\d+ [^\r\n]*useinbandfec=1)/,'$1;stereo=1;sprop-stereo=1');await pc.setLocalDescription(offer);
+   await new Promise(resolve=>{if(pc.iceGatheringState==='complete')return resolve();pc.onicegatheringstatechange=()=>{if(pc.iceGatheringState==='complete')resolve()};setTimeout(resolve,1500)});
+   if(token!==this.gen)return;
+   const r=await call('offer',{id:this.id,sdp:pc.localDescription.sdp,password:this.password});
+   if(token!==this.gen)return;
+   if(r.status===401){const wrong=!!this.password;this.teardown();this.show('password',wrong?'Senha incorreta. Confira com o anfitrião.':'');return}
+   if(r.status===403){this.teardown();this.show('banned');return}
+   if(!r.ok)throw new Error(r.error||'O anfitrião não respondeu.');
+   await pc.setRemoteDescription({type:'answer',sdp:r.body.sdp});
+   if(pc.connectionState!=='connected')this.connectTimer=setTimeout(()=>{if(token===this.gen)this.lost('Tempo de conexão esgotado.')},15000);
+  }catch(error){if(token===this.gen)this.lost(error.message)}
+ }
+ live(){
+  clearTimeout(this.connectTimer);this.attempts=0;this.el.classList.add('live');this.show(null);
+  this.v.play().catch(()=>{});
+  clearInterval(this.statsTimer);clearInterval(this.viewersTimer);
+  this.statsTimer=setInterval(()=>this.stats(),1000);this.viewers();this.viewersTimer=setInterval(()=>this.viewers(),3000);
+ }
+ lost(message){
+  this.teardown();
+  // tenta sozinho algumas vezes (o anfitrião pode ter só reiniciado); depois deixa o botão Reconectar
+  if(++this.attempts<=5){this.show('reconnecting',message||'');this.retryTimer=setTimeout(()=>this.connect(),3000)}
+  else this.show('lost',message);
+ }
+ close(){
+  this.teardown();this.el.remove();tiles.delete(this.id);
+  if(document.fullscreenElement===this.el)document.exitFullscreen().catch(()=>{});
+  post({event:'closed',id:this.id});layout();
+ }
+ async viewers(){const token=this.gen;const r=await call('viewers',{id:this.id});if(token!==this.gen||!r.ok)return;const n=r.body.count||0,names=r.body.names||[];const e=this.chip.querySelector('.viewers');e.textContent='· '+n+' assistindo';this.chip.title=names.join(', ')}
+ async stats(){
+  const pc=this.pc,token=this.gen;if(this.hud.hidden||!pc||pc.connectionState!=='connected')return;
+  try{const report=await pc.getStats();if(token!==this.gen)return;const lines=[];
+   report.forEach(s=>{
+    if(s.type==='inbound-rtp'&&(s.kind==='video'||s.mediaType==='video')){const dt=this.last.t?(s.timestamp-this.last.t)/1000:0,kbps=dt>0?Math.max(0,Math.round(((s.bytesReceived||0)-this.last.b)*8/1000/dt)):0,buffer=s.jitterBufferEmittedCount?Math.round(s.jitterBufferDelay/s.jitterBufferEmittedCount*1000):0;
+     lines.push(`Resolução: ${s.frameWidth||0} × ${s.frameHeight||0}`,`Quadros: ${s.framesPerSecond||0} fps · ${kbps} kbps`,`Buffer: ${buffer} ms · Perdidos: ${s.packetsLost||0}`);this.last={t:s.timestamp,b:s.bytesReceived||0}}
+    if(s.type==='candidate-pair'&&s.state==='succeeded'&&s.currentRoundTripTime!=null)lines.push(`Latência de rede: ${Math.round(s.currentRoundTripTime*1000)} ms`)});
+   this.hud.textContent=lines.join('\n')||'Aguardando estatísticas…'}catch{}
+ }
+}
+popoutButton();layout();post({event:'ready'});
+</script></body></html>

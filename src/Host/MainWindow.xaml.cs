@@ -107,6 +107,7 @@ public partial class MainWindow : Window
         Addresses.ItemsSource = _addrs;
         BanList.ItemsSource = _bans;
         InitSavedStreams();
+        InitWatching();
         MonitorList.ItemsSource = _monRows;
         WindowList.ItemsSource = _winRows;
         _preview = new PreviewCapture(_cfg, () => _svc.Encoder?.ActiveKind);
@@ -523,7 +524,13 @@ public partial class MainWindow : Window
     /// <summary>Barra de título clara/escura conforme o tema (Windows 10 2004+ / 11).</summary>
     private void ApplyTitleBar()
     {
-        var hwnd = new WindowInteropHelper(this).Handle;
+        ApplyTitleBar(this);
+        if (_viewerWindow != null) ApplyTitleBar(_viewerWindow);
+    }
+
+    internal static void ApplyTitleBar(Window window)
+    {
+        var hwnd = new WindowInteropHelper(window).Handle;
         if (hwnd == IntPtr.Zero) return;
         int dark = ThemeManager.IsDark ? 1 : 0;
         try { DwmSetWindowAttribute(hwnd, 20, ref dark, sizeof(int)); } catch { }
@@ -627,6 +634,7 @@ public partial class MainWindow : Window
         ApplyTitleBar();
         RefreshAddresses();
         RefreshSources(); RefreshBans();
+        _watch.ApplyTheme();
         ThemeStatus.Text = $"Tema {theme.Name} aplicado e salvo.";
         Refresh();
     }
@@ -795,6 +803,7 @@ public partial class MainWindow : Window
         if (_exiting) return;
         // fechar a janela só esconde na bandeja; a transmissão continua
         e.Cancel = true;
+        if (_viewerWindow == null) _watch.CloseAll();   // sem a janela visível, não deixa áudio de transmissão tocando escondido
         Hide();
         if (!_trayHintShown)
         {
@@ -813,6 +822,8 @@ public partial class MainWindow : Window
         _preview?.Dispose();
         _hotkeys?.Dispose();
         _localMic?.Dispose();
+        _viewerWindow?.Close();
+        await _watch.ShutdownAsync();
         _cfg.Save();
         AppVolumes.Flush();
         await _svc.StopAsync();
@@ -838,7 +849,7 @@ public sealed class InverseBoolToVisibility : System.Windows.Data.IValueConverte
 public sealed class NavWidthConverter : System.Windows.Data.IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
-        => value is true ? 72.0 : 200.0;
+        => value is true ? 72.0 : 220.0;
     public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         => throw new NotSupportedException();
 }
