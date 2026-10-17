@@ -2,6 +2,9 @@
 
 Format based on [Keep a Changelog](https://keepachangelog.com/); versioning follows [SemVer](https://semver.org/).
 
+## [1.3.1] - 2026-10-17
+- Fixed CPU usage growing every time the stream was stopped and started again: viewers' SCTP receive threads kept spinning at 100% after the connection was closed, and loopback audio captures could be left running after the mixer was disposed.
+
 ## [1.3.0] - 2026-10-11
 - Added in-app GitHub Release updates for installed and portable builds, automatic checks, SHA-256 validation, and restart after installation.
 - Added an eye icon to "Convide seus amigos" to hide/show the IP in the invite links (the Copiar buttons still copy the real link). The choice is remembered.
