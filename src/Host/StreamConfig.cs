@@ -35,6 +35,9 @@ public sealed class StreamConfig
     public bool StartOnLaunch { get; set; } = false;
     public bool CheckUpdatesOnLaunch { get; set; } = true;
     public bool ShowLiveIndicator { get; set; } = true;
+    public const string DefaultHotkey = "Ctrl+Shift+F9";
+    /// <summary>Atalho global para iniciar/parar a transmissão (ex.: "Ctrl+Shift+F9"); vazio = desativado.</summary>
+    public string Hotkey { get; set; } = DefaultHotkey;
     /// <summary>Esconde o IP nos links de convite (os botões Copiar continuam copiando o link real).</summary>
     public bool HideAddresses { get; set; } = false;
     /// <summary>Transmissões favoritas (aba "Transmissões salvas"). Substitua a lista inteira ao alterar.</summary>
