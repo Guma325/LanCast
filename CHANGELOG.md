@@ -2,6 +2,10 @@
 
 Format based on [Keep a Changelog](https://keepachangelog.com/); versioning follows [SemVer](https://semver.org/).
 
+## [Unreleased]
+- Added watching friends' streams inside the app: "Assistir" in "Streams salvas" opens the stream in a new "Assistindo" tab (WebView2), and each extra stream is added side by side (auto grid, focus mode, per-tile volume, fullscreen, auto-reconnect, in-tile password prompt). The player can be popped out into its own window. Signaling goes through the app, so it works with hosts on older LanCast versions. The viewer name is asked on first use and can be changed in Configurações.
+- Widened the sidebar so the nav badges are not clipped.
+
 ## [1.3.1] - 2026-10-17
 - Fixed CPU usage growing every time the stream was stopped and started again: viewers' SCTP receive threads kept spinning at 100% after the connection was closed, and loopback audio captures could be left running after the mixer was disposed.
 

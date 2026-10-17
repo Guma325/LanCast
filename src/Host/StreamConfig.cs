@@ -42,6 +42,10 @@ public sealed class StreamConfig
     public bool HideAddresses { get; set; } = false;
     /// <summary>Transmissões favoritas (aba "Transmissões salvas"). Substitua a lista inteira ao alterar.</summary>
     public List<SavedStream> SavedStreams { get; set; } = new();
+    /// <summary>Nome mostrado ao anfitrião ao assistir pelo LanCast (vazio = perguntar no primeiro Assistir).</summary>
+    public string ViewerName { get; set; } = "";
+    /// <summary>Posição da janela separada de transmissões (null = centralizada).</summary>
+    public WindowBounds? ViewerWindow { get; set; }
     /// <summary>Id do tema de cores (Dark, Light, Dracula, Nord, Solarized, Monokai).</summary>
     public string Theme { get; set; } = "Dark";
     /// <summary>Menu lateral recolhido (só ícones).</summary>
@@ -143,6 +147,15 @@ public sealed class SavedStream
     public string Name { get; set; } = "";
     public string Host { get; set; } = "";
     public int Port { get; set; } = 8080;
+}
+
+public sealed class WindowBounds
+{
+    public double Left { get; set; }
+    public double Top { get; set; }
+    public double Width { get; set; }
+    public double Height { get; set; }
+    public bool Maximized { get; set; }
 }
 
 public sealed class BanEntry

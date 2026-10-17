@@ -28,13 +28,15 @@ public partial class MainWindow
         DialogPerson.Visibility = name == null ? Visibility.Collapsed : Visibility.Visible;
         DialogPersonName.Text = name ?? ""; DialogPersonIp.Text = ip ?? "";
         AppShell.IsEnabled = false; DialogLayer.Visibility = Visibility.Visible;
+        UpdateWatchVisibility();
         (information ? DialogConfirm : DialogCancel).Focus();
         return _dialog.Task;
     }
     private void CloseDialog(bool result)
     {
         var pending = _dialog; _dialog = null;
-        DialogLayer.Visibility = Visibility.Collapsed; DialogSourcePicker.Visibility = Visibility.Collapsed; AppShell.IsEnabled = true;
+        DialogLayer.Visibility = Visibility.Collapsed; DialogSourcePicker.Visibility = Visibility.Collapsed; DialogInput.Visibility = Visibility.Collapsed; AppShell.IsEnabled = true;
+        UpdateWatchVisibility();
         if (_previousFocus != null) Keyboard.Focus(_previousFocus);
         pending?.TrySetResult(result);
     }
@@ -48,6 +50,7 @@ public partial class MainWindow
     }
     private void Notify(string message)
     {
+        if (WatchHost.IsVisible) { _watch.Toast(message); return; }   // o WebView2 cobriria o aviso
         ToastText.Text = message; Toast.Visibility = Visibility.Visible;
         _toastTimer.Stop(); _toastTimer.Tick -= HideToast; _toastTimer.Tick += HideToast; _toastTimer.Start();
     }
@@ -55,12 +58,12 @@ public partial class MainWindow
     private void Navigation_Changed(object sender, SelectionChangedEventArgs e)
     {
         if (_loading || PageTitle == null) return;
-        string[] titles = { "Compartilhar", "Espectadores", "Áudio dos aplicativos", "Microfone", "Banidos", "Streams salvas", "Configurações" };
-        string[] descriptions = { "Escolha o que deseja transmitir para sua rede.", "Gerencie quem está assistindo à transmissão.", "Escolha quais aplicativos os espectadores podem ouvir.", "Configure sua voz para a transmissão.", "Gerencie os IPs bloqueados na transmissão.", "Veja quais streams de amigos estão ativas agora.", "Personalize a transmissão e a aparência do LanCast." };
-        int index = Math.Clamp(NavList.SelectedIndex, 0, 6);
+        string[] titles = { "Compartilhar", "Espectadores", "Áudio dos aplicativos", "Microfone", "Banidos", "Streams salvas", "Assistindo", "Configurações" };
+        string[] descriptions = { "Escolha o que deseja transmitir para sua rede.", "Gerencie quem está assistindo à transmissão.", "Escolha quais aplicativos os espectadores podem ouvir.", "Configure sua voz para a transmissão.", "Gerencie os IPs bloqueados na transmissão.", "Veja quais streams de amigos estão ativas agora.", "Transmissões de amigos abertas no LanCast. Passe o mouse para ver os controles.", "Personalize a transmissão e a aparência do LanCast." };
+        int index = Math.Clamp(NavList.SelectedIndex, 0, 7);
         PageTitle.Text = titles[index]; PageSubtitle.Text = descriptions[index];
         InvitePanel.Visibility = index is 0 or 1 ? Visibility.Visible : Visibility.Collapsed;
-        UpdatePreviewState(); UpdateLocalMeter();
+        UpdatePreviewState(); UpdateLocalMeter(); UpdateWatchVisibility();
         if (SavedTab.IsSelected) { RefreshSavedRows(); _ = CheckSavedAsync(); }
     }
     private void SettingsTab_Click(object sender, RoutedEventArgs e)

@@ -23,6 +23,7 @@
     <Using Include="System.IO" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.2903.40" />
     <PackageReference Include="SIPSorcery" Version="6.0.11" />
     <PackageReference Include="Concentus" Version="2.2.2" />
     <PackageReference Include="NAudio.Wasapi" Version="2.2.1" />
@@ -36,6 +37,7 @@
     <Content Include="Assets\Fonts\LICENSE.txt" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
     <EmbeddedResource Include="wwwroot\assets\*" LogicalName="assets/%(Filename)%(Extension)" />
     <EmbeddedResource Include="wwwroot\index.html" LogicalName="index.html" />
+    <EmbeddedResource Include="wwwroot\multiview.html" LogicalName="multiview.html" />
     <EmbeddedResource Include="..\..\tools\ffmpeg.exe.gz" LogicalName="ffmpeg.exe.gz" />
   </ItemGroup>
   <!-- O ffmpeg não fica no repositório: na primeira compilação, baixa e gera tools\ffmpeg.exe.gz. -->
