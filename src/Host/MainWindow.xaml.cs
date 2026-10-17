@@ -127,6 +127,7 @@ public partial class MainWindow : Window
         RefreshAddresses();
         UpdateMicButton();
         SetupTray();
+        InitHotkey();
         RefreshBans();
         RefreshSources();
 
@@ -810,6 +811,7 @@ public partial class MainWindow : Window
         _updateCancellation.Cancel();
         _timer.Stop();
         _preview?.Dispose();
+        _hotkeys?.Dispose();
         _localMic?.Dispose();
         _cfg.Save();
         AppVolumes.Flush();
