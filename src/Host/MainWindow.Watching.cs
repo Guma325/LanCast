@@ -20,6 +20,7 @@ public partial class MainWindow
         _watch.Changed += OnWatchChanged;
         _watch.PopoutRequested += popout => { if (popout) PopOutWatch(); else DockWatch(); };
         _watch.FullScreenChanged += SetWatchFullScreen;
+        _watch.PickRequested += () => { ShowFromTray(); SavedTab.IsSelected = true; };
         // O WebView2 é uma janela nativa: fica fora do TabControl (que descarrega abas ocultas) e é
         // posicionado por cima da área da aba. Assim as conexões continuam ao trocar de aba.
         WatchHost.Child = _watch.View;

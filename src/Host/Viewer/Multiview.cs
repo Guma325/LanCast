@@ -39,6 +39,8 @@ public sealed class Multiview
     /// <summary>true = abrir em janela separada; false = voltar para o LanCast.</summary>
     public event Action<bool>? PopoutRequested;
     public event Action<bool>? FullScreenChanged;
+    /// <summary>Botão "+" da página: escolher outra transmissão em Streams salvas.</summary>
+    public event Action? PickRequested;
 
     /// <summary>Cria o WebView2 na primeira vez. false = runtime do WebView2 indisponível.</summary>
     public Task<bool> EnsureAsync()
@@ -177,6 +179,7 @@ public sealed class Multiview
                     break;
                 case "popout": PopoutRequested?.Invoke(true); break;
                 case "dock": PopoutRequested?.Invoke(false); break;
+                case "pick": PickRequested?.Invoke(); break;
             }
             return;
         }
