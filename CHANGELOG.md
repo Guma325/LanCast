@@ -2,7 +2,8 @@
 
 Format based on [Keep a Changelog](https://keepachangelog.com/); versioning follows [SemVer](https://semver.org/).
 
-## [Unreleased]
+## [1.4.0] - 2026-10-18
+- Added a global keyboard shortcut to start/stop the stream (default Ctrl+Shift+F9), working even with the window minimized to the tray. It can be changed, removed or reset in Configurações › Transmissão › Atalho de teclado; stopping through the shortcut skips the confirmation dialog.
 - Added watching friends' streams inside the app: "Assistir" in "Streams salvas" opens the stream in a new "Assistindo" tab (WebView2), and each extra stream is added side by side (auto grid, focus mode, per-tile volume, fullscreen, auto-reconnect, in-tile password prompt). The player can be popped out into its own window. Signaling goes through the app, so it works with hosts on older LanCast versions. The viewer name is asked on first use and can be changed in Configurações.
 - Widened the sidebar so the nav badges are not clipped.
 
