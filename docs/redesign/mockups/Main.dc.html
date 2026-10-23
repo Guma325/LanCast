@@ -1,0 +1,322 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>LanCast — Compartilhar</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#0A0A12}
+a{color:#A99BFF}a:hover{color:#C9C0FF}
+button{font-family:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible,a:focus-visible{outline:2px solid #A99BFF;outline-offset:2px}
+.nav:hover{background:#1A1A28}
+nav a{white-space:nowrap;overflow:hidden}
+nav a > span:first-of-type{overflow:hidden;text-overflow:ellipsis}
+.resizer{position:absolute;top:0;right:-5px;width:10px;height:100%;padding:0;border:0;background:transparent;cursor:col-resize;z-index:2}
+.resizer::after{content:"";position:absolute;top:0;bottom:0;left:4px;width:2px;background:transparent;transition:background .15s ease-out}
+.resizer:hover::after,.resizer:focus-visible::after{background:#6D4AFF}
+.tg:hover{background:#1A1A28;color:#F2F2F8}
+nav.collapsed > div:first-of-type{flex-direction:column;gap:12px!important;padding:0!important}
+nav.collapsed > div:first-of-type > span{display:none}
+nav.collapsed > div > span:first-child{display:none}
+nav.collapsed a{justify-content:center;padding:0!important;gap:0!important;font-size:0!important;position:relative}
+nav.collapsed a > span{display:none}
+nav.collapsed a[data-live]::after{content:"";position:absolute;top:7px;right:9px;width:8px;height:8px;border-radius:50%;background:#3DDC97;box-shadow:0 0 0 2px #0E0E18}
+nav.collapsed > div:last-of-type{display:none}
+nav.collapsed .resizer{display:none}
+nav.collapsed .tg{margin-left:0!important}
+nav.collapsed .chev{transform:rotate(180deg);transform-box:fill-box;transform-origin:center}
+.ghost:hover{background:#1F1F30}
+.tile:hover{border-color:#3A3A55}
+.sw{appearance:none;-webkit-appearance:none;width:40px;height:22px;border-radius:999px;background:#2A2A3E;position:relative;margin:0;cursor:pointer;transition:background .18s ease}
+.sw::after{content:"";position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:#F2F2F8;transition:transform .18s ease}
+.sw:checked{background:#6D4AFF}
+.sw:checked::after{transform:translateX(18px)}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(255,77,109,.55)}70%{box-shadow:0 0 0 8px rgba(255,77,109,0)}100%{box-shadow:0 0 0 0 rgba(255,77,109,0)}}
+.dot-live{animation:pulse 1.8s ease-out infinite}
+@keyframes wave{0%,100%{opacity:.15}40%{opacity:1}}
+.wv1{animation:wave 1.6s ease-in-out infinite}
+.wv2{animation:wave 1.6s ease-in-out .25s infinite}
+@media (prefers-reduced-motion: reduce){.dot-live{animation:none}.sw,.sw::after{transition:none}.wv1,.wv2{animation:none}}
+</style>
+</helmet>
+<div style="min-height: 880px; background: #0A0A12; color: #F2F2F8; font-family: Inter, system-ui, sans-serif; font-size: 14px; display: flex; flex-wrap: wrap;">
+
+<nav ref="{{nav.setRef}}" class="{{nav.cls}}" aria-label="Menu principal" style="position: relative; flex: 0 0 {{nav.w}}px; width: {{nav.w}}px; box-sizing: border-box; background: #0E0E18; border-right: 1px solid #1E1E2E; padding: 20px 14px; display: flex; flex-direction: column; gap: 22px;">
+<button class="resizer" type="button" aria-label="Redimensionar menu: arraste ou use as setas; duplo clique volta ao padrão" onPointerDown="{{nav.start}}" onKeyDown="{{nav.key}}" onDoubleClick="{{nav.reset}}"></button>
+<div style="display: flex; align-items: center; gap: 10px; padding: 0 6px;">
+<div style="width: 34px; height: 34px; border-radius: 10px; background: {{accent}}; display: flex; align-items: center; justify-content: center; color: #FFFFFF;">
+<svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2"></circle><path d="M16.24 7.76a6 6 0 0 1 0 8.49M7.76 16.24a6 6 0 0 1 0-8.49M19.07 4.93a10 10 0 0 1 0 14.14M4.93 19.07a10 10 0 0 1 0-14.14"></path></svg>
+</div>
+<span style="font-size: 17px; font-weight: 700; letter-spacing: -0.01em;">LanCast</span>
+<button class="tg" type="button" onClick="{{nav.toggle}}" aria-label="{{nav.toggleLabel}}" aria-expanded="{{nav.expanded}}" title="{{nav.toggleLabel}}" style="margin-left: auto; width: 36px; height: 36px; flex-shrink: 0; border-radius: 8px; border: 1px solid #26263A; background: #12121C; color: #A0A0B8; display: flex; align-items: center; justify-content: center;"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"></rect><path d="M9 3v18"></path><path class="chev" d="m16 15-3-3 3-3"></path></svg></button>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 2px;">
+<span style="font-size: 11px; font-weight: 600; letter-spacing: 0.08em; color: #8A8AA3; padding: 0 10px 6px;">TRANSMISSÃO</span>
+<a href="#" aria-current="page" style="display: flex; align-items: center; gap: 12px; min-height: 40px; padding: 0 10px; border-radius: 10px; background: {{accentSoft}}; color: {{accentText}}; text-decoration: none; font-weight: 600;">
+<svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"></rect><path d="M8 21h8M12 17v4"></path></svg>Compartilhar</a>
+<a class="nav" href="#" style="display: flex; align-items: center; gap: 12px; min-height: 40px; padding: 0 10px; border-radius: 10px; color: #B4B4C8; text-decoration: none; font-weight: 500;">
+<svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 10v3M6 6v11M10 3v18M14 8v7M18 5v13M22 10v3"></path></svg>Áudio dos apps</a>
+<a class="nav" href="#" style="display: flex; align-items: center; gap: 12px; min-height: 40px; padding: 0 10px; border-radius: 10px; color: #B4B4C8; text-decoration: none; font-weight: 500;">
+<svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="12" rx="3"></rect><path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v3"></path></svg>Microfone</a>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 2px;">
+<span style="font-size: 11px; font-weight: 600; letter-spacing: 0.08em; color: #8A8AA3; padding: 0 10px 6px;">PÚBLICO</span>
+<a class="nav" href="Viewers.dc.html" style="display: flex; align-items: center; gap: 12px; min-height: 40px; padding: 0 10px; border-radius: 10px; color: #B4B4C8; text-decoration: none; font-weight: 500;">
+<svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"></path></svg><span style="flex-grow: 1;">Espectadores</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #F2F2F8; background: #23233A; border-radius: 6px; padding: 1px 7px;">{{viewerCount}}</span></a>
+<a class="nav" href="#" style="display: flex; align-items: center; gap: 12px; min-height: 40px; padding: 0 10px; border-radius: 10px; color: #B4B4C8; text-decoration: none; font-weight: 500;">
+<svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="m4.9 4.9 14.2 14.2"></path></svg><span style="flex-grow: 1;">Banidos</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #FF8FA3; background: #3A1A26; border-radius: 6px; padding: 1px 7px;">1</span></a>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 2px;">
+<span style="font-size: 11px; font-weight: 600; letter-spacing: 0.08em; color: #8A8AA3; padding: 0 10px 6px;">ASSISTIR</span>
+<a class="nav" href="Watch.dc.html" style="display: flex; align-items: center; gap: 12px; min-height: 40px; padding: 0 10px; border-radius: 10px; color: #B4B4C8; text-decoration: none; font-weight: 500;">
+<svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="15" rx="2"></rect><path d="m17 2-5 5-5-5"></path></svg>Assistindo amigos</a>
+<a data-live="1" class="nav" href="Saved.dc.html" style="display: flex; align-items: center; gap: 12px; min-height: 40px; padding: 0 10px; border-radius: 10px; color: #B4B4C8; text-decoration: none; font-weight: 500;">
+<svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg><span style="flex-grow: 1;">Streams salvas</span><span role="img" aria-label="4 no ar" style="display: flex; align-items: center; gap: 4px; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #3DDC97; background: #12261F; border-radius: 6px; padding: 1px 6px 1px 4px;"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="2.2" fill="currentColor" stroke="none"></circle><path class="wv1" d="M15.5 8.5a5 5 0 0 1 0 7M8.5 15.5a5 5 0 0 1 0-7"></path><path class="wv2" d="M18.4 5.6a9 9 0 0 1 0 12.8M5.6 18.4a9 9 0 0 1 0-12.8"></path></svg>4</span></a>
+</div>
+
+<div style="flex-grow: 1;"></div>
+
+<a class="nav" href="#" style="display: flex; align-items: center; gap: 12px; min-height: 40px; padding: 0 10px; border-radius: 10px; color: #B4B4C8; text-decoration: none; font-weight: 500;">
+<svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"></path></svg>Configurações</a>
+
+<div style="border: 1px solid #1E1E2E; background: #12121C; border-radius: 12px; padding: 12px; display: flex; flex-direction: column; gap: 6px;">
+<div style="display: flex; align-items: center; gap: 8px; color: #3DDC97; font-weight: 600; font-size: 13px;">
+<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><path d="m9 12 2 2 4-4"></path></svg>Radmin VPN conectada</div>
+<span style="font-size: 12px; color: #A0A0B8;">Firewall liberado · v1.3.0</span>
+</div>
+</nav>
+
+<main style="flex: 999 1 560px; min-width: 0; box-sizing: border-box; padding: 20px 28px 28px; display: flex; flex-direction: column; gap: 20px;">
+
+<section aria-label="Status da transmissão" style="display: flex; flex-wrap: wrap; align-items: center; gap: 13px; background: #12121C; border: 1px solid {{barLine}}; border-radius: 14px; padding: 12px 12px 12px 18px; padding-bottom: 12px">
+<sc-if value="{{live}}" hint-placeholder-val="{{ true }}">
+<div style="display: flex; align-items: center; gap: 10px;">
+<span class="dot-live" style="width: 10px; height: 10px; border-radius: 50%; background: #FF4D6D; display: inline-block;"></span>
+<span style="font-weight: 700; letter-spacing: 0.06em; font-size: 13px; color: #FF8FA3;">AO VIVO</span>
+<span style="font-family: 'JetBrains Mono', monospace; font-size: 15px; font-weight: 500;">01:20:01</span>
+</div>
+<div style="width: 1px; height: 24px; background: #26263A;"></div>
+<div style="display: flex; align-items: center; gap: 14px; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #A0A0B8; flex-wrap: wrap;">
+<span><span style="color: #F2F2F8;">1080p</span> · 60 fps</span>
+<span><span style="color: #F2F2F8;">8.2</span> Mb/s</span>
+<span>NVENC</span>
+</div>
+<div style="display: flex; align-items: center; gap: 8px;">
+<div style="display: flex;">
+<span style="width: 26px; height: 26px; border-radius: 50%; background: #2B4A7A; border: 2px solid #12121C; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center;">GU</span>
+<span style="width: 26px; height: 26px; border-radius: 50%; background: #5A2E6E; border: 2px solid #12121C; margin-left: -8px; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center;">LI</span>
+<span style="width: 26px; height: 26px; border-radius: 50%; background: #1F5A4A; border: 2px solid #12121C; margin-left: -8px; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center;">RA</span>
+</div>
+<span style="font-size: 13px; color: #B4B4C8;">3 assistindo</span>
+</div>
+</sc-if>
+<sc-if value="{{idle}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; align-items: center; gap: 10px;">
+<span style="width: 10px; height: 10px; border-radius: 50%; background: #55556E; display: inline-block;"></span>
+<span style="font-weight: 600; font-size: 14px;">Pronto para transmitir</span>
+<span style="font-size: 13px; color: #A0A0B8;">Tela 1 · 1080p · 60 fps</span>
+</div>
+</sc-if>
+<div style="flex-grow: 1;"></div>
+
+<sc-if value="{{live}}" hint-placeholder-val="{{ true }}">
+<span style="font-size: 12px; color: #A0A0B8; display: flex; align-items: center; gap: 6px">Atalho <kbd style="font-family: 'JetBrains Mono', monospace; font-size: 11px; background: #1A1A28; border: 1px solid #2A2A3E; border-bottom-width: 2px; border-radius: 6px; padding: 2px 6px; color: #D6D6E4;">Ctrl+Alt+L</kbd></span><button type="button" onClick="{{toggle}}" style="min-height: 44px; display: flex; align-items: center; gap: 8px; padding: 0 18px; border-radius: 10px; border: 1px solid #5A2433; background: #2A1520; color: #FF8FA3; font-size: 14px; font-weight: 600;">
+<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="2"></rect></svg>Parar transmissão</button>
+</sc-if>
+<sc-if value="{{idle}}" hint-placeholder-val="{{ false }}">
+<button type="button" onClick="{{toggle}}" style="min-height: 44px; display: flex; align-items: center; gap: 8px; padding: 0 20px; border-radius: 10px; border: 0; background: {{accent}}; color: #FFFFFF; font-size: 14px; font-weight: 600; box-shadow: 0 6px 20px {{accentGlow}};">
+<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m7 4 13 8-13 8z"></path></svg>Iniciar transmissão</button>
+</sc-if>
+</section>
+
+<header style="display: flex; flex-direction: column; gap: 4px;">
+<h1 style="margin: 0; font-size: 26px; font-weight: 700; letter-spacing: -0.02em;">Compartilhar</h1>
+<p style="margin: 0; color: #A0A0B8; font-size: 14px;">Escolha a tela ou janela. Dá para trocar no meio da transmissão sem derrubar ninguém.</p>
+</header>
+
+<div style="display: flex; flex-wrap: wrap; gap: 20px; align-items: stretch;">
+
+<section aria-label="Prévia local" style="flex: 3 1 480px; min-width: 0; background: #12121C; border: 1px solid #1E1E2E; border-radius: 16px; padding: 14px; display: flex; flex-direction: column; gap: 14px;">
+<div style="position: relative; aspect-ratio: 16 / 9; border-radius: 10px; overflow: hidden; background: #07070C; border: 1px solid #1E1E2E; display: flex; align-items: center; justify-content: center;">
+<div style="display: flex; flex-direction: column; align-items: center; gap: 10px; color: #55556E;">
+<svg aria-hidden="true" width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"></rect><path d="M2 8h20"></path></svg>
+<span style="font-size: 13px;">[Prévia da captura: Tela 1]</span>
+</div>
+<div style="position: absolute; top: 12px; left: 12px; display: flex; gap: 6px;">
+<sc-if value="{{live}}" hint-placeholder-val="{{ true }}">
+<span style="background: #E5294B; color: #FFFFFF; font-size: 11px; font-weight: 700; letter-spacing: 0.06em; border-radius: 6px; padding: 4px 8px;">AO VIVO</span>
+</sc-if>
+<span style="background: rgba(10,10,18,.78); color: #D6D6E4; font-family: 'JetBrains Mono', monospace; font-size: 11px; border-radius: 6px; padding: 4px 8px;">1920×1080 · 60</span>
+</div>
+<span style="position: absolute; top: 12px; right: 12px; background: rgba(10,10,18,.78); color: #D6D6E4; font-size: 11px; border-radius: 6px; padding: 4px 8px;">Só você vê esta prévia</span>
+</div>
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px 24px; padding: 0 4px;">
+<div style="display: flex; flex-direction: column; gap: 2px; flex-grow: 1;">
+<span style="font-weight: 600;">Tela 1 (principal)</span>
+<span style="font-size: 13px; color: #A0A0B8;">Áudio: todos os apps, menos os silenciados</span>
+</div>
+<label style="display: flex; align-items: center; gap: 10px; min-height: 44px; cursor: pointer;"><input class="sw" type="checkbox" checked="checked">Prévia ao vivo</label>
+<label style="display: flex; align-items: center; gap: 10px; min-height: 44px; cursor: pointer;"><input class="sw" type="checkbox">Microfone</label>
+</div>
+</section>
+
+<section aria-labelledby="src-title" style="flex: 1 1 280px; min-width: 0; background: #12121C; border: 1px solid #1E1E2E; border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 14px;">
+<div style="display: flex; align-items: center; justify-content: space-between;">
+<h2 id="src-title" style="margin: 0; font-size: 15px; font-weight: 600;">Fonte da transmissão</h2>
+<button class="ghost" type="button" aria-label="Atualizar lista de fontes" style="width: 36px; height: 36px; border-radius: 8px; border: 0; background: transparent; color: #A0A0B8; display: flex; align-items: center; justify-content: center;">
+<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3-6.7L21 8M21 3v5h-5"></path></svg></button>
+</div>
+<div role="group" aria-label="Tipo de fonte" style="display: flex; background: #0A0A12; border: 1px solid #1E1E2E; border-radius: 10px; padding: 3px;">
+<button type="button" onClick="{{showScreens}}" style="flex: 1; min-height: 36px; border: 0; border-radius: 8px; background: {{tabScreensBg}}; color: {{tabScreensFg}}; font-size: 13px; font-weight: 600;">Telas</button>
+<button type="button" onClick="{{showWindows}}" style="flex: 1; min-height: 36px; border: 0; border-radius: 8px; background: {{tabWindowsBg}}; color: {{tabWindowsFg}}; font-size: 13px; font-weight: 600;">Janelas</button>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px;">
+<sc-for list="{{sources}}" as="s" hint-placeholder-count="3">
+<button class="tile" type="button" onClick="{{s.pick}}" aria-pressed="{{s.pressed}}" style="display: flex; align-items: center; gap: 12px; text-align: left; padding: 10px; border-radius: 12px; border: 1px solid {{s.ring}}; background: {{s.bg}}; color: #F2F2F8;">
+<span style="width: 64px; height: 38px; flex-shrink: 0; border-radius: 6px; background: #07070C; border: 1px solid #26263A; display: flex; align-items: center; justify-content: center; color: #55556E; font-family: 'JetBrains Mono', monospace; font-size: 10px;">{{s.ratio}}</span>
+<span style="display: flex; flex-direction: column; gap: 2px; min-width: 0;">
+<span style="font-weight: 600; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{s.name}}</span>
+<span style="font-size: 12px; color: #A0A0B8;">{{s.meta}}</span>
+</span>
+</button>
+</sc-for>
+</div>
+</section>
+</div>
+
+<section aria-labelledby="inv-title" style="background: #12121C; border: 1px solid #1E1E2E; border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 12px;">
+<div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+<h2 id="inv-title" style="margin: 0; font-size: 15px; font-weight: 600; flex-grow: 1;">Convide seus amigos</h2>
+<button class="ghost" type="button" style="min-height: 36px; display: flex; align-items: center; gap: 8px; padding: 0 10px; border-radius: 8px; border: 0; background: transparent; color: #A0A0B8; font-size: 13px;">
+<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24M10.73 5.08A10.4 10.4 0 0 1 12 5c7 0 10 7 10 7a13.2 13.2 0 0 1-1.67 2.68M6.61 6.61A13.5 13.5 0 0 0 2 12s3 7 10 7a9.7 9.7 0 0 0 5.39-1.61M2 2l20 20"></path></svg>IP oculto</button>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 12px;">
+<div style="flex: 1 1 300px; min-width: 0; display: flex; align-items: center; gap: 12px; background: #0A0A12; border: 1px solid #1E1E2E; border-radius: 12px; padding: 8px 8px 8px 14px;">
+<div style="display: flex; flex-direction: column; gap: 2px; flex-grow: 1; min-width: 0;">
+<span style="font-size: 12px; color: {{accentText}}; font-weight: 600;">Radmin VPN</span>
+<span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #D6D6E4;">http://26.•••.•••.•••:8080</span>
+</div>
+<button type="button" style="min-height: 40px; display: flex; align-items: center; gap: 6px; padding: 0 14px; border-radius: 8px; border: 0; background: {{accent}}; color: #FFFFFF; font-size: 13px; font-weight: 600;">
+<svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>Copiar</button>
+</div>
+<div style="flex: 1 1 300px; min-width: 0; display: flex; align-items: center; gap: 12px; background: #0A0A12; border: 1px solid #1E1E2E; border-radius: 12px; padding: 8px 8px 8px 14px;">
+<div style="display: flex; flex-direction: column; gap: 2px; flex-grow: 1; min-width: 0;">
+<span style="font-size: 12px; color: #A0A0B8; font-weight: 600;">Rede local</span>
+<span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #D6D6E4;">http://192.•••.•••.•••:8080</span>
+</div>
+<button type="button" style="min-height: 40px; display: flex; align-items: center; gap: 6px; padding: 0 14px; border-radius: 8px; border: 1px solid #2A2A3E; background: #1A1A28; color: #F2F2F8; font-size: 13px; font-weight: 600;">
+<svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>Copiar</button>
+</div>
+</div>
+</section>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"live":{"editor":"boolean","default":true},"accent":{"editor":"color","default":"#6D4AFF","options":["#6D4AFF","#0B7A9B","#C2410C"]},"$preview":{"width":1280,"height":880}}'>
+class Component extends DCLogic {
+  rgba(hex, a) {
+    var h = (hex || '#6D4AFF').replace('#', '');
+    var n = parseInt(h.length === 3 ? h.split('').map(function (c) { return c + c; }).join('') : h, 16);
+    return 'rgba(' + ((n >> 16) & 255) + ',' + ((n >> 8) & 255) + ',' + (n & 255) + ',' + a + ')';
+  }
+  lighten(hex) {
+    var h = (hex || '#6D4AFF').replace('#', '');
+    var n = parseInt(h, 16);
+    var mix = function (c) { return Math.round(c + (255 - c) * 0.55); };
+    return 'rgb(' + mix((n >> 16) & 255) + ',' + mix((n >> 8) & 255) + ',' + mix(n & 255) + ')';
+  }
+  navProps() {
+    var self = this;
+    var w = (this.state || {}).navW ?? 264;
+    var clamp = function (v) { return Math.max(216, Math.min(360, Math.round(v))); };
+    var collapsed = !!(this.state || {}).navCollapsed;
+    return {
+      w: collapsed ? 72 : w,
+      cls: collapsed ? 'collapsed' : '',
+      toggleLabel: collapsed ? 'Expandir menu' : 'Recolher menu',
+      expanded: collapsed ? 'false' : 'true',
+      toggle: function () { self.setState({ navCollapsed: !collapsed }); },
+      setRef: function (el) { self.navEl = el; },
+      reset: function () { self.setState({ navW: 264 }); },
+      key: function (e) {
+        if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+        e.preventDefault();
+        self.setState({ navW: clamp(w + (e.key === 'ArrowRight' ? 16 : -16)) });
+      },
+      start: function (e) {
+        e.preventDefault();
+        var left = self.navEl ? self.navEl.getBoundingClientRect().left : 0;
+        var doc = e.currentTarget.ownerDocument;
+        var move = function (ev) { self.setState({ navW: clamp(ev.clientX - left) }); };
+        var up = function () {
+          doc.removeEventListener('pointermove', move);
+          doc.removeEventListener('pointerup', up);
+          doc.body.style.cursor = '';
+        };
+        doc.addEventListener('pointermove', move);
+        doc.addEventListener('pointerup', up);
+        doc.body.style.cursor = 'col-resize';
+      }
+    };
+  }
+  renderVals() {
+    var accent = this.props.accent ?? '#6D4AFF';
+    var st = this.state || {};
+    var live = st.live ?? (this.props.live ?? true);
+    var tab = st.tab ?? 'screens';
+    var picked = st.picked ?? 's1';
+    var self = this;
+    var all = {
+      screens: [
+        { id: 's1', name: 'Tela 1 (principal)', meta: '1920×1080 · 144 Hz', ratio: '16:9' },
+        { id: 's2', name: 'Tela 2', meta: '2560×1440 · 60 Hz', ratio: '16:9' }
+      ],
+      windows: [
+        { id: 'w1', name: 'Demo LanCast', meta: 'LanCastDemo.exe', ratio: 'app' },
+        { id: 'w2', name: 'Discord', meta: 'Discord.exe', ratio: 'app' },
+        { id: 'w3', name: 'Hollow Knight', meta: 'hollow_knight.exe', ratio: 'app' }
+      ]
+    };
+    var sources = all[tab].map(function (s) {
+      var on = s.id === picked;
+      return Object.assign({}, s, {
+        pressed: on ? 'true' : 'false',
+        ring: on ? accent : '#1E1E2E',
+        bg: on ? self.rgba(accent, 0.12) : '#0A0A12',
+        pick: function () { self.setState({ picked: s.id }); }
+      });
+    });
+    return {
+      nav: this.navProps(),
+      accent: accent,
+      accentSoft: this.rgba(accent, 0.16),
+      accentGlow: this.rgba(accent, 0.35),
+      accentText: this.lighten(accent),
+      live: live,
+      idle: !live,
+      barLine: live ? '#4A1E2C' : '#1E1E2E',
+      viewerCount: live ? '3' : '0',
+      toggle: function () { self.setState({ live: !live }); },
+      sources: sources,
+      showScreens: function () { self.setState({ tab: 'screens' }); },
+      showWindows: function () { self.setState({ tab: 'windows' }); },
+      tabScreensBg: tab === 'screens' ? '#23233A' : 'transparent',
+      tabScreensFg: tab === 'screens' ? '#F2F2F8' : '#A0A0B8',
+      tabWindowsBg: tab === 'windows' ? '#23233A' : 'transparent',
+      tabWindowsFg: tab === 'windows' ? '#F2F2F8' : '#A0A0B8'
+    };
+  }
+}
+</script>
+</body>
+</html>

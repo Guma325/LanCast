@@ -1,0 +1,342 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>LanCast — Streams salvas</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#0A0A12}
+a{color:#A99BFF}a:hover{color:#C9C0FF}
+button{font-family:inherit;cursor:pointer}
+button:disabled{cursor:default}
+button:focus-visible,input:focus-visible,a:focus-visible{outline:2px solid #A99BFF;outline-offset:2px}
+.nav:hover{background:#1A1A28}
+nav a{white-space:nowrap;overflow:hidden}
+nav a > span:first-of-type{overflow:hidden;text-overflow:ellipsis}
+.resizer{position:absolute;top:0;right:-5px;width:10px;height:100%;padding:0;border:0;background:transparent;cursor:col-resize;z-index:2}
+.resizer::after{content:"";position:absolute;top:0;bottom:0;left:4px;width:2px;background:transparent;transition:background .15s ease-out}
+.resizer:hover::after,.resizer:focus-visible::after{background:#6D4AFF}
+.tg:hover{background:#1A1A28;color:#F2F2F8}
+nav.collapsed > div:first-of-type{flex-direction:column;gap:12px!important;padding:0!important}
+nav.collapsed > div:first-of-type > span{display:none}
+nav.collapsed > div > span:first-child{display:none}
+nav.collapsed a{justify-content:center;padding:0!important;gap:0!important;font-size:0!important;position:relative}
+nav.collapsed a > span{display:none}
+nav.collapsed a[data-live]::after{content:"";position:absolute;top:7px;right:9px;width:8px;height:8px;border-radius:50%;background:#3DDC97;box-shadow:0 0 0 2px #0E0E18}
+nav.collapsed > div:last-of-type{display:none}
+nav.collapsed .resizer{display:none}
+nav.collapsed .tg{margin-left:0!important}
+nav.collapsed .chev{transform:rotate(180deg);transform-box:fill-box;transform-origin:center}
+.ghost:hover{background:#1F1F30}
+.del:hover{background:#2A1520;color:#FF8FA3}
+.card:hover{border-color:#2A2A3E}
+.field{min-height:44px;box-sizing:border-box;border-radius:10px;border:1px solid #2A2A3E;background:#0A0A12;color:#F2F2F8;padding:0 12px;font-family:inherit;font-size:14px;width:100%}
+.field::placeholder{color:#6E6E88}
+.field:focus{border-color:#6D4AFF;outline:none;box-shadow:0 0 0 3px rgba(109,74,255,.25)}
+@keyframes wave{0%,100%{opacity:.15}40%{opacity:1}}
+.wv1{animation:wave 1.6s ease-in-out infinite}
+.wv2{animation:wave 1.6s ease-in-out .25s infinite}
+@media (prefers-reduced-motion: reduce){.wv1,.wv2{animation:none}}
+</style>
+</helmet>
+<div style="min-height: 880px; background: #0A0A12; color: #F2F2F8; font-family: Inter, system-ui, sans-serif; font-size: 14px; display: flex; flex-wrap: wrap;">
+
+<nav ref="{{nav.setRef}}" class="{{nav.cls}}" aria-label="Menu principal" style="position: relative; flex: 0 0 {{nav.w}}px; width: {{nav.w}}px; box-sizing: border-box; background: #0E0E18; border-right: 1px solid #1E1E2E; padding: 20px 14px; display: flex; flex-direction: column; gap: 22px;">
+<button class="resizer" type="button" aria-label="Redimensionar menu: arraste ou use as setas; duplo clique volta ao padrão" onPointerDown="{{nav.start}}" onKeyDown="{{nav.key}}" onDoubleClick="{{nav.reset}}"></button>
+<div style="display: flex; align-items: center; gap: 10px; padding: 0 6px;">
+<div style="width: 34px; height: 34px; border-radius: 10px; background: #6D4AFF; display: flex; align-items: center; justify-content: center; color: #FFFFFF;">
+<svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2"></circle><path d="M16.24 7.76a6 6 0 0 1 0 8.49M7.76 16.24a6 6 0 0 1 0-8.49M19.07 4.93a10 10 0 0 1 0 14.14M4.93 19.07a10 10 0 0 1 0-14.14"></path></svg>
+</div>
+<span style="font-size: 17px; font-weight: 700; letter-spacing: -0.01em;">LanCast</span>
+<button class="tg" type="button" onClick="{{nav.toggle}}" aria-label="{{nav.toggleLabel}}" aria-expanded="{{nav.expanded}}" title="{{nav.toggleLabel}}" style="margin-left: auto; width: 36px; height: 36px; flex-shrink: 0; border-radius: 8px; border: 1px solid #26263A; background: #12121C; color: #A0A0B8; display: flex; align-items: center; justify-content: center;"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"></rect><path d="M9 3v18"></path><path class="chev" d="m16 15-3-3 3-3"></path></svg></button>
+</div>
+<div style="display: flex; flex-direction: column; gap: 2px;">
+<span style="font-size: 11px; font-weight: 600; letter-spacing: 0.08em; color: #8A8AA3; padding: 0 10px 6px;">TRANSMISSÃO</span>
+<a class="nav" href="Main.dc.html" style="display: flex; align-items: center; gap: 12px; min-height: 40px; padding: 0 10px; border-radius: 10px; color: #B4B4C8; text-decoration: none; font-weight: 500;">
+<svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"></rect><path d="M8 21h8M12 17v4"></path></svg>Compartilhar</a>
+<a class="nav" href="#" style="display: flex; align-items: center; gap: 12px; min-height: 40px; padding: 0 10px; border-radius: 10px; color: #B4B4C8; text-decoration: none; font-weight: 500;">
+<svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 10v3M6 6v11M10 3v18M14 8v7M18 5v13M22 10v3"></path></svg>Áudio dos apps</a>
+<a class="nav" href="#" style="display: flex; align-items: center; gap: 12px; min-height: 40px; padding: 0 10px; border-radius: 10px; color: #B4B4C8; text-decoration: none; font-weight: 500;">
+<svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="12" rx="3"></rect><path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v3"></path></svg>Microfone</a>
+</div>
+<div style="display: flex; flex-direction: column; gap: 2px;">
+<span style="font-size: 11px; font-weight: 600; letter-spacing: 0.08em; color: #8A8AA3; padding: 0 10px 6px;">PÚBLICO</span>
+<a class="nav" href="Viewers.dc.html" style="display: flex; align-items: center; gap: 12px; min-height: 40px; padding: 0 10px; border-radius: 10px; color: #B4B4C8; text-decoration: none; font-weight: 500;">
+<svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"></path></svg><span style="flex-grow: 1;">Espectadores</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #F2F2F8; background: #23233A; border-radius: 6px; padding: 1px 7px;">3</span></a>
+<a class="nav" href="#" style="display: flex; align-items: center; gap: 12px; min-height: 40px; padding: 0 10px; border-radius: 10px; color: #B4B4C8; text-decoration: none; font-weight: 500;">
+<svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="m4.9 4.9 14.2 14.2"></path></svg><span style="flex-grow: 1;">Banidos</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #FF8FA3; background: #3A1A26; border-radius: 6px; padding: 1px 7px;">1</span></a>
+</div>
+<div style="display: flex; flex-direction: column; gap: 2px;">
+<span style="font-size: 11px; font-weight: 600; letter-spacing: 0.08em; color: #8A8AA3; padding: 0 10px 6px;">ASSISTIR</span>
+<a class="nav" href="Watch.dc.html" style="display: flex; align-items: center; gap: 12px; min-height: 40px; padding: 0 10px; border-radius: 10px; color: #B4B4C8; text-decoration: none; font-weight: 500;">
+<svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="15" rx="2"></rect><path d="m17 2-5 5-5-5"></path></svg><span style="flex-grow: 1;">Assistindo amigos</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #F2F2F8; background: #23233A; border-radius: 6px; padding: 1px 7px;">{{openCount}}</span></a>
+<a data-live="1" href="#" aria-current="page" style="display: flex; align-items: center; gap: 12px; min-height: 40px; padding: 0 10px; border-radius: 10px; background: rgba(109,74,255,0.16); color: #C2B5FF; text-decoration: none; font-weight: 600;">
+<svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg><span style="flex-grow: 1;">Streams salvas</span><span role="img" aria-label="{{liveCount}} no ar" style="display: flex; align-items: center; gap: 4px; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #3DDC97; background: #12261F; border-radius: 6px; padding: 1px 6px 1px 4px;"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="2.2" fill="currentColor" stroke="none"></circle><path class="wv1" d="M15.5 8.5a5 5 0 0 1 0 7M8.5 15.5a5 5 0 0 1 0-7"></path><path class="wv2" d="M18.4 5.6a9 9 0 0 1 0 12.8M5.6 18.4a9 9 0 0 1 0-12.8"></path></svg>{{liveCount}}</span></a>
+</div>
+<div style="flex-grow: 1;"></div>
+<a class="nav" href="#" style="display: flex; align-items: center; gap: 12px; min-height: 40px; padding: 0 10px; border-radius: 10px; color: #B4B4C8; text-decoration: none; font-weight: 500;">
+<svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"></path></svg>Configurações</a>
+<div style="border: 1px solid #1E1E2E; background: #12121C; border-radius: 12px; padding: 12px; display: flex; flex-direction: column; gap: 6px;">
+<div style="display: flex; align-items: center; gap: 8px; color: #3DDC97; font-weight: 600; font-size: 13px;">
+<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><path d="m9 12 2 2 4-4"></path></svg>Radmin VPN conectada</div>
+<span style="font-size: 12px; color: #A0A0B8;">Firewall liberado · v1.3.0</span>
+</div>
+</nav>
+
+<main style="flex: 999 1 560px; min-width: 0; box-sizing: border-box; padding: 20px 28px 28px; display: flex; flex-direction: column; gap: 20px;">
+
+<section aria-label="Status da sua transmissão" style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px; background: #12121C; border: 1px solid #1E1E2E; border-radius: 14px; padding: 8px 8px 8px 16px;">
+<span style="width: 8px; height: 8px; border-radius: 50%; background: #55556E; display: inline-block;"></span>
+<span style="font-size: 13px; color: #B4B4C8;">Você não está transmitindo</span>
+<div style="flex-grow: 1;"></div>
+<a href="Main.dc.html" style="min-height: 36px; display: flex; align-items: center; gap: 8px; padding: 0 14px; border-radius: 8px; background: #1A1A28; border: 1px solid #2A2A3E; color: #F2F2F8; font-size: 13px; font-weight: 600; text-decoration: none;">
+<svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="m7 4 13 8-13 8z"></path></svg>Iniciar a sua</a>
+</section>
+
+<header style="display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px;">
+<div style="display: flex; flex-direction: column; gap: 4px; flex-grow: 1;">
+<h1 style="margin: 0; font-size: 26px; font-weight: 700; letter-spacing: -0.02em;">Streams salvas</h1>
+<p style="margin: 0; color: #A0A0B8; font-size: 14px;">Salve o IP de um amigo para ver quando ele estiver transmitindo.</p>
+</div>
+<div role="group" aria-label="Filtro" style="display: flex; background: #12121C; border: 1px solid #1E1E2E; border-radius: 10px; padding: 3px;">
+<button type="button" onClick="{{showAll}}" aria-pressed="{{allPressed}}" style="min-height: 36px; padding: 0 12px; border: 0; border-radius: 8px; background: {{allBg}}; color: {{allFg}}; font-size: 13px; font-weight: 600;">Todas <span style="font-family: 'JetBrains Mono', monospace; color: #8A8AA3;">{{totalCount}}</span></button>
+<button type="button" onClick="{{showLive}}" aria-pressed="{{livePressed}}" style="min-height: 36px; display: flex; align-items: center; gap: 6px; padding: 0 12px; border: 0; border-radius: 8px; background: {{liveBg}}; color: {{liveFg}}; font-size: 13px; font-weight: 600;"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#3DDC97" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="2.2" fill="#3DDC97" stroke="none"></circle><path class="wv1" d="M15.5 8.5a5 5 0 0 1 0 7M8.5 15.5a5 5 0 0 1 0-7"></path><path class="wv2" d="M18.4 5.6a9 9 0 0 1 0 12.8M5.6 18.4a9 9 0 0 1 0-12.8"></path></svg>No ar <span style="font-family: 'JetBrains Mono', monospace; color: #8A8AA3;">{{liveCount}}</span></button>
+</div>
+</header>
+
+<div style="display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-start;">
+
+<section aria-label="Lista de streams salvas" style="flex: 2 1 460px; min-width: 0; display: flex; flex-direction: column; gap: 10px;">
+<sc-for list="{{rows}}" as="r" hint-placeholder-count="5">
+<div class="card" style="display: flex; flex-wrap: wrap; align-items: center; gap: 14px; background: #12121C; border: 1px solid {{r.border}}; border-radius: 14px; padding: 12px 12px 12px 14px;">
+<span style="position: relative; width: 44px; height: 44px; flex-shrink: 0; border-radius: 12px; background: {{r.color}}; font-size: 14px; font-weight: 700; display: flex; align-items: center; justify-content: center; opacity: {{r.avatarOpacity}};">{{r.initials}}
+<sc-if value="{{r.live}}" hint-placeholder-val="{{ true }}">
+<span style="position: absolute; right: -6px; bottom: -6px; width: 22px; height: 22px; border-radius: 50%; background: #12261F; border: 2px solid #12121C; color: #3DDC97; display: flex; align-items: center; justify-content: center;"><svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="12" cy="12" r="2.4" fill="currentColor" stroke="none"></circle><path class="wv1" d="M15.5 8.5a5 5 0 0 1 0 7M8.5 15.5a5 5 0 0 1 0-7"></path><path class="wv2" d="M18.4 5.6a9 9 0 0 1 0 12.8M5.6 18.4a9 9 0 0 1 0-12.8"></path></svg></span>
+</sc-if>
+</span>
+
+<div style="display: flex; flex-direction: column; gap: 3px; flex: 1 1 180px; min-width: 0;">
+<sc-if value="{{r.notEditing}}" hint-placeholder-val="{{ true }}">
+<span style="display: flex; align-items: center; gap: 8px; min-width: 0;">
+<span style="font-weight: 600; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{r.name}}</span>
+<sc-if value="{{r.locked}}" hint-placeholder-val="{{ false }}">
+<span style="display: flex; align-items: center; gap: 4px; font-size: 11px; color: #F5CA7B; background: #2A2312; border-radius: 6px; padding: 2px 6px;"><svg aria-hidden="true" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg>senha</span>
+</sc-if>
+</span>
+</sc-if>
+<sc-if value="{{r.editing}}" hint-placeholder-val="{{ false }}">
+<span style="display: flex; align-items: center; gap: 6px;">
+<label for="rn-{{r.id}}" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0);">Novo nome para {{r.name}}</label>
+<input id="rn-{{r.id}}" class="field" type="text" maxlength="24" value="{{draft}}" onChange="{{setDraft}}" onKeyDown="{{draftKey}}" style="min-height: 36px; max-width: 220px;">
+<button type="button" onClick="{{commitRename}}" style="min-height: 36px; padding: 0 12px; border-radius: 8px; border: 0; background: #6D4AFF; color: #FFFFFF; font-size: 12px; font-weight: 600;">Salvar</button>
+<button class="ghost" type="button" onClick="{{cancelRename}}" style="min-height: 36px; padding: 0 10px; border-radius: 8px; border: 0; background: transparent; color: #A0A0B8; font-size: 12px; font-weight: 600;">Cancelar</button>
+</span>
+</sc-if>
+<span style="display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; font-size: 12px;">
+<span style="font-family: 'JetBrains Mono', monospace; color: #A0A0B8;">{{r.address}}</span>
+<sc-if value="{{r.showStatus}}" hint-placeholder-val="{{ true }}"><span style="display: flex; align-items: center; gap: 5px; color: {{r.statusColor}};"><span style="width: 6px; height: 6px; border-radius: 50%; background: {{r.statusColor}};"></span>{{r.status}}</span></sc-if>
+</span>
+</div>
+
+<div style="display: flex; flex-direction: column; align-items: flex-end; gap: 0; margin-left: auto;">
+<div style="display: flex; align-items: center; gap: 4px;">
+<button class="ghost" type="button" aria-label="Abrir {{r.name}} no navegador" title="Abrir no navegador" style="width: 40px; height: 40px; border: 0; border-radius: 10px; background: transparent; color: #A0A0B8; display: flex; align-items: center; justify-content: center;"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6M10 14 21 3M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path></svg></button>
+<button class="ghost" type="button" onClick="{{r.rename}}" aria-label="Renomear {{r.name}}" title="Renomear" style="width: 40px; height: 40px; border: 0; border-radius: 10px; background: transparent; color: #A0A0B8; display: flex; align-items: center; justify-content: center;"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"></path></svg></button>
+<button class="del" type="button" onClick="{{r.remove}}" aria-label="Remover {{r.name}}" title="Remover" style="width: 40px; height: 40px; border: 0; border-radius: 10px; background: transparent; color: #A0A0B8; display: flex; align-items: center; justify-content: center;"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path></svg></button>
+<div style="min-width: 132px; display: flex; justify-content: flex-end; margin-left: 4px;">
+<sc-if value="{{r.canWatch}}" hint-placeholder-val="{{ true }}">
+<button type="button" onClick="{{r.watch}}" style="min-height: 40px; display: flex; align-items: center; gap: 6px; padding: 0 16px; border-radius: 10px; border: 0; background: #6D4AFF; color: #FFFFFF; font-size: 13px; font-weight: 600; box-shadow: 0 6px 18px rgba(109,74,255,.3);">
+<svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="m7 4 13 8-13 8z"></path></svg><span>Assistir</span></button>
+</sc-if>
+<sc-if value="{{r.isOpen}}" hint-placeholder-val="{{ false }}">
+<a href="Watch.dc.html" style="min-height: 40px; display: flex; align-items: center; gap: 6px; padding: 0 14px; border-radius: 10px; border: 1px solid #2E2650; background: rgba(109,74,255,0.12); color: #C2B5FF; font-size: 13px; font-weight: 600; text-decoration: none;"><span>Assistindo</span>
+<svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></a>
+</sc-if>
+<sc-if value="{{r.offline}}" hint-placeholder-val="{{ false }}">
+<span style="min-height: 40px; display: flex; align-items: center; gap: 6px; padding: 0 14px; border-radius: 10px; border: 1px solid #26263A; color: #8A8AA3; font-size: 13px; font-weight: 600;"><span style="width: 6px; height: 6px; border-radius: 50%; background: #8A8AA3;"></span>Offline</span>
+</sc-if>
+</div>
+</div>
+</div>
+</div>
+</sc-for>
+
+<sc-if value="{{noRows}}" hint-placeholder-val="{{ false }}">
+<div style="min-height: 260px; border: 1px dashed #2A2A3E; border-radius: 14px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; text-align: center; padding: 24px;">
+<svg aria-hidden="true" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#55556E" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
+<span style="font-size: 15px; font-weight: 600;">{{emptyTitle}}</span>
+<span style="font-size: 13px; color: #A0A0B8;">{{emptyText}}</span>
+</div>
+</sc-if>
+
+<sc-if value="{{undoName}}" hint-placeholder-val="{{ false }}">
+<div role="status" style="display: flex; align-items: center; gap: 12px; background: #1A1A28; border: 1px solid #2A2A3E; border-radius: 12px; padding: 8px 8px 8px 14px; font-size: 13px;">
+<span style="flex-grow: 1;">{{undoName}} foi removido.</span>
+<button class="ghost" type="button" onClick="{{undo}}" style="min-height: 36px; padding: 0 12px; border-radius: 8px; border: 0; background: transparent; color: #C2B5FF; font-size: 13px; font-weight: 600;">Desfazer</button>
+</div>
+</sc-if>
+</section>
+
+<aside style="flex: 1 1 280px; min-width: 0; display: flex; flex-direction: column; gap: 16px;">
+<form onSubmit="{{submit}}" aria-labelledby="add-title" style="background: #12121C; border: 1px solid #1E1E2E; border-radius: 16px; padding: 18px; display: flex; flex-direction: column; gap: 14px;">
+<h2 id="add-title" style="margin: 0; font-size: 15px; font-weight: 600;">Salvar uma stream</h2>
+<div style="display: flex; flex-direction: column; gap: 6px;">
+<label for="f-name" style="font-size: 13px; font-weight: 500; color: #D6D6E4;">Nome</label>
+<input id="f-name" class="field" type="text" maxlength="24" placeholder="ex.: Guma" value="{{formName}}" onChange="{{setFormName}}">
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px;">
+<label for="f-addr" style="font-size: 13px; font-weight: 500; color: #D6D6E4;">Endereço</label>
+<input id="f-addr" class="field" type="text" placeholder="ex.: 26.51.157.46" value="{{formAddr}}" onChange="{{setFormAddr}}" aria-describedby="f-addr-help" aria-invalid="{{addrInvalid}}" style="font-family: 'JetBrains Mono', monospace; border-color: {{addrBorder}};">
+<sc-if value="{{formError}}" hint-placeholder-val="{{ false }}">
+<span role="alert" style="font-size: 12px; color: #FF8FA3;">{{formError}}</span>
+</sc-if>
+<span id="f-addr-help" style="font-size: 12px; color: #A0A0B8;">IP, IP:porta ou o link completo. Sem porta, usa 8080.</span>
+</div>
+<button type="submit" style="min-height: 44px; display: flex; align-items: center; justify-content: center; gap: 8px; border-radius: 10px; border: 0; background: #6D4AFF; color: #FFFFFF; font-size: 14px; font-weight: 600;">
+<svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg>Salvar</button>
+</form>
+
+<div style="background: #12121C; border: 1px solid #1E1E2E; border-radius: 16px; padding: 18px; display: flex; flex-direction: column; gap: 10px;">
+<h2 style="margin: 0; font-size: 15px; font-weight: 600; display: flex; align-items: center; gap: 8px;"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#A0A0B8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4M12 8h.01"></path></svg>Como o status é verificado</h2>
+<p style="margin: 0; font-size: 13px; line-height: 1.55; color: #A0A0B8;">Enquanto esta aba está aberta, o LanCast consulta cada endereço a cada poucos segundos. A stream aparece como <span style="color: #3DDC97;">no ar</span> quando o LanCast da outra pessoa está transmitindo e o endereço responde.</p>
+<span style="display: flex; align-items: center; gap: 6px; font-size: 12px; color: #8A8AA3; font-family: 'JetBrains Mono', monospace;"><svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3-6.7L21 8M21 3v5h-5"></path></svg>verificado há 3 s</span>
+</div>
+</aside>
+</div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":880}}'>
+class Component extends DCLogic {
+  navProps() {
+    var self = this;
+    var w = (this.state || {}).navW ?? 264;
+    var clamp = function (v) { return Math.max(216, Math.min(360, Math.round(v))); };
+    var collapsed = !!(this.state || {}).navCollapsed;
+    return {
+      w: collapsed ? 72 : w,
+      cls: collapsed ? 'collapsed' : '',
+      toggleLabel: collapsed ? 'Expandir menu' : 'Recolher menu',
+      expanded: collapsed ? 'false' : 'true',
+      toggle: function () { self.setState({ navCollapsed: !collapsed }); },
+      setRef: function (el) { self.navEl = el; },
+      reset: function () { self.setState({ navW: 264 }); },
+      key: function (e) {
+        if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+        e.preventDefault();
+        self.setState({ navW: clamp(w + (e.key === 'ArrowRight' ? 16 : -16)) });
+      },
+      start: function (e) {
+        e.preventDefault();
+        var left = self.navEl ? self.navEl.getBoundingClientRect().left : 0;
+        var doc = e.currentTarget.ownerDocument;
+        var move = function (ev) { self.setState({ navW: clamp(ev.clientX - left) }); };
+        var up = function () {
+          doc.removeEventListener('pointermove', move);
+          doc.removeEventListener('pointerup', up);
+          doc.body.style.cursor = '';
+        };
+        doc.addEventListener('pointermove', move);
+        doc.addEventListener('pointerup', up);
+        doc.body.style.cursor = 'col-resize';
+      }
+    };
+  }
+  renderVals() {
+    var self = this;
+    var st = this.state || {};
+    var save = function (p) { self.setState(p); };
+    var items = st.items ?? [
+      { id: 'guma', name: 'Guma', initials: 'GU', address: '26.51.157.46:8080', live: true, viewers: 4, locked: false, color: '#2B4A7A' },
+      { id: 'lia', name: 'Lia', initials: 'LI', address: '26.18.40.2:8080', live: true, viewers: 2, locked: false, color: '#5A2E6E' },
+      { id: 'rafa', name: 'Rafa', initials: 'RA', address: '26.77.3.120:9000', live: true, viewers: 1, locked: true, color: '#1F5A4A' },
+      { id: 'teco', name: 'Teco', initials: 'TE', address: '26.90.11.8:8080', live: true, viewers: 2, locked: false, color: '#6A4A1E' },
+      { id: 'bia', name: 'Bia', initials: 'BI', address: '26.44.200.17:8080', live: false, viewers: 0, locked: false, color: '#3A3A4E' }
+    ];
+    var open = st.open ?? { guma: true, lia: true, rafa: true };
+    var filter = st.filter ?? 'all';
+    var editing = st.editing ?? null;
+    var draft = st.draft ?? '';
+    var initials = function (n) { return (n.trim().slice(0, 2) || '??').toUpperCase(); };
+    var liveCount = items.filter(function (i) { return i.live; }).length;
+    var sorted = items.slice().sort(function (a, b) { return (b.live ? 1 : 0) - (a.live ? 1 : 0); });
+    var shown = filter === 'live' ? sorted.filter(function (i) { return i.live; }) : sorted;
+    var rows = shown.map(function (i) {
+      var isOpen = !!open[i.id];
+      return Object.assign({}, i, {
+        border: i.live ? '#1E3A30' : '#1E1E2E',
+        avatarOpacity: i.live ? '1' : '0.55',
+        editing: editing === i.id,
+        notEditing: editing !== i.id,
+        status: i.checking ? 'Verificando…' : (i.live ? 'No ar · ' + i.viewers + ' assistindo' : 'Offline'),
+        statusColor: i.checking ? '#F5CA7B' : (i.live ? '#3DDC97' : '#8A8AA3'),
+        canWatch: i.live && !isOpen,
+        isOpen: i.live && isOpen,
+        offline: !i.live && !i.checking,
+        showStatus: i.live || !!i.checking,
+        watch: function () { var o = Object.assign({}, open); o[i.id] = true; save({ open: o }); },
+        rename: function () { save({ editing: i.id, draft: i.name }); },
+        remove: function () { save({ items: items.filter(function (x) { return x.id !== i.id; }), undo: { item: i, list: items }, editing: null }); }
+      });
+    });
+    var commit = function () {
+      var n = draft.trim();
+      if (!n) return save({ editing: null });
+      save({ items: items.map(function (x) { return x.id === editing ? Object.assign({}, x, { name: n, initials: initials(n) }) : x; }), editing: null });
+    };
+    var formName = st.formName ?? '';
+    var formAddr = st.formAddr ?? '';
+    var formError = st.formError ?? '';
+    var undo = st.undo ?? null;
+    return {
+      nav: this.navProps(),
+      rows: rows,
+      noRows: rows.length === 0,
+      emptyTitle: items.length === 0 ? 'Nenhuma stream salva' : 'Ninguém no ar agora',
+      emptyText: items.length === 0 ? 'Salve o IP de um amigo ao lado para ver quando ele estiver transmitindo.' : 'Quando alguém começar a transmitir, aparece aqui.',
+      liveCount: String(liveCount),
+      totalCount: String(items.length),
+      openCount: String(Object.keys(open).filter(function (k) { return open[k] && items.some(function (i) { return i.id === k && i.live; }); }).length),
+      showAll: function () { save({ filter: 'all' }); },
+      showLive: function () { save({ filter: 'live' }); },
+      allPressed: filter === 'all' ? 'true' : 'false',
+      livePressed: filter === 'live' ? 'true' : 'false',
+      allBg: filter === 'all' ? '#23233A' : 'transparent',
+      allFg: filter === 'all' ? '#F2F2F8' : '#A0A0B8',
+      liveBg: filter === 'live' ? '#23233A' : 'transparent',
+      liveFg: filter === 'live' ? '#F2F2F8' : '#A0A0B8',
+      draft: draft,
+      setDraft: function (e) { save({ draft: e.target.value }); },
+      draftKey: function (e) { if (e.key === 'Enter') { e.preventDefault(); commit(); } if (e.key === 'Escape') save({ editing: null }); },
+      commitRename: commit,
+      cancelRename: function () { save({ editing: null }); },
+      undoName: undo ? undo.item.name : '',
+      undo: function () { if (undo) save({ items: undo.list, undo: null }); },
+      formName: formName,
+      formAddr: formAddr,
+      formError: formError,
+      addrInvalid: formError ? 'true' : 'false',
+      addrBorder: formError ? '#FF4D6D' : '#2A2A3E',
+      setFormName: function (e) { save({ formName: e.target.value }); },
+      setFormAddr: function (e) { save({ formAddr: e.target.value, formError: '' }); },
+      submit: function (e) {
+        e.preventDefault();
+        var addr = formAddr.trim().replace(/^https?:\/\//, '').replace(/\/.*$/, '');
+        if (!/^\d{1,3}(\.\d{1,3}){3}(:\d{2,5})?$/.test(addr)) return save({ formError: 'Use um IP como 26.51.157.46, com ou sem :porta.' });
+        if (addr.indexOf(':') < 0) addr += ':8080';
+        var name = formName.trim() || addr.split(':')[0];
+        var item = { id: 'n' + Date.now(), name: name, initials: initials(name), address: addr, live: false, checking: true, viewers: 0, locked: false, color: '#3A3A5E' };
+        save({ items: items.concat([item]), formName: '', formAddr: '', formError: '', undo: null });
+      }
+    };
+  }
+}
+</script>
+</body>
+</html>
