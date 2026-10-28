@@ -50,6 +50,7 @@ public sealed class StreamConfig
     public string Theme { get; set; } = "Dark";
     /// <summary>Menu lateral recolhido (só ícones).</summary>
     public bool SidebarCollapsed { get; set; } = false;
+    public double SidebarWidth { get; set; } = 264;
     public bool MicEnabled { get; set; } = false;
     /// <summary>Id do dispositivo de captura (vazio = padrão do Windows).</summary>
     public string MicDeviceId { get; set; } = "";

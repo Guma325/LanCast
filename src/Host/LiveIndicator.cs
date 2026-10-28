@@ -35,7 +35,7 @@ public sealed class LiveIndicator : Window
         row.Children.Add(dot); row.Children.Add(_text);
         Content = new Border
         {
-            Background = new SolidColorBrush(Color.FromRgb(0xD9, 0x2D, 0x2D)), CornerRadius = new CornerRadius(12),
+            Background = new SolidColorBrush(Color.FromRgb(0xE5, 0x29, 0x4B)), CornerRadius = new CornerRadius(12),
             Padding = new Thickness(11, 4, 12, 4), Margin = new Thickness(6), Child = row,
             Effect = new System.Windows.Media.Effects.DropShadowEffect { BlurRadius = 8, ShadowDepth = 1, Opacity = 0.5 },
         };

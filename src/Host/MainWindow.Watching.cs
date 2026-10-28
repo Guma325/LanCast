@@ -49,6 +49,7 @@ public partial class MainWindow
     {
         int n = _watch.Count;
         WatchNavItem.Visibility = n > 0 ? Visibility.Visible : Visibility.Collapsed;
+        SavedNavItem.Tag = n > 0 ? null : "ASSISTIR";   // o título do grupo fica no primeiro item visível
         WatchBadgeText.Text = n.ToString();
         if (n == 0)
         {
