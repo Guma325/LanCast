@@ -2,6 +2,12 @@
 
 Format based on [Keep a Changelog](https://keepachangelog.com/); versioning follows [SemVer](https://semver.org/).
 
+## [1.5.0] - 2026-10-27
+- Redesigned the app with the new "On Air" look: new purple Dark theme (other themes updated with the new color keys), a fixed top bar with the live dot, stream time, encoder status, viewer count, the global shortcut and the Start/Stop button, and a grouped sidebar (Transmissão, Público, Assistir) whose width can be dragged (216-360 px, saved; double-click resets).
+- Compartilhar now has badges over the preview and a Telas | Janelas selector; Streams salvas has leaner cards, an animated live icon, an All / Live filter and an Offline badge.
+- Assistindo: floating controls, resizable grid columns/rows and focus strip, and drag to reorder streams (Alt+Left / Alt+Right on the keyboard).
+- Redesigned buttons, fields, sliders and switches; numbers and IPs use a monospaced font. Added the redesign proposal and mockups in docs/redesign.
+
 ## [1.4.0] - 2026-10-18
 - Added a global keyboard shortcut to start/stop the stream (default Ctrl+Shift+F9), working even with the window minimized to the tray. It can be changed, removed or reset in Configurações › Transmissão › Atalho de teclado; stopping through the shortcut skips the confirmation dialog.
 - Added watching friends' streams inside the app: "Assistir" in "Streams salvas" opens the stream in a new "Assistindo" tab (WebView2), and each extra stream is added side by side (auto grid, focus mode, per-tile volume, fullscreen, auto-reconnect, in-tile password prompt). The player can be popped out into its own window. Signaling goes through the app, so it works with hosts on older LanCast versions. The viewer name is asked on first use and can be changed in Configurações.
