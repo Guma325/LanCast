@@ -1,0 +1,75 @@
+{
+  "v": 3,
+  "attachments": {},
+  "boards": {
+    "Main.dc.html": {
+      "expand": "fill",
+      "h": 880,
+      "is_interactive": true,
+      "title": "Compartilhar",
+      "w": 1280,
+      "x": 0,
+      "y": 0
+    },
+    "Tokens.dc.html": {
+      "h": 920,
+      "title": "Sistema visual",
+      "w": 1280,
+      "x": 0,
+      "y": 1000
+    },
+    "Viewers.dc.html": {
+      "expand": "fill",
+      "h": 880,
+      "title": "Espectadores",
+      "w": 1280,
+      "x": 1360,
+      "y": 0
+    },
+    "Watch.dc.html": {
+      "expand": "fill",
+      "h": 880,
+      "is_interactive": true,
+      "title": "Assistindo amigos",
+      "w": 1280,
+      "x": 2720,
+      "y": 0
+    },
+    "Saved.dc.html": {
+      "x": 4080,
+      "y": 0,
+      "w": 1280,
+      "h": 880,
+      "title": "Streams salvas",
+      "expand": "fill",
+      "is_interactive": true
+    }
+  },
+  "createdOnFiles": {
+    "at": "2026-10-23T12:00:00Z",
+    "v": 1
+  },
+  "designSystems": [],
+  "launch": {
+    "view": "canvas"
+  },
+  "notes": {
+    "t1": {
+      "kind": "title1",
+      "maxW": 5360,
+      "text": "LanCast — redesign \"On Air\"",
+      "w": 240,
+      "x": 0,
+      "y": -300
+    }
+  },
+  "order": [
+    "Main.dc.html",
+    "Viewers.dc.html",
+    "Watch.dc.html",
+    "Saved.dc.html",
+    "Tokens.dc.html"
+  ],
+  "pages": [],
+  "title": "LanCast Redesign"
+}

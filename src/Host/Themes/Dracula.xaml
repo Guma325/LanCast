@@ -20,4 +20,12 @@
     <SolidColorBrush x:Key="Warn" Color="#FFB86C"/>
     <SolidColorBrush x:Key="Overlay" Color="#FFFFFF"/>
     <SolidColorBrush x:Key="Thumb" Color="#F8F8F2"/>
-<SolidColorBrush x:Key="Sidebar" Color="#3E4152"/></ResourceDictionary>
+    <SolidColorBrush x:Key="Sidebar" Color="#3E4152"/>
+    <SolidColorBrush x:Key="Control" Color="#44475A"/>
+    <SolidColorBrush x:Key="OkLine" Color="#6650FA7B"/>
+    <SolidColorBrush x:Key="Live" Color="#FF5555"/>
+    <SolidColorBrush x:Key="LivePill" Color="#FF5555"/>
+    <SolidColorBrush x:Key="LiveSoft" Color="#26FF5555"/>
+    <SolidColorBrush x:Key="LiveLine" Color="#66FF5555"/>
+    <SolidColorBrush x:Key="LiveText" Color="#FF8A92"/>
+</ResourceDictionary>

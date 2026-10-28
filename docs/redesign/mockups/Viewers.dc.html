@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>LanCast — Espectadores</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#0A0A12}
+a{color:#A99BFF}a:hover{color:#C9C0FF}
+button{font-family:inherit;cursor:pointer}
+button:focus-visible,a:focus-visible{outline:2px solid #A99BFF;outline-offset:2px}
+.nav:hover{background:#1A1A28}
+nav a{white-space:nowrap;overflow:hidden}
+nav a > span:first-of-type{overflow:hidden;text-overflow:ellipsis}
+.resizer{position:absolute;top:0;right:-5px;width:10px;height:100%;padding:0;border:0;background:transparent;cursor:col-resize;z-index:2}
+.resizer::after{content:"";position:absolute;top:0;bottom:0;left:4px;width:2px;background:transparent;transition:background .15s ease-out}
+.resizer:hover::after,.resizer:focus-visible::after{background:#6D4AFF}
+.tg:hover{background:#1A1A28;color:#F2F2F8}
+nav.collapsed > div:first-of-type{flex-direction:column;gap:12px!important;padding:0!important}
+nav.collapsed > div:first-of-type > span{display:none}
+nav.collapsed > div > span:first-child{display:none}
+nav.collapsed a{justify-content:center;padding:0!important;gap:0!important;font-size:0!important;position:relative}
+nav.collapsed a > span{display:none}
+nav.collapsed a[data-live]::after{content:"";position:absolute;top:7px;right:9px;width:8px;height:8px;border-radius:50%;background:#3DDC97;box-shadow:0 0 0 2px #0E0E18}
+nav.collapsed > div:last-of-type{display:none}
+nav.collapsed .resizer{display:none}
+nav.collapsed .tg{margin-left:0!important}
+nav.collapsed .chev{transform:rotate(180deg);transform-box:fill-box;transform-origin:center}
+.row:hover{background:#161624}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(255,77,109,.55)}70%{box-shadow:0 0 0 8px rgba(255,77,109,0)}100%{box-shadow:0 0 0 0 rgba(255,77,109,0)}}
+.dot-live{animation:pulse 1.8s ease-out infinite}
+@keyframes wave{0%,100%{opacity:.15}40%{opacity:1}}
+.wv1{animation:wave 1.6s ease-in-out infinite}
+.wv2{animation:wave 1.6s ease-in-out .25s infinite}
+@media (prefers-reduced-motion: reduce){.dot-live{animation:none}.wv1,.wv2{animation:none}}
+</style>
+</helmet>
+<div style="min-height: 880px; background: #0A0A12; color: #F2F2F8; font-family: Inter, system-ui, sans-serif; font-size: 14px; display: flex; flex-wrap: wrap;">
+
+<nav ref="{{nav.setRef}}" class="{{nav.cls}}" aria-label="Menu principal" style="position: relative; flex: 0 0 {{nav.w}}px; width: {{nav.w}}px; box-sizing: border-box; background: #0E0E18; border-right: 1px solid #1E1E2E; padding: 20px 14px; display: flex; flex-direction: column; gap: 22px;">
+<button class="resizer" type="button" aria-label="Redimensionar menu: arraste ou use as setas; duplo clique volta ao padrão" onPointerDown="{{nav.start}}" onKeyDown="{{nav.key}}" onDoubleClick="{{nav.reset}}"></button>
+<div style="display: flex; align-items: center; gap: 10px; padding: 0 6px;">
+<div style="width: 34px; height: 34px; border-radius: 10px; background: #6D4AFF; display: flex; align-items: center; justify-content: center; color: #FFFFFF;">
+<svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2"></circle><path d="M16.24 7.76a6 6 0 0 1 0 8.49M7.76 16.24a6 6 0 0 1 0-8.49M19.07 4.93a10 10 0 0 1 0 14.14M4.93 19.07a10 10 0 0 1 0-14.14"></path></svg>
+</div>
+<span style="font-size: 17px; font-weight: 700; letter-spacing: -0.01em;">LanCast</span>
+<button class="tg" type="button" onClick="{{nav.toggle}}" aria-label="{{nav.toggleLabel}}" aria-expanded="{{nav.expanded}}" title="{{nav.toggleLabel}}" style="margin-left: auto; width: 36px; height: 36px; flex-shrink: 0; border-radius: 8px; border: 1px solid #26263A; background: #12121C; color: #A0A0B8; display: flex; align-items: center; justify-content: center;"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"></rect><path d="M9 3v18"></path><path class="chev" d="m16 15-3-3 3-3"></path></svg></button>
+</div>
+<div style="display: flex; flex-direction: column; gap: 2px;">
+<span style="font-size: 11px; font-weight: 600; letter-spacing: 0.08em; color: #8A8AA3; padding: 0 10px 6px;">TRANSMISSÃO</span>
+<a class="nav" href="Main.dc.html" style="display: flex; align-items: center; gap: 12px; min-height: 40px; padding: 0 10px; border-radius: 10px; color: #B4B4C8; text-decoration: none; font-weight: 500;">
+<svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"></rect><path d="M8 21h8M12 17v4"></path></svg>Compartilhar</a>
+<a class="nav" href="#" style="display: flex; align-items: center; gap: 12px; min-height: 40px; padding: 0 10px; border-radius: 10px; color: #B4B4C8; text-decoration: none; font-weight: 500;">
+<svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 10v3M6 6v11M10 3v18M14 8v7M18 5v13M22 10v3"></path></svg>Áudio dos apps</a>
+<a class="nav" href="#" style="display: flex; align-items: center; gap: 12px; min-height: 40px; padding: 0 10px; border-radius: 10px; color: #B4B4C8; text-decoration: none; font-weight: 500;">
+<svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="12" rx="3"></rect><path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v3"></path></svg>Microfone</a>
+</div>
+<div style="display: flex; flex-direction: column; gap: 2px;">
+<span style="font-size: 11px; font-weight: 600; letter-spacing: 0.08em; color: #8A8AA3; padding: 0 10px 6px;">PÚBLICO</span>
+<a href="#" aria-current="page" style="display: flex; align-items: center; gap: 12px; min-height: 40px; padding: 0 10px; border-radius: 10px; background: rgba(109,74,255,0.16); color: #C2B5FF; text-decoration: none; font-weight: 600;">
+<svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"></path></svg><span style="flex-grow: 1;">Espectadores</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #F2F2F8; background: #23233A; border-radius: 6px; padding: 1px 7px;">3</span></a>
+<a class="nav" href="#" style="display: flex; align-items: center; gap: 12px; min-height: 40px; padding: 0 10px; border-radius: 10px; color: #B4B4C8; text-decoration: none; font-weight: 500;">
+<svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="m4.9 4.9 14.2 14.2"></path></svg><span style="flex-grow: 1;">Banidos</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #FF8FA3; background: #3A1A26; border-radius: 6px; padding: 1px 7px;">1</span></a>
+</div>
+<div style="display: flex; flex-direction: column; gap: 2px;">
+<span style="font-size: 11px; font-weight: 600; letter-spacing: 0.08em; color: #8A8AA3; padding: 0 10px 6px;">ASSISTIR</span>
+<a class="nav" href="Watch.dc.html" style="display: flex; align-items: center; gap: 12px; min-height: 40px; padding: 0 10px; border-radius: 10px; color: #B4B4C8; text-decoration: none; font-weight: 500;">
+<svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="15" rx="2"></rect><path d="m17 2-5 5-5-5"></path></svg>Assistindo amigos</a>
+<a data-live="1" class="nav" href="Saved.dc.html" style="display: flex; align-items: center; gap: 12px; min-height: 40px; padding: 0 10px; border-radius: 10px; color: #B4B4C8; text-decoration: none; font-weight: 500;">
+<svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg><span style="flex-grow: 1;">Streams salvas</span><span role="img" aria-label="4 no ar" style="display: flex; align-items: center; gap: 4px; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #3DDC97; background: #12261F; border-radius: 6px; padding: 1px 6px 1px 4px;"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="2.2" fill="currentColor" stroke="none"></circle><path class="wv1" d="M15.5 8.5a5 5 0 0 1 0 7M8.5 15.5a5 5 0 0 1 0-7"></path><path class="wv2" d="M18.4 5.6a9 9 0 0 1 0 12.8M5.6 18.4a9 9 0 0 1 0-12.8"></path></svg>4</span></a>
+</div>
+<div style="flex-grow: 1;"></div>
+<a class="nav" href="#" style="display: flex; align-items: center; gap: 12px; min-height: 40px; padding: 0 10px; border-radius: 10px; color: #B4B4C8; text-decoration: none; font-weight: 500;">
+<svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"></path></svg>Configurações</a>
+<div style="border: 1px solid #1E1E2E; background: #12121C; border-radius: 12px; padding: 12px; display: flex; flex-direction: column; gap: 6px;">
+<div style="display: flex; align-items: center; gap: 8px; color: #3DDC97; font-weight: 600; font-size: 13px;">
+<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><path d="m9 12 2 2 4-4"></path></svg>Radmin VPN conectada</div>
+<span style="font-size: 12px; color: #A0A0B8;">Firewall liberado · v1.3.0</span>
+</div>
+</nav>
+
+<main style="flex: 999 1 560px; min-width: 0; box-sizing: border-box; padding: 20px 28px 28px; display: flex; flex-direction: column; gap: 20px;">
+
+<section aria-label="Status da transmissão" style="display: flex; flex-wrap: wrap; align-items: center; gap: 16px; background: #12121C; border: 1px solid #4A1E2C; border-radius: 14px; padding: 12px 12px 12px 18px;">
+<div style="display: flex; align-items: center; gap: 10px;">
+<span class="dot-live" style="width: 10px; height: 10px; border-radius: 50%; background: #FF4D6D; display: inline-block;"></span>
+<span style="font-weight: 700; letter-spacing: 0.06em; font-size: 13px; color: #FF8FA3;">AO VIVO</span>
+<span style="font-family: 'JetBrains Mono', monospace; font-size: 15px; font-weight: 500;">01:20:01</span>
+</div>
+<div style="width: 1px; height: 24px; background: #26263A;"></div>
+<div style="display: flex; align-items: center; gap: 14px; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #A0A0B8; flex-wrap: wrap;">
+<span><span style="color: #F2F2F8;">1080p</span> · 60 fps</span>
+<span><span style="color: #F2F2F8;">8.2</span> Mb/s</span>
+<span>NVENC</span>
+</div>
+<div style="flex-grow: 1;"></div>
+<button type="button" style="min-height: 44px; display: flex; align-items: center; gap: 8px; padding: 0 18px; border-radius: 10px; border: 1px solid #5A2433; background: #2A1520; color: #FF8FA3; font-size: 14px; font-weight: 600;">
+<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="2"></rect></svg>Parar transmissão</button>
+</section>
+
+<header style="display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px;">
+<div style="display: flex; flex-direction: column; gap: 4px; flex-grow: 1;">
+<h1 style="margin: 0; font-size: 26px; font-weight: 700; letter-spacing: -0.02em;">Espectadores</h1>
+<p style="margin: 0; color: #A0A0B8; font-size: 14px;">Quem está assistindo agora. Expulsar deixa voltar; banir bloqueia o IP.</p>
+</div>
+<label style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: #A0A0B8;">Senha da sala
+<span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #F2F2F8; background: #12121C; border: 1px solid #1E1E2E; border-radius: 8px; padding: 8px 12px;">desativada</span>
+</label>
+</header>
+
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px;">
+<div style="background: #12121C; border: 1px solid #1E1E2E; border-radius: 14px; padding: 16px; display: flex; flex-direction: column; gap: 6px;">
+<span style="font-size: 13px; color: #A0A0B8;">Conectados</span>
+<span style="font-size: 30px; font-weight: 700; font-family: 'JetBrains Mono', monospace; color: #3DDC97;">3</span>
+</div>
+<div style="background: #12121C; border: 1px solid #1E1E2E; border-radius: 14px; padding: 16px; display: flex; flex-direction: column; gap: 6px;">
+<span style="font-size: 13px; color: #A0A0B8;">Conectando</span>
+<span style="font-size: 30px; font-weight: 700; font-family: 'JetBrains Mono', monospace; color: #F5CA7B;">1</span>
+</div>
+<div style="background: #12121C; border: 1px solid #1E1E2E; border-radius: 14px; padding: 16px; display: flex; flex-direction: column; gap: 6px;">
+<span style="font-size: 13px; color: #A0A0B8;">IPs banidos</span>
+<span style="font-size: 30px; font-weight: 700; font-family: 'JetBrains Mono', monospace; color: #FF8FA3;">1</span>
+</div>
+</div>
+
+<section aria-labelledby="list-title" style="background: #12121C; border: 1px solid #1E1E2E; border-radius: 16px; padding: 8px; display: flex; flex-direction: column;">
+<h2 id="list-title" style="margin: 0; padding: 10px 12px 8px; font-size: 15px; font-weight: 600;">Na sala</h2>
+<div style="overflow-x: auto;">
+<div style="min-width: 640px; display: flex; flex-direction: column;">
+<div style="display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1.4fr) minmax(0, 1fr) minmax(0, 1fr) 190px; gap: 12px; padding: 8px 12px; font-size: 11px; font-weight: 600; letter-spacing: 0.08em; color: #8A8AA3;">
+<span>NOME</span><span>IP</span><span>CONEXÃO</span><span>TEMPO</span><span style="text-align: right;">AÇÕES</span>
+</div>
+<sc-for list="{{viewers}}" as="v" hint-placeholder-count="4">
+<div class="row" style="display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1.4fr) minmax(0, 1fr) minmax(0, 1fr) 190px; gap: 12px; align-items: center; padding: 8px 12px; border-radius: 10px; border-top: 1px solid #1A1A28;">
+<span style="display: flex; align-items: center; gap: 10px; min-width: 0;">
+<span style="width: 32px; height: 32px; flex-shrink: 0; border-radius: 50%; background: {{v.color}}; font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center;">{{v.initials}}</span>
+<span style="font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{v.name}}</span>
+</span>
+<span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #B4B4C8;">{{v.ip}}</span>
+<span style="display: flex; align-items: center; gap: 6px; font-size: 13px; color: {{v.stateColor}};"><span style="width: 8px; height: 8px; border-radius: 50%; background: {{v.stateColor}};"></span>{{v.state}}</span>
+<span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #B4B4C8;">{{v.time}}</span>
+<span style="display: flex; justify-content: flex-end; gap: 8px;">
+<button type="button" style="min-height: 36px; padding: 0 12px; border-radius: 8px; border: 1px solid #2A2A3E; background: #1A1A28; color: #F2F2F8; font-size: 13px; font-weight: 600;">Expulsar</button>
+<button type="button" style="min-height: 36px; padding: 0 12px; border-radius: 8px; border: 1px solid #5A2433; background: #2A1520; color: #FF8FA3; font-size: 13px; font-weight: 600;">Banir</button>
+</span>
+</div>
+</sc-for>
+</div>
+</div>
+</section>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":880}}'>
+class Component extends DCLogic {
+  navProps() {
+    var self = this;
+    var w = (this.state || {}).navW ?? 264;
+    var clamp = function (v) { return Math.max(216, Math.min(360, Math.round(v))); };
+    var collapsed = !!(this.state || {}).navCollapsed;
+    return {
+      w: collapsed ? 72 : w,
+      cls: collapsed ? 'collapsed' : '',
+      toggleLabel: collapsed ? 'Expandir menu' : 'Recolher menu',
+      expanded: collapsed ? 'false' : 'true',
+      toggle: function () { self.setState({ navCollapsed: !collapsed }); },
+      setRef: function (el) { self.navEl = el; },
+      reset: function () { self.setState({ navW: 264 }); },
+      key: function (e) {
+        if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+        e.preventDefault();
+        self.setState({ navW: clamp(w + (e.key === 'ArrowRight' ? 16 : -16)) });
+      },
+      start: function (e) {
+        e.preventDefault();
+        var left = self.navEl ? self.navEl.getBoundingClientRect().left : 0;
+        var doc = e.currentTarget.ownerDocument;
+        var move = function (ev) { self.setState({ navW: clamp(ev.clientX - left) }); };
+        var up = function () {
+          doc.removeEventListener('pointermove', move);
+          doc.removeEventListener('pointerup', up);
+          doc.body.style.cursor = '';
+        };
+        doc.addEventListener('pointermove', move);
+        doc.addEventListener('pointerup', up);
+        doc.body.style.cursor = 'col-resize';
+      }
+    };
+  }
+  renderVals() {
+    return {
+      nav: this.navProps(),
+      viewers: [
+        { initials: 'GU', name: 'Guma', ip: '26.•••.•••.14', state: 'Conectado', stateColor: '#3DDC97', time: '01:18:42', color: '#2B4A7A' },
+        { initials: 'LI', name: 'Lia', ip: '26.•••.•••.88', state: 'Conectado', stateColor: '#3DDC97', time: '00:52:10', color: '#5A2E6E' },
+        { initials: 'RA', name: 'Rafa', ip: '192.•••.•••.23', state: 'Conectado', stateColor: '#3DDC97', time: '00:07:31', color: '#1F5A4A' },
+        { initials: 'TE', name: 'Teco', ip: '26.•••.•••.201', state: 'Conectando', stateColor: '#F5CA7B', time: '—', color: '#6A4A1E' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

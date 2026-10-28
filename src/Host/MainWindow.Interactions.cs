@@ -58,11 +58,12 @@ public partial class MainWindow
     private void Navigation_Changed(object sender, SelectionChangedEventArgs e)
     {
         if (_loading || PageTitle == null) return;
-        string[] titles = { "Compartilhar", "Espectadores", "Áudio dos aplicativos", "Microfone", "Banidos", "Streams salvas", "Assistindo", "Configurações" };
-        string[] descriptions = { "Escolha o que deseja transmitir para sua rede.", "Gerencie quem está assistindo à transmissão.", "Escolha quais aplicativos os espectadores podem ouvir.", "Configure sua voz para a transmissão.", "Gerencie os IPs bloqueados na transmissão.", "Veja quais streams de amigos estão ativas agora.", "Transmissões de amigos abertas no LanCast. Passe o mouse para ver os controles.", "Personalize a transmissão e a aparência do LanCast." };
+        // mesma ordem do menu lateral e das abas: Transmissão, Público, Assistir, Configurações
+        string[] titles = { "Compartilhar", "Áudio dos aplicativos", "Microfone", "Espectadores", "Banidos", "Assistindo amigos", "Streams salvas", "Configurações" };
+        string[] descriptions = { "Escolha a tela ou janela. Dá para trocar no meio da transmissão sem derrubar ninguém.", "Escolha quais aplicativos os espectadores podem ouvir.", "Configure sua voz para a transmissão.", "Quem está assistindo agora. Expulsar deixa voltar; banir bloqueia o IP.", "Gerencie os IPs bloqueados na transmissão.", "Transmissões de amigos abertas no LanCast. Passe o mouse para ver os controles.", "Salve o IP de um amigo para ver quando ele estiver transmitindo.", "Personalize a transmissão e a aparência do LanCast." };
         int index = Math.Clamp(NavList.SelectedIndex, 0, 7);
         PageTitle.Text = titles[index]; PageSubtitle.Text = descriptions[index];
-        InvitePanel.Visibility = index is 0 or 1 ? Visibility.Visible : Visibility.Collapsed;
+        InvitePanel.Visibility = index is 0 or 3 ? Visibility.Visible : Visibility.Collapsed;
         UpdatePreviewState(); UpdateLocalMeter(); UpdateWatchVisibility();
         if (SavedTab.IsSelected) { RefreshSavedRows(); _ = CheckSavedAsync(); }
     }
@@ -101,7 +102,7 @@ public partial class MainWindow
     }
     private void UpdateLocalMeter()
     {
-        bool want = _cfg.MicEnabled && !_svc.Running && IsVisible && WindowState != WindowState.Minimized && NavList.SelectedIndex == 3;
+        bool want = _cfg.MicEnabled && !_svc.Running && IsVisible && WindowState != WindowState.Minimized && NavList.SelectedIndex == 2;
         if (!want) { _localMic?.Dispose(); _localMic = null; _meterFailed = false; return; }
         if (_localMic != null || _meterFailed) return;
         try

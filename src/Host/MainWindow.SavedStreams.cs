@@ -21,11 +21,12 @@ public partial class MainWindow
     private readonly ConcurrentDictionary<Guid, (StreamState State, int Viewers)> _savedState = new();
     private readonly HashSet<Guid> _editing = new();
     private readonly DispatcherTimer _savedTimer = new() { Interval = TimeSpan.FromSeconds(4) };
-    private bool _checkingSaved;
+    private bool _checkingSaved, _savedLiveOnly;
 
     private void InitSavedStreams()
     {
         SavedList.ItemsSource = _saved;
+        System.Windows.Data.CollectionViewSource.GetDefaultView(_saved).Filter = o => !_savedLiveOnly || ((Row)o)["Live"] is true;
         _savedTimer.Tick += async (_, _) => await CheckSavedAsync();
         _savedTimer.Start();
         RefreshSavedRows();
@@ -91,14 +92,23 @@ public partial class MainWindow
             row.Set("Id", s.Id); row.Set("Name", s.Name); row.Set("Address", AddressText(s));
             row.Set("StatusText", st.State switch
             {
-                StreamState.Active => st.Viewers > 0 ? $"Ativa · {st.Viewers} assistindo" : "Ativa",
+                StreamState.Active => st.Viewers > 0 ? $"No ar · {st.Viewers} assistindo" : "No ar",
                 StreamState.Blocked => "Sem acesso (seu IP foi banido)",
                 StreamState.Offline => "Offline",
                 _ => "Verificando…",
             });
-            row.Set("StatusFg", (Brush)FindResource(st.State switch { StreamState.Active => "Ok", StreamState.Blocked => "Warn", _ => "Muted" }));
+            row.Set("StatusFg", (Brush)FindResource(st.State switch { StreamState.Active => "Ok", StreamState.Blocked => "Warn", StreamState.Offline => "Muted", _ => "Warn" }));
             row.Set("IconBg", (Brush)FindResource(active ? "OkSoft" : "Surface3"));
             row.Set("IconFg", (Brush)FindResource(active ? "Ok" : "Muted"));
+            row.Set("CardLine", (Brush)FindResource(active ? "OkLine" : "Line"));
+            row.Set("Live", active);
+            bool offline = st.State == StreamState.Offline;
+            row.Set("ActiveVis", active ? Visibility.Visible : Visibility.Collapsed);
+            row.Set("InactiveVis", active ? Visibility.Collapsed : Visibility.Visible);
+            // offline: o selo "Offline" ocupa o lugar do Assistir, então o status some de baixo do endereço
+            row.Set("StatusVis", offline ? Visibility.Collapsed : Visibility.Visible);
+            row.Set("OfflineVis", offline ? Visibility.Visible : Visibility.Collapsed);
+            row.Set("WatchVis", st.State is StreamState.Active or StreamState.Checking ? Visibility.Visible : Visibility.Collapsed);
             bool editing = _editing.Contains(s.Id);
             row.Set("NameVis", editing ? Visibility.Collapsed : Visibility.Visible);
             row.Set("EditVis", editing ? Visibility.Visible : Visibility.Collapsed);
@@ -108,6 +118,17 @@ public partial class MainWindow
         int activeCount = items.Count(s => _savedState.TryGetValue(s.Id, out var x) && x.State == StreamState.Active);
         SavedBadge.Visibility = activeCount == 0 ? Visibility.Collapsed : Visibility.Visible;
         SavedBadgeText.Text = activeCount.ToString();
+        System.Windows.Automation.AutomationProperties.SetName(SavedBadge, $"{activeCount} no ar");
+        SavedAllCount.Text = items.Count.ToString();
+        SavedLiveCount.Text = activeCount.ToString();
+        if (_savedLiveOnly) System.Windows.Data.CollectionViewSource.GetDefaultView(_saved).Refresh();
+    }
+
+    private void SavedFilter_Checked(object sender, RoutedEventArgs e)
+    {
+        if (SavedList == null) return;
+        _savedLiveOnly = SavedFilterLive.IsChecked == true;
+        System.Windows.Data.CollectionViewSource.GetDefaultView(_saved).Refresh();
     }
 
     private async void SavedAdd_Click(object sender, RoutedEventArgs e)

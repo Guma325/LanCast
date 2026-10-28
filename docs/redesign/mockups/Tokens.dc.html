@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>LanCast — Sistema visual</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#A99BFF}a:hover{color:#C9C0FF}
+button{font-family:inherit}
+</style>
+</helmet>
+<div style="width: 1280px; height: 920px; box-sizing: border-box; background: #0A0A12; color: #F2F2F8; font-family: Inter, system-ui, sans-serif; padding: 48px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 40px 56px; align-content: start;">
+
+<section style="display: flex; flex-direction: column; gap: 16px;">
+<h2 style="margin: 0; font-size: 12px; font-weight: 600; letter-spacing: 0.1em; color: #8A8AA3;">CORES</h2>
+<div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px;">
+<sc-for list="{{swatches}}" as="c" hint-placeholder-count="12">
+<div style="display: flex; flex-direction: column; gap: 6px;">
+<div style="height: 56px; border-radius: 10px; background: {{c.hex}}; border: 1px solid #26263A;"></div>
+<span style="font-size: 13px; font-weight: 600;">{{c.name}}</span>
+<span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #A0A0B8;">{{c.hex}}</span>
+</div>
+</sc-for>
+</div>
+</section>
+
+<section style="display: flex; flex-direction: column; gap: 16px;">
+<h2 style="margin: 0; font-size: 12px; font-weight: 600; letter-spacing: 0.1em; color: #8A8AA3;">TIPOGRAFIA</h2>
+<div style="display: flex; flex-direction: column; gap: 14px; background: #12121C; border: 1px solid #1E1E2E; border-radius: 16px; padding: 20px;">
+<div style="display: flex; align-items: baseline; gap: 16px;"><span style="width: 92px; flex-shrink: 0; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #A0A0B8;">Título 26/700</span><span style="font-size: 26px; font-weight: 700; letter-spacing: -0.02em;">Compartilhar</span></div>
+<div style="display: flex; align-items: baseline; gap: 16px;"><span style="width: 92px; flex-shrink: 0; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #A0A0B8;">Seção 15/600</span><span style="font-size: 15px; font-weight: 600;">Fonte da transmissão</span></div>
+<div style="display: flex; align-items: baseline; gap: 16px;"><span style="width: 92px; flex-shrink: 0; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #A0A0B8;">Corpo 14/400</span><span style="font-size: 14px; color: #D6D6E4;">Quem assiste abre o link no Chrome ou Edge.</span></div>
+<div style="display: flex; align-items: baseline; gap: 16px;"><span style="width: 92px; flex-shrink: 0; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #A0A0B8;">Rótulo 11/600</span><span style="font-size: 11px; font-weight: 600; letter-spacing: 0.08em; color: #8A8AA3;">PÚBLICO</span></div>
+<div style="display: flex; align-items: baseline; gap: 16px;"><span style="width: 92px; flex-shrink: 0; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #A0A0B8;">Dados mono</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 14px;">01:20:01 · 1080p · 8.2 Mb/s</span></div>
+<p style="margin: 0; font-size: 12px; color: #A0A0B8;">Inter para interface; JetBrains Mono só para números, IPs e atalhos (tabular, não pula quando o tempo muda).</p>
+</div>
+</section>
+
+<section style="display: flex; flex-direction: column; gap: 16px;">
+<h2 style="margin: 0; font-size: 12px; font-weight: 600; letter-spacing: 0.1em; color: #8A8AA3;">BOTÕES</h2>
+<div style="display: flex; flex-wrap: wrap; gap: 12px; align-items: center; background: #12121C; border: 1px solid #1E1E2E; border-radius: 16px; padding: 20px;">
+<button type="button" style="min-height: 44px; padding: 0 20px; border-radius: 10px; border: 0; background: #6D4AFF; color: #FFFFFF; font-size: 14px; font-weight: 600; box-shadow: 0 6px 20px rgba(109,74,255,.35);">Primário</button>
+<button type="button" style="min-height: 44px; padding: 0 18px; border-radius: 10px; border: 1px solid #2A2A3E; background: #1A1A28; color: #F2F2F8; font-size: 14px; font-weight: 600;">Secundário</button>
+<button type="button" style="min-height: 44px; padding: 0 18px; border-radius: 10px; border: 1px solid #5A2433; background: #2A1520; color: #FF8FA3; font-size: 14px; font-weight: 600;">Perigo</button>
+<button type="button" style="min-height: 44px; padding: 0 14px; border-radius: 10px; border: 0; background: transparent; color: #A0A0B8; font-size: 14px; font-weight: 600;">Fantasma</button>
+<button type="button" style="min-height: 44px; padding: 0 20px; border-radius: 10px; border: 0; background: #6D4AFF; color: #FFFFFF; font-size: 14px; font-weight: 600; outline: 2px solid #A99BFF; outline-offset: 2px;">Foco</button>
+</div>
+</section>
+
+<section style="display: flex; flex-direction: column; gap: 16px;">
+<h2 style="margin: 0; font-size: 12px; font-weight: 600; letter-spacing: 0.1em; color: #8A8AA3;">ESTADOS E SINAIS</h2>
+<div style="display: flex; flex-wrap: wrap; gap: 14px; align-items: center; background: #12121C; border: 1px solid #1E1E2E; border-radius: 16px; padding: 20px;">
+<span style="display: flex; align-items: center; gap: 8px; background: #2A1520; border: 1px solid #4A1E2C; border-radius: 999px; padding: 6px 12px; font-size: 12px; font-weight: 700; letter-spacing: 0.06em; color: #FF8FA3;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #FF4D6D;"></span>AO VIVO</span>
+<span style="display: flex; align-items: center; gap: 8px; background: #1A1A28; border: 1px solid #26263A; border-radius: 999px; padding: 6px 12px; font-size: 12px; font-weight: 600; color: #B4B4C8;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #55556E;"></span>Parado</span>
+<span style="display: flex; align-items: center; gap: 8px; background: #12261F; border: 1px solid #1E4436; border-radius: 999px; padding: 6px 12px; font-size: 12px; font-weight: 600; color: #3DDC97;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #3DDC97;"></span>Conectado</span>
+<span style="display: flex; align-items: center; gap: 8px; background: #2A2312; border: 1px solid #4A3D1E; border-radius: 999px; padding: 6px 12px; font-size: 12px; font-weight: 600; color: #F5CA7B;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #F5CA7B;"></span>Conectando</span>
+<kbd style="font-family: 'JetBrains Mono', monospace; font-size: 11px; background: #1A1A28; border: 1px solid #2A2A3E; border-bottom-width: 2px; border-radius: 6px; padding: 3px 7px; color: #D6D6E4;">Ctrl+Alt+L</kbd>
+<span style="display: flex; align-items: center; gap: 10px; font-size: 14px;"><span style="width: 40px; height: 22px; border-radius: 999px; background: #6D4AFF; position: relative; display: inline-block;"><span style="position: absolute; top: 3px; left: 21px; width: 16px; height: 16px; border-radius: 50%; background: #F2F2F8;"></span></span>Ligado</span>
+</div>
+</section>
+
+<section style="grid-column: span 2; display: flex; flex-direction: column; gap: 16px;">
+<h2 style="margin: 0; font-size: 12px; font-weight: 600; letter-spacing: 0.1em; color: #8A8AA3;">FORMA E MOVIMENTO</h2>
+<div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px;">
+<div style="background: #12121C; border: 1px solid #1E1E2E; border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 6px;"><span style="font-weight: 600;">Raios</span><span style="font-size: 13px; color: #A0A0B8;">Card 16 · controle 10 · chip 6 · pílula 999</span></div>
+<div style="background: #12121C; border: 1px solid #1E1E2E; border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 6px;"><span style="font-weight: 600;">Espaço</span><span style="font-size: 13px; color: #A0A0B8;">Escala de 4: 4 · 8 · 12 · 16 · 20 · 28 · 48</span></div>
+<div style="background: #12121C; border: 1px solid #1E1E2E; border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 6px;"><span style="font-weight: 600;">Profundidade</span><span style="font-size: 13px; color: #A0A0B8;">Camadas por cor de superfície, não sombra. Brilho só no botão primário.</span></div>
+<div style="background: #12121C; border: 1px solid #1E1E2E; border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 6px;"><span style="font-weight: 600;">Movimento</span><span style="font-size: 13px; color: #A0A0B8;">150–220 ms ease-out. Pulso só no ponto AO VIVO; desliga com animações do Windows desativadas.</span></div>
+</div>
+</section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":920}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {
+      swatches: [
+        { name: 'Fundo', hex: '#0A0A12' },
+        { name: 'Barra lateral', hex: '#0E0E18' },
+        { name: 'Superfície', hex: '#12121C' },
+        { name: 'Superfície 2', hex: '#1A1A28' },
+        { name: 'Linha', hex: '#1E1E2E' },
+        { name: 'Texto', hex: '#F2F2F8' },
+        { name: 'Suave', hex: '#A0A0B8' },
+        { name: 'Destaque', hex: '#6D4AFF' },
+        { name: 'Destaque texto', hex: '#C2B5FF' },
+        { name: 'Ao vivo', hex: '#FF4D6D' },
+        { name: 'Ok', hex: '#3DDC97' },
+        { name: 'Aviso', hex: '#F5CA7B' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

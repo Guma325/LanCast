@@ -62,6 +62,12 @@ public sealed class Row : INotifyPropertyChanged
     public Brush ChipFg => (Brush?)this["ChipFg"] ?? Brushes.Gray;
     public Brush MuteBg => (Brush?)this["MuteBg"] ?? Brushes.Transparent;
     public Brush MuteFg => (Brush?)this["MuteFg"] ?? Brushes.White;
+    public Brush CardLine => (Brush?)this["CardLine"] ?? Brushes.Transparent;
+    public Visibility ActiveVis => (Visibility?)this["ActiveVis"] ?? Visibility.Collapsed;
+    public Visibility InactiveVis => (Visibility?)this["InactiveVis"] ?? Visibility.Visible;
+    public Visibility StatusVis => (Visibility?)this["StatusVis"] ?? Visibility.Visible;
+    public Visibility WatchVis => (Visibility?)this["WatchVis"] ?? Visibility.Visible;
+    public Visibility OfflineVis => (Visibility?)this["OfflineVis"] ?? Visibility.Collapsed;
 }
 
 public partial class MainWindow : Window
@@ -79,6 +85,7 @@ public partial class MainWindow : Window
     {
         var w = (MainWindow)d;
         bool collapsed = (bool)e.NewValue;
+        w.SideNav.Width = collapsed ? NavRailWidth : w._cfg.SidebarWidth;
         w.NavToggleImage.RenderTransform = new ScaleTransform(collapsed ? -1 : 1, 1);
         w.NavToggleImage.RenderTransformOrigin = new Point(0.5, 0.5);
         w.NavToggle.ToolTip = collapsed ? "Expandir menu" : "Recolher menu";
@@ -115,6 +122,9 @@ public partial class MainWindow : Window
         PreviewCheck.IsChecked = _cfg.ShowPreview;
         OnlyAudioCheck.IsChecked = _cfg.OnlyAppAudio;
         NavCollapsed = _cfg.SidebarCollapsed;
+        _cfg.SidebarWidth = Math.Clamp(_cfg.SidebarWidth, NavMinWidth, NavMaxWidth);
+        SideNav.Width = NavCollapsed ? NavRailWidth : _cfg.SidebarWidth;
+        if (_cfg.SourceType == "window") SourceTabWindows.IsChecked = true;
         Footer.Text = "v" + (typeof(MainWindow).Assembly.GetName().Version?.ToString(3) ?? "1.0.0") + "  ·  dados em %AppData%\\LanCast";
         SideVersion.Text = "LANCAST  ·  v" + (typeof(MainWindow).Assembly.GetName().Version?.ToString(3) ?? "1.0.0");
 
@@ -193,19 +203,33 @@ public partial class MainWindow : Window
         var enc = _svc.Encoder;
         bool sourceUnavailable = _cfg.SourceType == "window" && ScreenSources.ResolveWindow(_cfg.WindowExe, _cfg.WindowTitle) is not { Minimized: false };
         bool videoOk = !sourceUnavailable && (enc?.Working ?? false);
-        StatusDot.Fill = (Brush)FindResource(!run ? "Muted" : videoOk ? "Ok" : "Warn");
-        StatusText.Text = !run ? "Parado" : videoOk ? "Transmitindo" : "Sem imagem";
+        bool live = run && videoOk;
+        StatusDot.Fill = (Brush)FindResource(!run ? "Muted" : videoOk ? "Live" : "Warn");
+        StatusText.Text = !run ? "Pronto para transmitir" : videoOk ? "AO VIVO" : "Sem imagem";
+        StatusText.Foreground = (Brush)FindResource(!run ? "Text" : videoOk ? "LiveText" : "Warn");
+        LiveBar.BorderBrush = (Brush)FindResource(live ? "LiveLine" : "Line");
+        PreviewLiveChip.Visibility = live ? Visibility.Visible : Visibility.Collapsed;
         StartStop.Content = run ? "Parar transmissão" : "Iniciar transmissão";
-        StartStop.Style = (Style)FindResource(run ? "DangerButton" : "PrimaryButton");
+        StartStop.Style = (Style)FindResource(run ? "DangerOutline" : "PrimaryButton");
+        if (run) _liveSince ??= DateTime.Now; else _liveSince = null;
+        LiveTime.Visibility = run ? Visibility.Visible : Visibility.Collapsed;
+        if (_liveSince is { } since) LiveTime.Text = (DateTime.Now - since).ToString(@"hh\:mm\:ss");
+        SetLivePulse(live);
+        HotkeyHint.Text = _cfg.Hotkey;
+        HotkeyHintPanel.Visibility = run && !string.IsNullOrWhiteSpace(_cfg.Hotkey) ? Visibility.Visible : Visibility.Collapsed;
 
         var viewers = _svc.Hub?.GetViewers() ?? new List<ViewerInfo>();
         int connected = viewers.Count(v => v.Connected);
         ViewerCount.Text = connected.ToString();
         ConnectingCount.Text = viewers.Count(v => !v.Connected).ToString();
         BannedCount.Text = _cfg.BanSnapshot().Count.ToString();
-        SubStatus.Text = !run ? "·  clique em Iniciar para começar"
-            : videoOk ? $"·  {enc!.Active}  ·  porta {_cfg.Port}"
-            : $"·  tentando: {enc?.Active}" + (string.IsNullOrEmpty(enc?.LastError) ? "" : "  ·  " + Shorten(enc!.LastError!, 70));
+        ViewerBadge.Visibility = connected == 0 ? Visibility.Collapsed : Visibility.Visible;
+        ViewerBadgeText.Text = connected.ToString();
+        LiveViewersPanel.Visibility = run ? Visibility.Visible : Visibility.Collapsed;
+        LiveViewers.Text = connected == 1 ? "1 assistindo" : $"{connected} assistindo";
+        SubStatus.Text = !run ? "clique em Iniciar para começar"
+            : videoOk ? $"{enc!.Active}  ·  porta {_cfg.Port}"
+            : $"tentando: {enc?.Active}" + (string.IsNullOrEmpty(enc?.LastError) ? "" : "  ·  " + Shorten(enc!.LastError!, 70));
         Title = run ? $"LanCast — {connected} conectado(s)" : "LanCast";
         _tray.Text = Title.Length > 60 ? Title[..60] : Title;
         SetLive(run, connected);
@@ -625,6 +649,49 @@ public partial class MainWindow : Window
         _cfg.Save();
     }
 
+    private const double NavRailWidth = 72, NavMinWidth = 216, NavMaxWidth = 360, NavDefaultWidth = 264;
+
+    private void NavResizer_DragDelta(object sender, System.Windows.Controls.Primitives.DragDeltaEventArgs e)
+        => SideNav.Width = Math.Clamp(SideNav.ActualWidth + e.HorizontalChange, NavMinWidth, NavMaxWidth);
+
+    private void NavResizer_DragCompleted(object sender, System.Windows.Controls.Primitives.DragCompletedEventArgs e)
+    {
+        _cfg.SidebarWidth = Math.Round(SideNav.Width);
+        _cfg.Save();
+    }
+
+    private void NavResizer_DoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
+    {
+        SideNav.Width = _cfg.SidebarWidth = NavDefaultWidth;
+        _cfg.Save();
+    }
+
+    private void SourceTab_Checked(object sender, RoutedEventArgs e)
+    {
+        if (MonitorList == null || WindowsSection == null) return;
+        bool windows = SourceTabWindows.IsChecked == true;
+        MonitorList.Visibility = windows ? Visibility.Collapsed : Visibility.Visible;
+        WindowsSection.Visibility = windows ? Visibility.Visible : Visibility.Collapsed;
+    }
+
+    // ---------- barra "no ar" ----------
+
+    private DateTime? _liveSince;
+    private bool _pulsing;
+
+    /// <summary>Faz o ponto AO VIVO pulsar; fica parado se as animações do Windows estiverem desligadas.</summary>
+    private void SetLivePulse(bool on)
+    {
+        on &= SystemParameters.ClientAreaAnimation;
+        if (on == _pulsing) return;
+        _pulsing = on;
+        if (!on) { StatusDot.BeginAnimation(OpacityProperty, null); return; }
+        // só opacidade e a poucos quadros: animar escala redesenha a janela inteira a 60 fps durante a captura
+        var fade = new System.Windows.Media.Animation.DoubleAnimation(1, 0.35, TimeSpan.FromSeconds(0.9)) { AutoReverse = true, RepeatBehavior = System.Windows.Media.Animation.RepeatBehavior.Forever };
+        System.Windows.Media.Animation.Timeline.SetDesiredFrameRate(fade, 12);
+        StatusDot.BeginAnimation(OpacityProperty, fade);
+    }
+
     private void Theme_Changed(object sender, SelectionChangedEventArgs e)
     {
         if (_loading || STheme.SelectedItem is not ThemeManager.ThemeInfo theme) return;
@@ -846,10 +913,11 @@ public sealed class InverseBoolToVisibility : System.Windows.Data.IValueConverte
         => throw new NotSupportedException();
 }
 
-public sealed class NavWidthConverter : System.Windows.Data.IValueConverter
+/// <summary>True quando o valor é um texto não vazio (títulos de grupo do menu lateral).</summary>
+public sealed class HasTextConverter : System.Windows.Data.IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
-        => value is true ? 72.0 : 220.0;
+        => value is string s && !string.IsNullOrWhiteSpace(s);
     public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         => throw new NotSupportedException();
 }

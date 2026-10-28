@@ -1,0 +1,356 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>LanCast — Assistindo amigos</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#0A0A12}
+a{color:#A99BFF}a:hover{color:#C9C0FF}
+button{font-family:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible,a:focus-visible{outline:2px solid #A99BFF;outline-offset:2px}
+.nav:hover{background:#1A1A28}
+nav a{white-space:nowrap;overflow:hidden}
+nav a > span:first-of-type{overflow:hidden;text-overflow:ellipsis}
+.resizer{position:absolute;top:0;right:-5px;width:10px;height:100%;padding:0;border:0;background:transparent;cursor:col-resize;z-index:2}
+.resizer::after{content:"";position:absolute;top:0;bottom:0;left:4px;width:2px;background:transparent;transition:background .15s ease-out}
+.resizer:hover::after,.resizer:focus-visible::after{background:#6D4AFF}
+.tg:hover{background:#1A1A28;color:#F2F2F8}
+nav.collapsed > div:first-of-type{flex-direction:column;gap:12px!important;padding:0!important}
+nav.collapsed > div:first-of-type > span{display:none}
+nav.collapsed > div > span:first-child{display:none}
+nav.collapsed a{justify-content:center;padding:0!important;gap:0!important;font-size:0!important;position:relative}
+nav.collapsed a > span{display:none}
+nav.collapsed a[data-live]::after{content:"";position:absolute;top:7px;right:9px;width:8px;height:8px;border-radius:50%;background:#3DDC97;box-shadow:0 0 0 2px #0E0E18}
+nav.collapsed > div:last-of-type{display:none}
+nav.collapsed .resizer{display:none}
+nav.collapsed .tg{margin-left:0!important}
+nav.collapsed .chev{transform:rotate(180deg);transform-box:fill-box;transform-origin:center}
+.ghost:hover{background:#1F1F30}
+.ib:hover{background:rgba(255,255,255,.12)}
+.tile .ctl{opacity:0;transition:opacity .18s ease-out}
+.tile:hover .ctl,.tile:focus-within .ctl,.tile.show .ctl{opacity:1}
+.addslot:hover{border-color:#6D4AFF;color:#C2B5FF}
+input.vol{-webkit-appearance:none;appearance:none;height:4px;border-radius:999px;margin:0 4px;cursor:pointer;outline-offset:6px}
+input.vol::-webkit-slider-runnable-track{height:4px;border-radius:999px;background:transparent}
+input.vol::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:14px;height:14px;margin-top:-5px;border:0;border-radius:50%;background:#F2F2F8;box-shadow:0 0 0 3px rgba(109,74,255,.45);transition:transform .15s ease-out}
+input.vol:hover::-webkit-slider-thumb,input.vol:focus-visible::-webkit-slider-thumb{transform:scale(1.2)}
+input.vol::-moz-range-track{height:4px;border-radius:999px;background:transparent}
+input.vol::-moz-range-thumb{width:14px;height:14px;border:0;border-radius:50%;background:#F2F2F8;box-shadow:0 0 0 3px rgba(109,74,255,.45)}
+@keyframes wave{0%,100%{opacity:.15}40%{opacity:1}}
+.wv1{animation:wave 1.6s ease-in-out infinite}
+.wv2{animation:wave 1.6s ease-in-out .25s infinite}
+@media (prefers-reduced-motion: reduce){.tile .ctl{transition:none}.wv1,.wv2{animation:none}}
+</style>
+</helmet>
+<div style="min-height: 880px; background: #0A0A12; color: #F2F2F8; font-family: Inter, system-ui, sans-serif; font-size: 14px; display: flex; flex-wrap: wrap;">
+
+<nav ref="{{nav.setRef}}" class="{{nav.cls}}" aria-label="Menu principal" style="position: relative; flex: 0 0 {{nav.w}}px; width: 310px; box-sizing: border-box; background: #0E0E18; border-right: 1px solid #1E1E2E; padding: 20px 14px; display: flex; flex-direction: column; gap: 22px">
+<button class="resizer" type="button" aria-label="Redimensionar menu: arraste ou use as setas; duplo clique volta ao padrão" onPointerDown="{{nav.start}}" onKeyDown="{{nav.key}}" onDoubleClick="{{nav.reset}}"></button>
+<div style="display: flex; align-items: center; gap: 10px; padding: 0 6px;">
+<div style="width: 34px; height: 34px; border-radius: 10px; background: #6D4AFF; display: flex; align-items: center; justify-content: center; color: #FFFFFF;">
+<svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2"></circle><path d="M16.24 7.76a6 6 0 0 1 0 8.49M7.76 16.24a6 6 0 0 1 0-8.49M19.07 4.93a10 10 0 0 1 0 14.14M4.93 19.07a10 10 0 0 1 0-14.14"></path></svg>
+</div>
+<span style="font-size: 17px; font-weight: 700; letter-spacing: -0.01em;">LanCast</span>
+<button class="tg" type="button" onClick="{{nav.toggle}}" aria-label="{{nav.toggleLabel}}" aria-expanded="{{nav.expanded}}" title="{{nav.toggleLabel}}" style="margin-left: auto; width: 36px; height: 36px; flex-shrink: 0; border-radius: 8px; border: 1px solid #26263A; background: #12121C; color: #A0A0B8; display: flex; align-items: center; justify-content: center;"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"></rect><path d="M9 3v18"></path><path class="chev" d="m16 15-3-3 3-3"></path></svg></button>
+</div>
+<div style="display: flex; flex-direction: column; gap: 2px;">
+<span style="font-size: 11px; font-weight: 600; letter-spacing: 0.08em; color: #8A8AA3; padding: 0 10px 6px;">TRANSMISSÃO</span>
+<a class="nav" href="Main.dc.html" style="display: flex; align-items: center; gap: 12px; min-height: 40px; padding: 0 10px; border-radius: 10px; color: #B4B4C8; text-decoration: none; font-weight: 500;">
+<svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"></rect><path d="M8 21h8M12 17v4"></path></svg>Compartilhar</a>
+<a class="nav" href="#" style="display: flex; align-items: center; gap: 12px; min-height: 40px; padding: 0 10px; border-radius: 10px; color: #B4B4C8; text-decoration: none; font-weight: 500;">
+<svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 10v3M6 6v11M10 3v18M14 8v7M18 5v13M22 10v3"></path></svg>Áudio dos apps</a>
+<a class="nav" href="#" style="display: flex; align-items: center; gap: 12px; min-height: 40px; padding: 0 10px; border-radius: 10px; color: #B4B4C8; text-decoration: none; font-weight: 500;">
+<svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="12" rx="3"></rect><path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v3"></path></svg>Microfone</a>
+</div>
+<div style="display: flex; flex-direction: column; gap: 2px;">
+<span style="font-size: 11px; font-weight: 600; letter-spacing: 0.08em; color: #8A8AA3; padding: 0 10px 6px;">PÚBLICO</span>
+<a class="nav" href="Viewers.dc.html" style="display: flex; align-items: center; gap: 12px; min-height: 40px; padding: 0 10px; border-radius: 10px; color: #B4B4C8; text-decoration: none; font-weight: 500;">
+<svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"></path></svg><span style="flex-grow: 1;">Espectadores</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #F2F2F8; background: #23233A; border-radius: 6px; padding: 1px 7px;">3</span></a>
+<a class="nav" href="#" style="display: flex; align-items: center; gap: 12px; min-height: 40px; padding: 0 10px; border-radius: 10px; color: #B4B4C8; text-decoration: none; font-weight: 500;">
+<svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="m4.9 4.9 14.2 14.2"></path></svg><span style="flex-grow: 1;">Banidos</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #FF8FA3; background: #3A1A26; border-radius: 6px; padding: 1px 7px;">1</span></a>
+</div>
+<div style="display: flex; flex-direction: column; gap: 2px;">
+<span style="font-size: 11px; font-weight: 600; letter-spacing: 0.08em; color: #8A8AA3; padding: 0 10px 6px;">ASSISTIR</span>
+<a href="#" aria-current="page" style="display: flex; align-items: center; gap: 12px; min-height: 40px; padding: 0 10px; border-radius: 10px; background: rgba(109,74,255,0.16); color: #C2B5FF; text-decoration: none; font-weight: 600;">
+<svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="15" rx="2"></rect><path d="m17 2-5 5-5-5"></path></svg><span style="flex-grow: 1;">Assistindo amigos</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #F2F2F8; background: #23233A; border-radius: 6px; padding: 1px 7px;">{{tileCount}}</span></a>
+<a data-live="1" class="nav" href="Saved.dc.html" style="display: flex; align-items: center; gap: 12px; min-height: 40px; padding: 0 10px; border-radius: 10px; color: #B4B4C8; text-decoration: none; font-weight: 500;">
+<svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg><span style="flex-grow: 1;">Streams salvas</span><span role="img" aria-label="4 no ar" style="display: flex; align-items: center; gap: 4px; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #3DDC97; background: #12261F; border-radius: 6px; padding: 1px 6px 1px 4px;"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="2.2" fill="currentColor" stroke="none"></circle><path class="wv1" d="M15.5 8.5a5 5 0 0 1 0 7M8.5 15.5a5 5 0 0 1 0-7"></path><path class="wv2" d="M18.4 5.6a9 9 0 0 1 0 12.8M5.6 18.4a9 9 0 0 1 0-12.8"></path></svg>4</span></a>
+</div>
+<div style="flex-grow: 1;"></div>
+<a class="nav" href="#" style="display: flex; align-items: center; gap: 12px; min-height: 40px; padding: 0 10px; border-radius: 10px; color: #B4B4C8; text-decoration: none; font-weight: 500;">
+<svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"></path></svg>Configurações</a>
+<div style="border: 1px solid #1E1E2E; background: #12121C; border-radius: 12px; padding: 12px; display: flex; flex-direction: column; gap: 6px;">
+<div style="display: flex; align-items: center; gap: 8px; color: #3DDC97; font-weight: 600; font-size: 13px;">
+<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><path d="m9 12 2 2 4-4"></path></svg>Radmin VPN conectada</div>
+<span style="font-size: 12px; color: #A0A0B8;">Firewall liberado · v1.3.0</span>
+</div>
+</nav>
+
+<main style="flex: 999 1 560px; min-width: 0; box-sizing: border-box; padding: 20px 28px 28px; display: flex; flex-direction: column; gap: 16px;">
+
+<section aria-label="Status da sua transmissão" style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px; background: #12121C; border: 1px solid #1E1E2E; border-radius: 14px; padding: 8px 8px 8px 16px;">
+<span style="width: 8px; height: 8px; border-radius: 50%; background: #55556E; display: inline-block;"></span>
+<span style="font-size: 13px; color: #B4B4C8;">Você não está transmitindo</span>
+<div style="flex-grow: 1;"></div>
+<a href="Main.dc.html" style="min-height: 36px; display: flex; align-items: center; gap: 8px; padding: 0 14px; border-radius: 8px; background: #1A1A28; border: 1px solid #2A2A3E; color: #F2F2F8; font-size: 13px; font-weight: 600; text-decoration: none;">
+<svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="m7 4 13 8-13 8z"></path></svg>Iniciar a sua</a>
+</section>
+
+<header style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px;">
+<div style="display: flex; flex-direction: column; gap: 4px; flex-grow: 1;">
+<h1 style="margin: 0; font-size: 26px; font-weight: 700; letter-spacing: -0.02em;">Assistindo amigos</h1>
+<p style="margin: 0; color: #A0A0B8; font-size: 14px;"><span style="font-family: 'JetBrains Mono', monospace; color: #F2F2F8;">{{tileCount}}</span> transmissões lado a lado · dois cliques numa delas para destacar</p>
+</div>
+<div role="group" aria-label="Layout" style="display: flex; background: #12121C; border: 1px solid #1E1E2E; border-radius: 10px; padding: 3px;">
+<button type="button" onClick="{{setGrid}}" aria-pressed="{{gridPressed}}" style="min-height: 36px; display: flex; align-items: center; gap: 6px; padding: 0 12px; border: 0; border-radius: 8px; background: {{gridBg}}; color: {{gridFg}}; font-size: 13px; font-weight: 600;">
+<svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="8" height="8" rx="1"></rect><rect x="13" y="3" width="8" height="8" rx="1"></rect><rect x="3" y="13" width="8" height="8" rx="1"></rect><rect x="13" y="13" width="8" height="8" rx="1"></rect></svg>Grade</button>
+<button type="button" onClick="{{setFocusFirst}}" aria-pressed="{{focusPressed}}" style="min-height: 36px; display: flex; align-items: center; gap: 6px; padding: 0 12px; border: 0; border-radius: 8px; background: {{focusBg}}; color: {{focusFg}}; font-size: 13px; font-weight: 600;">
+<svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="12" rx="1"></rect><rect x="3" y="18" width="5" height="3" rx="1"></rect><rect x="10" y="18" width="5" height="3" rx="1"></rect><rect x="17" y="18" width="4" height="3" rx="1"></rect></svg>Destaque</button>
+</div>
+<button class="ghost" type="button" style="min-height: 40px; display: flex; align-items: center; gap: 8px; padding: 0 12px; border-radius: 10px; border: 1px solid #2A2A3E; background: #12121C; color: #F2F2F8; font-size: 13px; font-weight: 600;">
+<svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6M10 14 21 3M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path></svg>Abrir em janela</button>
+<button type="button" onClick="{{toggleAdd}}" aria-expanded="{{addExpanded}}" style="min-height: 40px; display: flex; align-items: center; gap: 8px; padding: 0 16px; border-radius: 10px; border: 0; background: #6D4AFF; color: #FFFFFF; font-size: 13px; font-weight: 600; box-shadow: 0 6px 20px rgba(109,74,255,.35);">
+<svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg>Adicionar transmissão</button>
+</header>
+
+<sc-if value="{{addOpen}}" hint-placeholder-val="{{ false }}">
+<section aria-label="Streams salvas" style="background: #12121C; border: 1px solid #2E2650; border-radius: 14px; padding: 12px; display: flex; flex-direction: column; gap: 8px;">
+<div style="display: flex; align-items: center; justify-content: space-between; padding: 0 4px;">
+<span style="font-size: 13px; font-weight: 600;">Das suas Streams salvas</span>
+<span style="font-size: 12px; color: #A0A0B8;">status atualiza a cada poucos segundos</span>
+</div>
+<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 8px;">
+<sc-for list="{{saved}}" as="s" hint-placeholder-count="3">
+<div style="display: flex; align-items: center; gap: 10px; background: #0A0A12; border: 1px solid #1E1E2E; border-radius: 12px; padding: 8px 8px 8px 10px;">
+<span style="width: 30px; height: 30px; flex-shrink: 0; border-radius: 50%; background: {{s.color}}; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center;">{{s.initials}}</span>
+<span style="display: flex; flex-direction: column; gap: 1px; flex-grow: 1; min-width: 0;">
+<span style="font-weight: 600; font-size: 13px;">{{s.name}}</span>
+<span style="display: flex; align-items: center; gap: 6px; font-size: 12px; color: {{s.statusColor}};"><span style="width: 6px; height: 6px; border-radius: 50%; background: {{s.statusColor}};"></span>{{s.status}}</span>
+</span>
+<button type="button" onClick="{{s.add}}" disabled="{{s.disabled}}" style="min-height: 36px; padding: 0 12px; border-radius: 8px; border: 1px solid #2A2A3E; background: #1A1A28; color: {{s.btnFg}}; font-size: 12px; font-weight: 600;">{{s.btn}}</button>
+</div>
+</sc-for>
+</div>
+</section>
+</sc-if>
+
+<sc-if value="{{empty}}" hint-placeholder-val="{{ false }}">
+<div style="flex-grow: 1; min-height: 420px; border: 1px dashed #2A2A3E; border-radius: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; text-align: center; padding: 24px;">
+<svg aria-hidden="true" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#55556E" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="15" rx="2"></rect><path d="m17 2-5 5-5-5"></path></svg>
+<span style="font-size: 16px; font-weight: 600;">Nenhuma transmissão aberta</span>
+<span style="font-size: 13px; color: #A0A0B8;">Use “Adicionar transmissão” para assistir um amigo que está no ar.</span>
+</div>
+</sc-if>
+
+<sc-if value="{{isGrid}}" hint-placeholder-val="{{ true }}">
+<div style="display: grid; grid-template-columns: repeat({{cols}}, minmax(0, 1fr)); gap: 10px;">
+<sc-for list="{{tiles}}" as="t" hint-placeholder-count="3">
+<section class="tile {{t.showCls}}" aria-label="Transmissão de {{t.name}}" style="position: relative; aspect-ratio: 16 / 9; border-radius: 14px; overflow: hidden; background: {{t.bg}}; border: 1px solid #1E1E2E;">
+<sc-if value="{{t.live}}" hint-placeholder-val="{{ true }}">
+<button type="button" onDoubleClick="{{t.focus}}" aria-label="Destacar {{t.name}}" style="position: absolute; inset: 0; border: 0; background: transparent; color: #55556E; font-size: 13px; cursor: default;">[vídeo de {{t.name}}]</button>
+<div style="position: absolute; top: 10px; left: 10px; right: 10px; display: flex; align-items: center; gap: 6px; pointer-events: none;">
+<span style="display: flex; align-items: center; gap: 7px; background: rgba(10,10,18,.8); border-radius: 999px; padding: 5px 10px 5px 8px; font-size: 12px;"><span style="width: 7px; height: 7px; border-radius: 50%; background: #3DDC97;"></span><b style="font-weight: 600;">{{t.name}}</b><span style="color: #A0A0B8;">· {{t.viewers}} assistindo</span></span>
+<span style="flex-grow: 1;"></span>
+<span style="background: rgba(10,10,18,.8); border-radius: 6px; padding: 4px 8px; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #D6D6E4;">{{t.latency}}</span>
+</div>
+<div class="ctl" style="position: absolute; left: 8px; right: 8px; bottom: 8px; display: flex; align-items: center; gap: 4px; background: rgba(10,10,18,.86); border: 1px solid #26263A; border-radius: 12px; padding: 4px 6px;">
+<button class="ib" type="button" onClick="{{t.mute}}" aria-label="Silenciar {{t.name}}" style="width: 36px; height: 36px; border: 0; border-radius: 8px; background: transparent; color: #F2F2F8; display: flex; align-items: center; justify-content: center;"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4zM15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14"></path></svg></button>
+<input class="vol" type="range" min="0" max="100" value="{{t.vol}}" onChange="{{t.setVol}}" aria-label="Volume de {{t.name}}" style="width: 90px; background: {{t.volFill}};">
+<span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #A0A0B8; width: 34px;">{{t.vol}}%</span>
+<span style="flex-grow: 1;"></span>
+<button class="ib" type="button" aria-label="Estatísticas" style="width: 36px; height: 36px; border: 0; border-radius: 8px; background: transparent; color: #F2F2F8; display: flex; align-items: center; justify-content: center;"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"></path></svg></button>
+<button class="ib" type="button" onClick="{{t.focus}}" aria-label="Destacar {{t.name}}" style="width: 36px; height: 36px; border: 0; border-radius: 8px; background: transparent; color: #F2F2F8; display: flex; align-items: center; justify-content: center;"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="12" rx="1"></rect><path d="M3 19h18"></path></svg></button>
+<button class="ib" type="button" aria-label="Tela cheia" style="width: 36px; height: 36px; border: 0; border-radius: 8px; background: transparent; color: #F2F2F8; display: flex; align-items: center; justify-content: center;"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3M21 8V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3M16 21h3a2 2 0 0 0 2-2v-3"></path></svg></button>
+<button class="ib" type="button" onClick="{{t.close}}" aria-label="Fechar {{t.name}}" style="width: 36px; height: 36px; border: 0; border-radius: 8px; background: transparent; color: #FF8FA3; display: flex; align-items: center; justify-content: center;"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"></path></svg></button>
+</div>
+</sc-if>
+<sc-if value="{{t.locked}}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; padding: 16px;">
+<form style="width: 100%; max-width: 280px; background: #12121C; border: 1px solid #26263A; border-radius: 14px; padding: 16px; display: flex; flex-direction: column; gap: 10px;">
+<span style="display: flex; align-items: center; gap: 8px; font-weight: 600;"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F5CA7B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg>{{t.name}} usa senha</span>
+<label for="pw-{{t.id}}" style="font-size: 12px; color: #A0A0B8;">Senha da sala</label>
+<input id="pw-{{t.id}}" type="password" placeholder="••••••" style="min-height: 40px; box-sizing: border-box; border-radius: 8px; border: 1px solid #2A2A3E; background: #0A0A12; color: #F2F2F8; padding: 0 12px; font-family: inherit; font-size: 14px;">
+<div style="display: flex; gap: 8px;">
+<button type="button" onClick="{{t.unlock}}" style="flex-grow: 1; min-height: 40px; border-radius: 8px; border: 0; background: #6D4AFF; color: #FFFFFF; font-size: 13px; font-weight: 600;">Assistir</button>
+<button type="button" onClick="{{t.close}}" style="min-height: 40px; padding: 0 12px; border-radius: 8px; border: 1px solid #2A2A3E; background: #1A1A28; color: #F2F2F8; font-size: 13px; font-weight: 600;">Fechar</button>
+</div>
+</form>
+</div>
+</sc-if>
+</section>
+</sc-for>
+<sc-if value="{{showAddSlot}}" hint-placeholder-val="{{ true }}">
+<button class="addslot" type="button" onClick="{{toggleAdd}}" style="aspect-ratio: 16 / 9; border-radius: 14px; border: 1px dashed #2A2A3E; background: transparent; color: #A0A0B8; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; font-size: 14px; font-weight: 600;">
+<svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg>Adicionar transmissão</button>
+</sc-if>
+</div>
+</sc-if>
+
+<sc-if value="{{isFocus}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; flex-direction: column; gap: 10px;">
+<section class="tile show" aria-label="Transmissão de {{ft.name}} em destaque" style="position: relative; aspect-ratio: 16 / 9; max-height: 560px; border-radius: 14px; overflow: hidden; background: {{ft.bg}}; border: 1px solid #2E2650;">
+<div style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: #55556E; font-size: 14px;">[vídeo de {{ft.name}}]</div>
+<div style="position: absolute; top: 12px; left: 12px; right: 12px; display: flex; align-items: center; gap: 6px;">
+<span style="display: flex; align-items: center; gap: 7px; background: rgba(10,10,18,.8); border-radius: 999px; padding: 6px 12px 6px 10px; font-size: 13px;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #3DDC97;"></span><b style="font-weight: 600;">{{ft.name}}</b><span style="color: #A0A0B8;">· {{ft.viewers}} assistindo</span></span>
+<span style="flex-grow: 1;"></span>
+<span style="background: rgba(10,10,18,.8); border-radius: 8px; padding: 6px 10px; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #D6D6E4;">1080p · 60 fps · {{ft.latency}}</span>
+</div>
+<div class="ctl" style="position: absolute; left: 12px; right: 12px; bottom: 12px; display: flex; align-items: center; gap: 6px; background: rgba(10,10,18,.86); border: 1px solid #26263A; border-radius: 12px; padding: 6px 8px;">
+<button class="ib" type="button" onClick="{{ft.mute}}" aria-label="Silenciar {{ft.name}}" style="width: 40px; height: 40px; border: 0; border-radius: 8px; background: transparent; color: #F2F2F8; display: flex; align-items: center; justify-content: center;"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4zM15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14"></path></svg></button>
+<input class="vol" type="range" min="0" max="100" value="{{ft.vol}}" onChange="{{ft.setVol}}" aria-label="Volume de {{ft.name}}" style="width: 140px; background: {{ft.volFill}};">
+<span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #A0A0B8;">{{ft.vol}}%</span>
+<span style="flex-grow: 1;"></span>
+<button class="ib" type="button" onClick="{{setGrid}}" aria-label="Voltar para a grade" style="min-height: 40px; display: flex; align-items: center; gap: 6px; padding: 0 12px; border: 0; border-radius: 8px; background: transparent; color: #F2F2F8; font-size: 13px; font-weight: 600;"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="8" height="8" rx="1"></rect><rect x="13" y="3" width="8" height="8" rx="1"></rect><rect x="3" y="13" width="8" height="8" rx="1"></rect><rect x="13" y="13" width="8" height="8" rx="1"></rect></svg>Grade</button>
+<button class="ib" type="button" aria-label="Tela cheia" style="width: 40px; height: 40px; border: 0; border-radius: 8px; background: transparent; color: #F2F2F8; display: flex; align-items: center; justify-content: center;"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3M21 8V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3M16 21h3a2 2 0 0 0 2-2v-3"></path></svg></button>
+</div>
+</section>
+<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px;">
+<sc-for list="{{others}}" as="o" hint-placeholder-count="2">
+<button type="button" onClick="{{o.focus}}" aria-label="Destacar {{o.name}}" style="position: relative; aspect-ratio: 16 / 9; border-radius: 12px; overflow: hidden; background: {{o.bg}}; border: 1px solid #1E1E2E; color: #F2F2F8; padding: 0;">
+<span style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: #55556E; font-size: 12px;">{{o.placeholder}}</span>
+<span style="position: absolute; left: 8px; bottom: 8px; display: flex; align-items: center; gap: 6px; background: rgba(10,10,18,.8); border-radius: 999px; padding: 4px 9px 4px 7px; font-size: 12px; font-weight: 600;"><span style="width: 6px; height: 6px; border-radius: 50%; background: {{o.dot}};"></span>{{o.name}}</span>
+</button>
+</sc-for>
+</div>
+</div>
+</sc-if>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"layout":{"editor":"enum","options":["grid","focus"],"default":"grid"},"$preview":{"width":1280,"height":880}}'>
+class Component extends DCLogic {
+  navProps() {
+    var self = this;
+    var w = (this.state || {}).navW ?? 264;
+    var clamp = function (v) { return Math.max(216, Math.min(360, Math.round(v))); };
+    var collapsed = !!(this.state || {}).navCollapsed;
+    return {
+      w: collapsed ? 72 : w,
+      cls: collapsed ? 'collapsed' : '',
+      toggleLabel: collapsed ? 'Expandir menu' : 'Recolher menu',
+      expanded: collapsed ? 'false' : 'true',
+      toggle: function () { self.setState({ navCollapsed: !collapsed }); },
+      setRef: function (el) { self.navEl = el; },
+      reset: function () { self.setState({ navW: 264 }); },
+      key: function (e) {
+        if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+        e.preventDefault();
+        self.setState({ navW: clamp(w + (e.key === 'ArrowRight' ? 16 : -16)) });
+      },
+      start: function (e) {
+        e.preventDefault();
+        var left = self.navEl ? self.navEl.getBoundingClientRect().left : 0;
+        var doc = e.currentTarget.ownerDocument;
+        var move = function (ev) { self.setState({ navW: clamp(ev.clientX - left) }); };
+        var up = function () {
+          doc.removeEventListener('pointermove', move);
+          doc.removeEventListener('pointerup', up);
+          doc.body.style.cursor = '';
+        };
+        doc.addEventListener('pointermove', move);
+        doc.addEventListener('pointerup', up);
+        doc.body.style.cursor = 'col-resize';
+      }
+    };
+  }
+  renderVals() {
+    var self = this;
+    var st = this.state || {};
+    var layout = st.layout ?? (this.props.layout ?? 'grid');
+    var base = [
+      { id: 'guma', name: 'Guma', initials: 'GU', viewers: 4, latency: '38 ms', vol: 80, bg: '#0F1424', locked: false },
+      { id: 'lia', name: 'Lia', initials: 'LI', viewers: 2, latency: '42 ms', vol: 65, bg: '#17101F', locked: false },
+      { id: 'rafa', name: 'Rafa', initials: 'RA', viewers: 1, latency: '51 ms', vol: 80, bg: '#0E1A17', locked: true }
+    ];
+    var pool = {
+      teco: { id: 'teco', name: 'Teco', initials: 'TE', viewers: 2, latency: '47 ms', vol: 80, bg: '#1C160E', locked: false }
+    };
+    var list = st.tiles ?? base;
+    var unlocked = st.unlocked || {};
+    var vols = st.vols || {};
+    var setVol = function (id, v) { var m = Object.assign({}, vols); m[id] = v; self.setState({ vols: m }); };
+    var focusedId = st.focused ?? (list[0] ? list[0].id : null);
+    var save = function (patch) { self.setState(patch); };
+    var tiles = list.map(function (t) {
+      var locked = t.locked && !unlocked[t.id];
+      var vol = vols[t.id] ?? t.vol;
+      return Object.assign({}, t, {
+        vol: vol,
+        volFill: 'linear-gradient(to right, #6D4AFF ' + vol + '%, #2A2A3E ' + vol + '%)',
+        setVol: function (e) { setVol(t.id, Number(e.target.value)); },
+        mute: function () { setVol(t.id, vol > 0 ? 0 : t.vol); },
+        live: !locked,
+        locked: locked,
+        showCls: t.id === 'guma' ? 'show' : '',
+        focus: function () { if (!locked) save({ layout: 'focus', focused: t.id }); },
+        close: function () {
+          var rest = list.filter(function (x) { return x.id !== t.id; });
+          save({ tiles: rest, layout: rest.length < 2 ? 'grid' : layout, focused: focusedId === t.id ? null : focusedId });
+        },
+        unlock: function () { var u = Object.assign({}, unlocked); u[t.id] = true; save({ unlocked: u }); }
+      });
+    });
+    var openIds = list.map(function (t) { return t.id; });
+    var savedRaw = [
+      { id: 'guma', name: 'Guma', initials: 'GU', color: '#2B4A7A', on: true, viewers: 4 },
+      { id: 'lia', name: 'Lia', initials: 'LI', color: '#5A2E6E', on: true, viewers: 2 },
+      { id: 'rafa', name: 'Rafa', initials: 'RA', color: '#1F5A4A', on: true, viewers: 1 },
+      { id: 'teco', name: 'Teco', initials: 'TE', color: '#6A4A1E', on: true, viewers: 2 },
+      { id: 'bia', name: 'Bia', initials: 'BI', color: '#3A3A4E', on: false, viewers: 0 }
+    ];
+    var saved = savedRaw.map(function (s) {
+      var open = openIds.indexOf(s.id) >= 0;
+      var src = base.filter(function (b) { return b.id === s.id; })[0] || pool[s.id];
+      return {
+        name: s.name, initials: s.initials, color: s.color,
+        status: s.on ? 'Ativa · ' + s.viewers + ' assistindo' : 'Offline',
+        statusColor: s.on ? '#3DDC97' : '#8A8AA3',
+        btn: open ? 'Aberta' : 'Assistir',
+        btnFg: open || !s.on ? '#8A8AA3' : '#F2F2F8',
+        disabled: open || !s.on,
+        add: function () { if (!open && s.on && src) save({ tiles: list.concat([src]), addOpen: false }); }
+      };
+    });
+    var ft = tiles.filter(function (t) { return t.id === focusedId && t.live; })[0] || tiles.filter(function (t) { return t.live; })[0] || null;
+    var isFocus = layout === 'focus' && !!ft && tiles.length > 1;
+    var others = tiles.filter(function (t) { return !ft || t.id !== ft.id; }).map(function (t) {
+      return { name: t.name, bg: t.bg, focus: t.focus, dot: t.locked ? '#F5CA7B' : '#3DDC97', placeholder: t.locked ? 'Senha necessária' : '[vídeo de ' + t.name + ']' };
+    });
+    var n = tiles.length;
+    var addOpen = !!st.addOpen;
+    return {
+      nav: this.navProps(),
+      tiles: tiles,
+      tileCount: String(n),
+      empty: n === 0,
+      cols: n <= 1 ? 1 : (n <= 4 ? 2 : 3),
+      showAddSlot: n > 0 && n % 2 === 1,
+      isGrid: !isFocus && n > 0,
+      isFocus: isFocus,
+      ft: ft || { name: '', bg: '#0A0A12', viewers: 0, latency: '', vol: 0 },
+      others: others,
+      saved: saved,
+      addOpen: addOpen,
+      addExpanded: addOpen ? 'true' : 'false',
+      toggleAdd: function () { save({ addOpen: !addOpen }); },
+      setGrid: function () { save({ layout: 'grid' }); },
+      setFocusFirst: function () { save({ layout: 'focus' }); },
+      gridPressed: isFocus ? 'false' : 'true',
+      focusPressed: isFocus ? 'true' : 'false',
+      gridBg: isFocus ? 'transparent' : '#23233A',
+      gridFg: isFocus ? '#A0A0B8' : '#F2F2F8',
+      focusBg: isFocus ? '#23233A' : 'transparent',
+      focusFg: isFocus ? '#F2F2F8' : '#A0A0B8'
+    };
+  }
+}
+</script>
+</body>
+</html>

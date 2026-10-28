@@ -152,7 +152,7 @@ public sealed class Multiview
         string C(string key) => TryColor(key) is { } c ? $"#{c.R:X2}{c.G:X2}{c.B:X2}" : "";
         var vars = new Dictionary<string, string>
         {
-            ["bg"] = C("Bg"), ["surface"] = C("Surface"), ["raised"] = C("Surface2"), ["line"] = C("Line"), ["text"] = C("Text"),
+            ["bg"] = C("Bg"), ["surface"] = C("Surface"), ["raised"] = C("Surface2"), ["line"] = C("Line"), ["control"] = C("Control"), ["text"] = C("Text"),
             ["muted"] = C("Muted"), ["accent"] = C("Accent"), ["onaccent"] = C("OnAccent"), ["ok"] = C("Ok"), ["danger"] = C("Danger"), ["warn"] = C("Warn"),
         };
         return new { cmd = "theme", dark = ThemeManager.IsDark, vars = vars.Where(kv => kv.Value.Length > 0).ToDictionary(kv => kv.Key, kv => kv.Value) };
